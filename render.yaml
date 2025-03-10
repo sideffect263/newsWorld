@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: newsworld
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: NEWS_API_KEY
+        sync: false
+      - key: MEDIASTACK_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: PORT
+        value: 10000 

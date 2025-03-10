@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsWorld - News</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div id="loading" class="loading d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Include common header -->
+    <div id="header"></div>
+
+    <div class="container py-4">
+        <!-- Filter Bar -->
+        <div class="filter-bar mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search news...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="general">General</option>
+                        <option value="business">Business</option>
+                        <option value="technology">Technology</option>
+                        <option value="science">Science</option>
+                        <option value="health">Health</option>
+                        <option value="sports">Sports</option>
+                        <option value="entertainment">Entertainment</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="countryFilter">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="languageFilter">
+                        <option value="">All Languages</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Grid -->
+        <div class="row" id="newsGrid">
+            <!-- News articles will be dynamically added here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/news.js"></script>
+</body>
+</html>

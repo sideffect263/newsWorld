@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsWorld Source Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles/main.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .source-card {
+            transition: transform 0.2s;
+        }
+        .source-card:hover {
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .source-actions {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .filter-bar {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Include common header -->
+    <div id="header"></div>
+
+    <div class="container py-4">
+        <!-- Explanation Section -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> How to Manage News Sources
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#explanationContent">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+            <div class="collapse show" id="explanationContent">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-plus-circle"></i> Adding a New Source</h6>
+                            <ol class="mb-4">
+                                <li>Click the "Add Source" button in the top-right corner</li>
+                                <li>Fill in the required information:
+                                    <ul>
+                                        <li><strong>Name:</strong> A descriptive name for the source</li>
+                                        <li><strong>URL:</strong> The main website URL</li>
+                                        <li><strong>Category:</strong> The primary news category</li>
+                                        <li><strong>Country & Language:</strong> Source's origin and language</li>
+                                    </ul>
+                                </li>
+                                <li>Choose a fetch method:
+                                    <ul>
+                                        <li><strong>RSS Feed:</strong> Provide the RSS feed URL</li>
+                                        <li><strong>API:</strong> Configure API settings in JSON format</li>
+                                        <li><strong>Web Scraping:</strong> The system will scrape the website</li>
+                                    </ul>
+                                </li>
+                                <li>Toggle "Active" to enable/disable the source</li>
+                                <li>Click "Save Source" to add it to the system</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-gear"></i> Managing Sources</h6>
+                            <ul class="mb-4">
+                                <li><strong>Test Source:</strong> <i class="bi bi-play-fill"></i> - Verify the source configuration</li>
+                                <li><strong>Edit Source:</strong> <i class="bi bi-pencil"></i> - Modify settings</li>
+                                <li><strong>Delete Source:</strong> <i class="bi bi-trash"></i> - Remove from system</li>
+                            </ul>
+
+                            <h6><i class="bi bi-funnel"></i> Filtering Sources</h6>
+                            <ul>
+                                <li>Use the search bar to find sources by name or URL</li>
+                                <li>Filter by category, country, language, or status</li>
+                                <li>Active sources are marked with a green badge</li>
+                                <li>Inactive sources are marked with a red badge</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-lightbulb"></i> <strong>Tip:</strong> 
+                        For RSS feeds, look for RSS/Atom feed links on the news website, usually marked with <i class="bi bi-rss"></i> icon.
+                        Test the source after adding to ensure proper configuration.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search sources...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="general">General</option>
+                        <option value="business">Business</option>
+                        <option value="technology">Technology</option>
+                        <option value="science">Science</option>
+                        <option value="health">Health</option>
+                        <option value="sports">Sports</option>
+                        <option value="entertainment">Entertainment</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="countryFilter">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="languageFilter">
+                        <option value="">All Languages</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sources Grid -->
+        <div class="row" id="sourcesGrid">
+            <!-- Sources will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Add/Edit Source Modal -->
+    <div class="modal fade" id="sourceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sourceModalTitle">Add New Source</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sourceForm">
+                        <input type="hidden" id="sourceId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" id="sourceName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">URL</label>
+                                <input type="url" class="form-control" id="sourceUrl" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="sourceCategory" required>
+                                    <option value="general">General</option>
+                                    <option value="business">Business</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="science">Science</option>
+                                    <option value="health">Health</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="entertainment">Entertainment</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Country</label>
+                                <select class="form-select" id="sourceCountry" required>
+                                    <!-- Will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Language</label>
+                                <select class="form-select" id="sourceLanguage" required>
+                                    <!-- Will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fetch Method</label>
+                                <select class="form-select" id="sourceFetchMethod" required>
+                                    <option value="rss">RSS Feed</option>
+                                    <option value="api">API</option>
+                                    <option value="scrape">Web Scraping</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Feed URL</label>
+                                <input type="url" class="form-control" id="sourceFeedUrl">
+                                <small class="text-muted">Required for RSS feeds</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">API Configuration</label>
+                                <textarea class="form-control" id="sourceApiConfig" rows="3" placeholder="Enter API configuration in JSON format"></textarea>
+                                <small class="text-muted">Required for API sources</small>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="sourceActive" checked>
+                                    <label class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSourceBtn">Save Source</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Source</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this source? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/sources.js"></script>
+</body>
+</html>

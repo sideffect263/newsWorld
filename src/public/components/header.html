@@ -1,0 +1,76 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary main-header fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-newspaper"></i> NewsWorld
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/news" id="nav-news">
+                        <i class="bi bi-journal-text"></i> News
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sources" id="nav-sources">
+                        <i class="bi bi-collection"></i> Sources
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/status" id="nav-status">
+                        <i class="bi bi-speedometer2"></i> Status
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-light" id="refreshBtn">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button type="button" class="btn btn-light" id="actionBtn">
+                        <i class="bi bi-plus-lg"></i> <span id="actionBtnText">Add</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Set active nav item based on current page
+    document.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname;
+        const navItems = {
+            '/news': 'nav-news',
+            '/sources': 'nav-sources',
+            '/status': 'nav-status'
+        };
+
+        // Remove active class from all nav items
+        document.querySelectorAll('.nav-link').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Add active class to current page's nav item
+        const currentNavItem = navItems[path];
+        if (currentNavItem) {
+            document.getElementById(currentNavItem).classList.add('active');
+        }
+
+        // Update action button based on current page
+        const actionBtn = document.getElementById('actionBtn');
+        const actionBtnText = document.getElementById('actionBtnText');
+        
+        if (path === '/sources') {
+            actionBtnText.textContent = 'Add Source';
+            actionBtn.style.display = 'inline-block';
+        } else if (path === '/news') {
+            actionBtnText.textContent = 'Add Article';
+            actionBtn.style.display = 'inline-block';
+        } else {
+            actionBtn.style.display = 'none';
+        }
+    });
+</script> 

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsWorld Server Status</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-good {
+            background-color: #28a745;
+        }
+        .status-warning {
+            background-color: #ffc107;
+        }
+        .status-error {
+            background-color: #dc3545;
+        }
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .refresh-btn {
+            cursor: pointer;
+        }
+        .navbar-brand {
+            font-weight: 700;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Include common header -->
+    <div id="header"></div>
+
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-server"></i> Server Status</span>
+                        <span id="serverStatusIndicator" class="status-indicator"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Platform</div>
+                                <div id="platform" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Node Version</div>
+                                <div id="nodeVersion" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Uptime</div>
+                                <div id="uptime" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">CPU Cores</div>
+                                <div id="cpuCores" class="metric-value">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-hdd-network"></i> Database Status</span>
+                        <span id="dbStatusIndicator" class="status-indicator"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Connection</div>
+                                <div id="dbConnection" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Host</div>
+                                <div id="dbHost" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Database</div>
+                                <div id="dbName" class="metric-value">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-speedometer2"></i> System Resources
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Memory Usage</label>
+                            <div class="progress" style="height: 20px;">
+                                <div id="memoryUsageBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CPU Load Average</label>
+                            <div class="progress" style="height: 20px;">
+                                <div id="cpuLoadBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-clock-history"></i> Scheduler Status
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Status</div>
+                                <div id="schedulerStatus" class="metric-value">-</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="metric-label">Schedule</div>
+                                <div id="schedulerSchedule" class="metric-value">-</div>
+                            </div>
+                        </div>
+                        <div id="adminControls" class="d-none">
+                            <hr>
+                            <button id="triggerFetchBtn" class="btn btn-primary">
+                                <i class="bi bi-cloud-download"></i> Trigger Manual Fetch
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-bar-chart"></i> Content Statistics
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 col-6 mb-3 text-center">
+                                <div class="metric-label">Articles</div>
+                                <div id="articleCount" class="metric-value">-</div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3 text-center">
+                                <div class="metric-label">Sources</div>
+                                <div id="sourceCount" class="metric-value">-</div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3 text-center">
+                                <div class="metric-label">Active Sources</div>
+                                <div id="activeSourceCount" class="metric-value">-</div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3 text-center">
+                                <div class="metric-label">Users</div>
+                                <div id="userCount" class="metric-value">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-graph-up"></i> Articles Per Day (Last 30 Days)
+                    </div>
+                    <div class="card-body">
+                        <canvas id="articlesChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-list-stars"></i> Latest Articles
+                    </div>
+                    <div class="card-body">
+                        <ul id="latestArticlesList" class="list-group list-group-flush">
+                            <li class="list-group-item text-center">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-trophy"></i> Top Articles
+                    </div>
+                    <div class="card-body">
+                        <ul id="topArticlesList" class="list-group list-group-flush">
+                            <li class="list-group-item text-center">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-4">
+        <div class="container text-center">
+            <p class="mb-0">NewsWorld Server Status | Last Updated: <span id="lastUpdated">-</span></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/status.js"></script>
+</body>
+</html>
