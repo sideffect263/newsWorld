@@ -1,98 +1,278 @@
 const cron = require('node-cron');
 const newsFetcher = require('./newsFetcher');
+const Source = require('../models/source.model');
 
-// Initialize scheduled tasks
-let fetchNewsTask;
-let currentSchedule = null;
+// Initialize scheduled tasks and next scan times
+const tasks = {
+  rss: null,
+  api: null,
+  scraping: null
+};
+
+const nextScanTimes = {
+  rss: null,
+  api: null,
+  scraping: null
+};
+
+// Default schedules for different source types
+const defaultSchedules = {
+  rss: '*/15 * * * *',      // Every 15 minutes
+  api: '*/30 * * * *',      // Every 30 minutes
+  scraping: '0 * * * *'     // Every hour
+};
+
+/**
+ * Calculate next scan time from cron schedule
+ */
+const calculateNextScanTime = (schedule) => {
+  try {
+    const now = new Date();
+    const parts = schedule.split(' ');
+    if (parts.length !== 5) return null;
+
+    const [minute, hour, day, month, weekday] = parts;
+    
+    // Create next date
+    const next = new Date(now);
+    
+    // Handle different schedule patterns
+    if (minute === '*' && hour === '*') {
+      // Every minute
+      next.setMinutes(next.getMinutes() + 1);
+    } else if (minute.startsWith('*/')) {
+      // Every X minutes
+      const interval = parseInt(minute.split('/')[1]);
+      next.setMinutes(Math.ceil(next.getMinutes() / interval) * interval);
+    } else if (minute === '0' && hour === '*') {
+      // Every hour
+      next.setHours(next.getHours() + 1);
+      next.setMinutes(0);
+    } else {
+      // Specific minute and hour
+      const targetMinute = minute === '*' ? 0 : parseInt(minute);
+      const targetHour = hour === '*' ? next.getHours() : parseInt(hour);
+      
+      next.setHours(targetHour);
+      next.setMinutes(targetMinute);
+      
+      // If the calculated time is in the past, move to the next occurrence
+      if (next <= now) {
+        if (minute === '*' && hour !== '*') {
+          next.setHours(next.getHours() + 1);
+          next.setMinutes(0);
+        } else if (hour === '*' && minute !== '*') {
+          next.setMinutes(next.getMinutes() + 60);
+        } else {
+          next.setDate(next.getDate() + 1);
+        }
+      }
+    }
+    
+    return next;
+  } catch (error) {
+    console.error(`Error calculating next scan time for schedule ${schedule}:`, error);
+    return null;
+  }
+};
+
+/**
+ * Get detailed scheduling information
+ */
+exports.getDetailedScheduleInfo = async () => {
+  const sources = await Source.find({ isActive: true });
+  
+  const scheduleInfo = {
+    methods: {},
+    sources: []
+  };
+
+  // Group sources by fetch method
+  const sourceGroups = {
+    rss: sources.filter(s => s.fetchMethod === 'rss'),
+    api: sources.filter(s => s.fetchMethod === 'api'),
+    scraping: sources.filter(s => s.fetchMethod === 'scraping')
+  };
+
+  // Get info for each method
+  for (const [method, sources] of Object.entries(sourceGroups)) {
+    const schedule = defaultSchedules[method];
+    const nextScan = calculateNextScanTime(schedule);
+    
+    scheduleInfo.methods[method] = {
+      schedule,
+      nextScan: nextScan ? nextScan.toISOString() : null,
+      isRunning: !!tasks[method],
+      sourceCount: sources.length
+    };
+
+    // Add individual source info
+    sources.forEach(source => {
+      scheduleInfo.sources.push({
+        id: source._id,
+        name: source.name,
+        method: method,
+        schedule: schedule,
+        nextScan: nextScan ? nextScan.toISOString() : null,
+        lastFetched: source.lastFetchedAt ? source.lastFetchedAt.toISOString() : null,
+        fetchStatus: source.fetchStatus,
+        fetchFrequency: source.fetchFrequency
+      });
+    });
+  }
+
+  return scheduleInfo;
+};
 
 /**
  * Start the news fetching scheduler
- * @param {string} schedule - Cron schedule expression (default: every 30 minutes)
  */
-exports.startNewsScheduler = (schedule = '*/30 * * * *') => {
-  // Validate cron expression
-  if (!cron.validate(schedule)) {
-    console.error(`Invalid cron schedule: ${schedule}`);
+exports.startNewsScheduler = async () => {
+  try {
+    // Get all active sources
+    const sources = await Source.find({ isActive: true });
+    
+    // Group sources by fetch method
+    const sourceGroups = {
+      rss: sources.filter(s => s.fetchMethod === 'rss'),
+      api: sources.filter(s => s.fetchMethod === 'api'),
+      scraping: sources.filter(s => s.fetchMethod === 'scraping')
+    };
+
+    // Start schedulers for each group
+    for (const [method, sources] of Object.entries(sourceGroups)) {
+      if (sources.length > 0) {
+        await startMethodScheduler(method, sources);
+      }
+    }
+
+    console.log('All news schedulers started successfully');
+    return true;
+  } catch (error) {
+    console.error('Error starting news schedulers:', error);
     return false;
   }
+};
 
-  // Stop any existing task
-  if (fetchNewsTask) {
-    this.stopNewsScheduler();
-  }
-
-  console.log(`Starting news scheduler with schedule: ${schedule}`);
-  currentSchedule = schedule;
-
-  // Schedule the task
-  fetchNewsTask = cron.schedule(schedule, async () => {
-    console.log(`Running scheduled news fetch at ${new Date().toISOString()}`);
-    
-    try {
-      const result = await newsFetcher.fetchAllNews();
-      console.log(`Fetch result: ${result.message}`);
-    } catch (error) {
-      console.error('Error during scheduled news fetch:', error);
+/**
+ * Start scheduler for a specific fetch method
+ */
+const startMethodScheduler = async (method, sources) => {
+  try {
+    // Stop existing task if any
+    if (tasks[method]) {
+      tasks[method].stop();
+      tasks[method] = null;
     }
-  });
 
-  // Run immediately on startup
-  newsFetcher.fetchAllNews()
-    .then(result => {
-      console.log(`Initial fetch completed: ${result.message}`);
-    })
-    .catch(error => {
-      console.error('Error in initial news fetch:', error);
-    });
+    const schedule = defaultSchedules[method];
+    console.log(`Starting ${method} scheduler with schedule: ${schedule}`);
 
-  return true;
+    // Calculate and store next scan time
+    nextScanTimes[method] = calculateNextScanTime(schedule);
+
+    // Create the fetch function
+    const fetchFunction = async () => {
+      console.log(`Running ${method} fetch at ${new Date().toISOString()}`);
+      try {
+        // Force fetch regardless of frequency for initial run
+        const result = await newsFetcher.fetchAllNews({ 
+          fetchMethod: method,
+          forceFetch: true // Add this option to newsFetcher
+        });
+        console.log(`${method} fetch result: ${result.message}`);
+        // Update next scan time after successful fetch
+        nextScanTimes[method] = calculateNextScanTime(schedule);
+        console.log(`Next scan for ${method} scheduled at: ${nextScanTimes[method].toISOString()}`);
+      } catch (error) {
+        console.error(`Error during ${method} fetch:`, error);
+      }
+    };
+
+    // Schedule the task
+    tasks[method] = cron.schedule(schedule, fetchFunction);
+
+    // Run initial fetch
+    await fetchFunction();
+    console.log(`Initial ${method} fetch completed`);
+  } catch (error) {
+    console.error(`Error starting ${method} scheduler:`, error);
+    throw error;
+  }
 };
 
 /**
  * Stop the news fetching scheduler
  */
 exports.stopNewsScheduler = () => {
-  if (fetchNewsTask) {
-    fetchNewsTask.stop();
-    fetchNewsTask = null;
-    currentSchedule = null;
-    console.log('News scheduler stopped');
-    return true;
+  let stopped = false;
+  
+  for (const [method, task] of Object.entries(tasks)) {
+    if (task) {
+      task.stop();
+      tasks[method] = null;
+      stopped = true;
+    }
   }
   
-  return false;
+  if (stopped) {
+    console.log('All news schedulers stopped');
+  }
+  
+  return stopped;
 };
 
 /**
  * Check if the scheduler is running
  */
 exports.isSchedulerRunning = () => {
-  return fetchNewsTask !== null;
+  return Object.values(tasks).some(task => task !== null);
 };
 
 /**
- * Get the current schedule
+ * Get the current schedules
  */
-exports.getCurrentSchedule = () => {
-  return currentSchedule;
+exports.getCurrentSchedules = () => {
+  return {
+    rss: tasks.rss ? defaultSchedules.rss : null,
+    api: tasks.api ? defaultSchedules.api : null,
+    scraping: tasks.scraping ? defaultSchedules.scraping : null
+  };
 };
 
 /**
- * Update the schedule
- * @param {string} schedule - New cron schedule expression
+ * Update schedule for a specific method
  */
-exports.updateSchedule = (schedule) => {
-  return this.startNewsScheduler(schedule);
+exports.updateSchedule = async (method, schedule) => {
+  if (!cron.validate(schedule)) {
+    console.error(`Invalid cron schedule: ${schedule}`);
+    return false;
+  }
+
+  try {
+    defaultSchedules[method] = schedule;
+    const sources = await Source.find({ isActive: true, fetchMethod: method });
+    
+    if (sources.length > 0) {
+      await startMethodScheduler(method, sources);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error(`Error updating schedule for ${method}:`, error);
+    return false;
+  }
 };
 
 /**
  * Run a manual fetch
  */
-exports.runManualFetch = async () => {
+exports.runManualFetch = async (method = null) => {
   console.log(`Running manual news fetch at ${new Date().toISOString()}`);
   
   try {
-    return await newsFetcher.fetchAllNews();
+    return await newsFetcher.fetchAllNews(method ? { fetchMethod: method } : null);
   } catch (error) {
     console.error('Error in manual news fetch:', error);
     throw error;

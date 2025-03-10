@@ -9,10 +9,12 @@ const {
   getArticlesStats,
   triggerManualFetch,
   updateSchedule,
+  getSchedulerStatusPage,
 } = require('../controllers/status.controller');
 
 // Public routes
 router.get('/', getStatusPage);
+router.get('/scheduler', getSchedulerStatusPage);
 router.get('/data', getStatusData);
 router.get('/sources', getSourcesStatus);
 router.get('/articles', getArticlesStats);

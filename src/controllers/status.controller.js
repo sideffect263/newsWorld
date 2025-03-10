@@ -14,6 +14,13 @@ exports.getStatusPage = (req, res) => {
   res.sendFile(path.join(__dirname, '../public/status.html'));
 };
 
+// @desc    Serve the scheduler status page HTML
+// @route   GET /status/scheduler
+// @access  Public
+exports.getSchedulerStatusPage = (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/scheduler-status.html'));
+};
+
 // @desc    Get server status data
 // @route   GET /status/data
 // @access  Public
@@ -39,10 +46,11 @@ exports.getStatusData = async (req, res, next) => {
       name: mongoose.connection.name,
     };
 
-    // Get scheduler status
+    // Get detailed scheduler status
     const schedulerStatus = {
       running: scheduler.isSchedulerRunning(),
-      schedule: scheduler.getCurrentSchedule(),
+      schedules: scheduler.getCurrentSchedules(),
+      detailedInfo: await scheduler.getDetailedScheduleInfo()
     };
 
     // Get counts

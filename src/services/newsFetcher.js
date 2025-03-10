@@ -9,87 +9,60 @@ const rssParser = new RSSParser();
 /**
  * Fetch news from all active sources
  */
-exports.fetchAllNews = async () => {
+exports.fetchAllNews = async (options = {}) => {
   try {
-    console.log('Starting news fetch from all sources...');
+    const { fetchMethod, forceFetch = false } = options;
+    const query = { isActive: true };
     
-    // Get all active sources
-    const sources = await Source.find({ isActive: true });
-    
-    if (!sources.length) {
-      console.log('No active sources found');
-      return { success: false, message: 'No active sources found' };
+    if (fetchMethod) {
+      query.fetchMethod = fetchMethod;
     }
     
+    const sources = await Source.find(query);
     console.log(`Found ${sources.length} active sources`);
     
-    // Process each source
-    const results = [];
+    let fetchedCount = 0;
+    let skippedCount = 0;
     
     for (const source of sources) {
+      // Check if source is due for fetch
+      if (!forceFetch && !isSourceDueForFetch(source)) {
+        console.log(`Skipping ${source.name} - not due for fetch yet`);
+        skippedCount++;
+        continue;
+      }
+      
       try {
-        // Check if it's time to fetch from this source
-        const shouldFetch = !source.lastFetchedAt || 
-          (Date.now() - new Date(source.lastFetchedAt).getTime()) / (1000 * 60) >= source.fetchFrequency;
-        
-        if (!shouldFetch) {
-          console.log(`Skipping ${source.name} - not due for fetch yet`);
-          continue;
+        const result = await exports.fetchNewsFromSource(source._id);
+        if (result.success) {
+          fetchedCount++;
         }
-        
-        console.log(`Fetching news from ${source.name} (${source.fetchMethod})`);
-        
-        let fetchResult;
-        
-        // Fetch based on method
-        switch (source.fetchMethod) {
-          case 'api':
-            fetchResult = await fetchFromAPI(source);
-            break;
-          case 'rss':
-            fetchResult = await fetchFromRSS(source);
-            break;
-          case 'scraping':
-            fetchResult = await fetchFromScraping(source);
-            break;
-          default:
-            fetchResult = { success: false, message: 'Unknown fetch method' };
-        }
-        
-        // Update source with fetch status
-        await updateSourceFetchStatus(source._id, fetchResult);
-        
-        results.push({
-          source: source.name,
-          result: fetchResult,
-        });
-        
       } catch (error) {
-        console.error(`Error fetching from ${source.name}:`, error.message);
-        
-        // Update source with error status
-        await updateSourceFetchStatus(source._id, {
-          success: false,
-          message: error.message,
-        });
-        
-        results.push({
-          source: source.name,
-          result: { success: false, message: error.message },
-        });
+        console.error(`Error fetching from source ${source.name}:`, error);
       }
     }
     
     return {
       success: true,
-      message: `Completed fetch from ${results.length} sources`,
-      results,
+      message: `Completed fetch from ${fetchedCount} sources (${skippedCount} skipped)`
     };
-    
   } catch (error) {
     console.error('Error in fetchAllNews:', error);
-    return { success: false, message: error.message };
+    throw error;
   }
+};
+
+/**
+ * Check if a source is due for fetch
+ */
+const isSourceDueForFetch = (source) => {
+  if (!source.lastFetchedAt) return true;
+  
+  const now = new Date();
+  const lastFetch = new Date(source.lastFetchedAt);
+  const minutesSinceLastFetch = (now - lastFetch) / (1000 * 60);
+  
+  return minutesSinceLastFetch >= source.fetchFrequency;
 };
 
 /**

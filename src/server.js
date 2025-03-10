@@ -30,11 +30,12 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "cdn.jsdelivr.net"],
-      styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:", "cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:", "https://picsum.photos", "https://images.unsplash.com", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       connectSrc: ["'self'", "http://localhost:5000", "http://127.0.0.1:5000"],
-      fontSrc: ["'self'", "cdn.jsdelivr.net"],
+      fontSrc: ["'self'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       objectSrc: ["'none'"],
       mediaSrc: ["'none'"],
       frameSrc: ["'none'"],
@@ -55,6 +56,9 @@ app.use('/api', apiLimiter);
 app.use(express.static(path.join(__dirname, 'public'), {
   index: false // Disable automatic serving of index.html
 }));
+
+// Serve favicon
+app.use('/favicon', express.static(path.join(__dirname, 'public/favicon')));
 
 // Public routes (no authentication required)
 app.get('/login.html', (req, res) => {
