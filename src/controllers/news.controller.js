@@ -37,6 +37,24 @@ exports.getArticles = async (req, res, next) => {
       query.language = req.query.language;
     }
 
+    // Filter by sentiment if provided
+    if (req.query.sentiment) {
+      query.sentimentAssessment = req.query.sentiment;
+    }
+
+    // Filter by sentiment range if provided
+    if (req.query.minSentiment || req.query.maxSentiment) {
+      query.sentiment = {};
+      
+      if (req.query.minSentiment) {
+        query.sentiment.$gte = parseFloat(req.query.minSentiment);
+      }
+      
+      if (req.query.maxSentiment) {
+        query.sentiment.$lte = parseFloat(req.query.maxSentiment);
+      }
+    }
+
     // Filter by date range if provided
     if (req.query.startDate && req.query.endDate) {
       query.publishedAt = {

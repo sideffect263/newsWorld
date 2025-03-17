@@ -76,6 +76,11 @@ const articleSchema = new mongoose.Schema(
       max: 1,
       default: 0,
     },
+    sentimentAssessment: {
+      type: String,
+      enum: ['positive', 'neutral', 'negative'],
+      default: 'neutral'
+    },
     entities: [{
       name: String,
       type: {
@@ -113,11 +118,26 @@ articleSchema.virtual('age').get(function() {
   return Math.floor((Date.now() - this.publishedAt) / (1000 * 60 * 60));
 });
 
-// Pre-save hook to ensure categories are lowercase
+// Pre-save hook to ensure categories are lowercase and clean entities types
 articleSchema.pre('save', function(next) {
+  // Process categories
   if (this.categories && this.categories.length > 0) {
-    this.categories = this.categories.map(category => category.toLowerCase());
+    this.categories = this.categories
+      .filter(category => typeof category === 'string')
+      .map(category => category.toLowerCase());
   }
+  
+  // Ensure valid entity types
+  if (this.entities && this.entities.length > 0) {
+    this.entities = this.entities.map(entity => {
+      // Convert 'city' to 'location'
+      if (entity.type === 'city') {
+        entity.type = 'location';
+      }
+      return entity;
+    });
+  }
+  
   next();
 });
 

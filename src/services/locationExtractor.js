@@ -1,6 +1,17 @@
 const compromise = require('compromise');
 const countries = require('../data/countries.json');
 
+// Create a map for quick country name to code lookup
+const countryNameToCode = {};
+countries.forEach(country => {
+  countryNameToCode[country.name.toLowerCase()] = country.code;
+  if (country.alternateNames && country.alternateNames.length) {
+    country.alternateNames.forEach(altName => {
+      countryNameToCode[altName.toLowerCase()] = country.code;
+    });
+  }
+});
+
 /**
  * Extract locations from text using NLP
  * @param {String} text - The text to extract locations from
@@ -65,19 +76,19 @@ const extractCountries = (text, locations) => {
   countries.forEach(country => {
     // Check for the country name
     if (country.name && containsWord(lowerText, country.name.toLowerCase())) {
-      addLocation(locations, country.name, 'country', 0.8, 'dictionary');
+      addLocation(locations, country.name, 'country', 0.8, 'dictionary', country.code);
     }
     
     // Check for country code mentions (less confidence)
     if (country.code && new RegExp(`\\b${country.code.toLowerCase()}\\b`).test(lowerText)) {
-      addLocation(locations, country.name, 'country', 0.7, 'country_code');
+      addLocation(locations, country.name, 'country', 0.7, 'country_code', country.code);
     }
     
     // Check alternate names
     if (country.alternateNames && Array.isArray(country.alternateNames)) {
       country.alternateNames.forEach(altName => {
         if (containsWord(lowerText, altName.toLowerCase())) {
-          addLocation(locations, country.name, 'country', 0.75, 'alt_name');
+          addLocation(locations, country.name, 'country', 0.75, 'alt_name', country.code);
         }
       });
     }
@@ -107,7 +118,8 @@ const extractCities = (text, locations) => {
       
       // Avoid dates and other common false positives
       if (isLikelyCityName(cityName)) {
-        addLocation(locations, cityName, 'city', 0.6, 'pattern');
+        // Use 'location' type for cities since 'city' isn't a valid entity type in the schema
+        addLocation(locations, cityName, 'location', 0.6, 'pattern');
       }
     }
   });
@@ -120,8 +132,9 @@ const extractCities = (text, locations) => {
  * @param {String} locationType - Type of location (country, city, etc)
  * @param {Number} confidence - Confidence score
  * @param {String} source - Source of the extraction
+ * @param {String} countryCode - ISO country code (for countries only)
  */
-const addLocation = (locations, name, locationType, confidence, source) => {
+const addLocation = (locations, name, locationType, confidence, source, countryCode = null) => {
   const existing = locations.find(loc => loc.name.toLowerCase() === name.toLowerCase());
   
   if (existing) {
@@ -132,15 +145,24 @@ const addLocation = (locations, name, locationType, confidence, source) => {
       existing.confidence = confidence;
       existing.type = locationType;
       existing.source = source;
+      if (countryCode) {
+        existing.countryCode = countryCode;
+      }
     }
   } else {
-    locations.push({
+    const location = {
       name,
       type: locationType,
       count: 1,
       confidence,
       source
-    });
+    };
+    
+    if (countryCode) {
+      location.countryCode = countryCode;
+    }
+    
+    locations.push(location);
   }
 };
 
@@ -194,7 +216,7 @@ exports.extractLocationsFromFeedMetadata = (feedItem) => {
   if (feedItem.geo && feedItem.geo.point) {
     locations.push({
       name: `Location at ${feedItem.geo.point}`,
-      type: 'coordinate',
+      type: 'location',
       count: 1,
       confidence: 0.9,
       source: 'geo_tag',
@@ -206,7 +228,7 @@ exports.extractLocationsFromFeedMetadata = (feedItem) => {
   if (feedItem.lat && feedItem.long) {
     locations.push({
       name: `Location at ${feedItem.lat},${feedItem.long}`,
-      type: 'coordinate',
+      type: 'location',
       count: 1,
       confidence: 0.9,
       source: 'lat_long',
@@ -263,6 +285,15 @@ exports.normalizeLocations = (locations) => {
         confidence: location.confidence,
         sources: [location.source]
       };
+      
+      // Add country code if available
+      if (location.countryCode) {
+        locationMap[normalizedName].countryCode = location.countryCode;
+      }
+      // Try to find country code by name
+      else if (location.type === 'country' && countryNameToCode[normalizedName]) {
+        locationMap[normalizedName].countryCode = countryNameToCode[normalizedName];
+      }
     } else {
       // Combine info
       locationMap[normalizedName].count += location.count;
@@ -280,6 +311,16 @@ exports.normalizeLocations = (locations) => {
       if (!locationMap[normalizedName].sources.includes(location.source)) {
         locationMap[normalizedName].sources.push(location.source);
       }
+      
+      // Add country code if available
+      if (location.countryCode && !locationMap[normalizedName].countryCode) {
+        locationMap[normalizedName].countryCode = location.countryCode;
+      }
+    }
+    
+    // Ensure city type is converted to location type for compatibility with schema
+    if (locationMap[normalizedName].type === 'city') {
+      locationMap[normalizedName].type = 'location';
     }
   });
   

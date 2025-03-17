@@ -154,7 +154,14 @@ const analyzeKeywordTrends = async (articles, timeframe) => {
             articles: [],
             categories: {},
             sources: {},
-            countries: {}
+            countries: {},
+            sentiment: {
+              positive: 0,
+              neutral: 0,
+              negative: 0,
+              avgScore: 0,
+              totalScore: 0
+            }
           };
         }
         
@@ -164,6 +171,15 @@ const analyzeKeywordTrends = async (articles, timeframe) => {
         // Track article ID to avoid duplicates
         if (!keywordScores[term].articles.includes(article._id.toString())) {
           keywordScores[term].articles.push(article._id.toString());
+          
+          // Track sentiment if available
+          if (article.sentimentAssessment) {
+            keywordScores[term].sentiment[article.sentimentAssessment] += 1;
+          }
+          
+          if (typeof article.sentiment === 'number') {
+            keywordScores[term].sentiment.totalScore += article.sentiment;
+          }
         }
         
         // Track categories
@@ -191,6 +207,14 @@ const analyzeKeywordTrends = async (articles, timeframe) => {
       });
       
       processedArticles.push(article._id);
+    });
+    
+    // Calculate average sentiment for each keyword
+    Object.values(keywordScores).forEach(keyword => {
+      const articleCount = keyword.articles.length;
+      if (articleCount > 0) {
+        keyword.sentiment.avgScore = keyword.sentiment.totalScore / articleCount;
+      }
     });
     
     // Convert to array and sort by score
@@ -229,7 +253,8 @@ const saveKeywordTrends = async (keywords, timeframe) => {
         articles,
         categories,
         sources,
-        countries
+        countries,
+        sentiment
       } = keywordData;
       
       // Format data for database
@@ -256,7 +281,13 @@ const saveKeywordTrends = async (keywords, timeframe) => {
               categories: categoriesArray,
               sources: sourcesArray,
               countries: countriesArray,
-              lastSeenAt: new Date()
+              lastSeenAt: new Date(),
+              sentiment: {
+                positive: sentiment?.positive || 0,
+                neutral: sentiment?.neutral || 0,
+                negative: sentiment?.negative || 0,
+                avgScore: sentiment?.avgScore || 0
+              }
             },
             $setOnInsert: {
               firstSeenAt: new Date(),
@@ -432,7 +463,13 @@ const processEntity = (name, type, entityMap, article, count = 1) => {
       articles: [],
       categories: {},
       sources: {},
-      countries: {}
+      countries: {},
+      sentiment: {
+        positive: 0,
+        neutral: 0,
+        negative: 0,
+        totalScore: 0
+      }
     };
   }
   
@@ -441,6 +478,15 @@ const processEntity = (name, type, entityMap, article, count = 1) => {
   // Track article ID to avoid duplicates
   if (!entityMap[normalizedName].articles.includes(article._id.toString())) {
     entityMap[normalizedName].articles.push(article._id.toString());
+    
+    // Track sentiment if available
+    if (article.sentimentAssessment) {
+      entityMap[normalizedName].sentiment[article.sentimentAssessment] += 1;
+    }
+    
+    if (typeof article.sentiment === 'number') {
+      entityMap[normalizedName].sentiment.totalScore += article.sentiment;
+    }
   }
   
   // Track categories
@@ -480,8 +526,15 @@ const saveEntityTrends = async (entities, entityType, timeframe) => {
         articles,
         categories,
         sources,
-        countries
+        countries,
+        sentiment
       } = entityData;
+      
+      // Calculate average sentiment if possible
+      let avgSentiment = 0;
+      if (sentiment && articles.length > 0) {
+        avgSentiment = sentiment.totalScore / articles.length;
+      }
       
       // Format data for database
       const categoriesArray = Object.keys(categories || {});
@@ -505,7 +558,13 @@ const saveEntityTrends = async (entities, entityType, timeframe) => {
               categories: categoriesArray,
               sources: sourcesArray,
               countries: countriesArray,
-              lastSeenAt: new Date()
+              lastSeenAt: new Date(),
+              sentiment: {
+                positive: sentiment?.positive || 0,
+                neutral: sentiment?.neutral || 0,
+                negative: sentiment?.negative || 0,
+                avgScore: avgSentiment
+              }
             },
             $setOnInsert: {
               firstSeenAt: new Date()

@@ -4,6 +4,7 @@ const Source = require('../models/source.model');
 const Article = require('../models/article.model');
 const trendAnalyzer = require('./trendAnalyzer');
 const locationExtractor = require('./locationExtractor');
+const sentimentAnalyzer = require('./sentimentAnalyzer');
 
 // Initialize RSS parser
 const rssParser = new RSSParser();
@@ -213,15 +214,30 @@ const fetchFromRSS = async (source) => {
       const allLocations = [...metadataLocations, ...contentLocations];
       const normalizedLocations = locationExtractor.normalizeLocations(allLocations);
       
-      // Extract top countries from locations
+      // Extract top countries using country codes
       const extractedCountries = normalizedLocations
-        .filter(loc => loc.type === 'country' && loc.confidence >= 0.7)
-        .map(loc => loc.name);
+        .filter(loc => loc.type === 'country' && loc.confidence >= 0.7 && loc.countryCode)
+        .map(loc => loc.countryCode);
       
       // Combine with source country if no countries found
       const countries = extractedCountries.length > 0 
         ? extractedCountries 
         : [source.country];
+      
+      // Analyze sentiment
+      const sentimentText = [
+        item.title || '',
+        item.contentSnippet || item.content || ''
+      ].join(' ');
+      
+      const sentimentResult = sentimentAnalyzer.analyzeSentiment(sentimentText);
+      let sentimentAssessment = 'neutral';
+      
+      if (sentimentResult.comparative >= 0.1) {
+        sentimentAssessment = 'positive';
+      } else if (sentimentResult.comparative <= -0.1) {
+        sentimentAssessment = 'negative';
+      }
       
       // Create article object
       return {
@@ -239,10 +255,13 @@ const fetchFromRSS = async (source) => {
         categories: item.categories || [source.category],
         countries: [...new Set(countries)], // Remove duplicates
         language: source.language,
+        // Add sentiment data
+        sentiment: sentimentResult.comparative,
+        sentimentAssessment: sentimentAssessment,
         // Add extracted locations as entities
         entities: normalizedLocations.map(loc => ({
           name: loc.name,
-          type: loc.type === 'country' ? 'location' : loc.type,
+          type: loc.type === 'country' ? 'location' : loc.type, // Ensure all entity types are valid
           count: loc.count
         }))
       };

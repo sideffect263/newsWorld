@@ -13,6 +13,7 @@ const sourcesRoutes = require('./routes/sources.routes');
 const userRoutes = require('./routes/user.routes');
 const statusRoutes = require('./routes/status.routes');
 const trendsRoutes = require('./routes/trends.routes');
+const sentimentRoutes = require('./routes/sentiment.routes');
 const scheduler = require('./services/scheduler');
 
 // Initialize express app
@@ -87,6 +88,7 @@ app.get('/', (req, res) => {
 app.use('/api/news', newsRoutes);
 app.use('/api/sources', sourcesRoutes);
 app.use('/api/trends', trendsRoutes);
+app.use('/api/sentiment', sentimentRoutes);
 app.use('/status', statusRoutes);
 
 // Serve source management page
@@ -97,6 +99,11 @@ app.get('/sources', (req, res) => {
 // Serve trends page
 app.get('/trends', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/trends.html'));
+});
+
+// Serve sentiment page
+app.get('/sentiment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/sentiment.html'));
 });
 
 // Health check endpoint

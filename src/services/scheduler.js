@@ -1,7 +1,9 @@
 const cron = require('node-cron');
 const newsFetcher = require('./newsFetcher');
 const Source = require('../models/source.model');
+const Article = require('../models/article.model');
 const trendAnalyzer = require('./trendAnalyzer');
+const sentimentAnalyzer = require('./sentimentAnalyzer');
 
 // Initialize scheduled tasks and next scan times
 const tasks = {
@@ -134,6 +136,9 @@ exports.startNewsScheduler = () => {
   
   // Schedule trend analysis jobs
   scheduleTrendAnalysis();
+  
+  // Schedule sentiment analysis jobs
+  scheduleSentimentAnalysis();
   
   console.log('News scheduler started');
 };
@@ -357,5 +362,65 @@ const scheduleTrendAnalysis = () => {
     console.log('Trend analysis scheduler started');
   } catch (error) {
     console.error('Error setting up trend analysis scheduler:', error);
+  }
+};
+
+/**
+ * Schedule sentiment analysis jobs
+ */
+const scheduleSentimentAnalysis = () => {
+  try {
+    // Update sentiment for missing articles - every 3 hours
+    cron.schedule('0 */3 * * *', async () => {
+      console.log('Running sentiment analysis update...');
+      try {
+        // Find articles from the past week that don't have sentiment analysis
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        
+        const articles = await Article.find({
+          publishedAt: { $gte: lastWeek },
+          $or: [
+            { sentiment: { $exists: false } },
+            { sentimentAssessment: { $exists: false } }
+          ]
+        }).limit(500);
+        
+        if (articles.length === 0) {
+          console.log('No articles found needing sentiment updates');
+          return;
+        }
+        
+        const result = await sentimentAnalyzer.updateSentimentForNewArticles(articles);
+        console.log(`Sentiment analysis update completed: ${result.count} articles updated`);
+      } catch (error) {
+        console.error('Error in sentiment analysis update job:', error);
+      }
+    });
+    
+    // Daily sentiment trends - once per day
+    cron.schedule('0 1 * * *', async () => {
+      console.log('Running daily sentiment trend analysis...');
+      try {
+        // Get start and end dates (past 3 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 3);
+        
+        const result = await sentimentAnalyzer.analyzeSentimentTrends({
+          startDate,
+          endDate,
+          updateArticles: true
+        });
+        
+        console.log(`Daily sentiment trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+      } catch (error) {
+        console.error('Error in daily sentiment trend analysis job:', error);
+      }
+    });
+    
+    console.log('Sentiment analysis scheduler started');
+  } catch (error) {
+    console.error('Error setting up sentiment analysis scheduler:', error);
   }
 };
