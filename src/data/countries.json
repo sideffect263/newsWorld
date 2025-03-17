@@ -1,0 +1,152 @@
+[
+  {
+    "name": "United States",
+    "code": "US",
+    "alternateNames": ["USA", "America", "U.S.", "U.S.A."]
+  },
+  {
+    "name": "United Kingdom",
+    "code": "GB",
+    "alternateNames": ["UK", "Britain", "Great Britain", "England"]
+  },
+  {
+    "name": "Canada",
+    "code": "CA",
+    "alternateNames": []
+  },
+  {
+    "name": "Australia",
+    "code": "AU",
+    "alternateNames": []
+  },
+  {
+    "name": "France",
+    "code": "FR",
+    "alternateNames": []
+  },
+  {
+    "name": "Germany",
+    "code": "DE",
+    "alternateNames": ["Deutschland"]
+  },
+  {
+    "name": "Japan",
+    "code": "JP",
+    "alternateNames": ["Nippon"]
+  },
+  {
+    "name": "China",
+    "code": "CN",
+    "alternateNames": ["PRC", "People's Republic of China"]
+  },
+  {
+    "name": "India",
+    "code": "IN",
+    "alternateNames": []
+  },
+  {
+    "name": "Brazil",
+    "code": "BR",
+    "alternateNames": ["Brasil"]
+  },
+  {
+    "name": "Russia",
+    "code": "RU",
+    "alternateNames": ["Russian Federation"]
+  },
+  {
+    "name": "Mexico",
+    "code": "MX",
+    "alternateNames": []
+  },
+  {
+    "name": "South Korea",
+    "code": "KR",
+    "alternateNames": ["Korea", "Republic of Korea"]
+  },
+  {
+    "name": "Italy",
+    "code": "IT",
+    "alternateNames": ["Italia"]
+  },
+  {
+    "name": "Spain",
+    "code": "ES",
+    "alternateNames": ["España"]
+  },
+  {
+    "name": "Turkey",
+    "code": "TR",
+    "alternateNames": ["Türkiye"]
+  },
+  {
+    "name": "Netherlands",
+    "code": "NL",
+    "alternateNames": ["Holland"]
+  },
+  {
+    "name": "Saudi Arabia",
+    "code": "SA",
+    "alternateNames": ["KSA"]
+  },
+  {
+    "name": "Switzerland",
+    "code": "CH",
+    "alternateNames": ["Schweiz", "Suisse", "Svizzera"]
+  },
+  {
+    "name": "Ukraine",
+    "code": "UA",
+    "alternateNames": []
+  },
+  {
+    "name": "Israel",
+    "code": "IL",
+    "alternateNames": []
+  },
+  {
+    "name": "South Africa",
+    "code": "ZA",
+    "alternateNames": ["RSA"]
+  },
+  {
+    "name": "Egypt",
+    "code": "EG",
+    "alternateNames": []
+  },
+  {
+    "name": "Sweden",
+    "code": "SE",
+    "alternateNames": []
+  },
+  {
+    "name": "Norway",
+    "code": "NO",
+    "alternateNames": []
+  },
+  {
+    "name": "New Zealand",
+    "code": "NZ",
+    "alternateNames": []
+  },
+  {
+    "name": "Singapore",
+    "code": "SG",
+    "alternateNames": []
+  },
+  {
+    "name": "United Arab Emirates",
+    "code": "AE",
+    "alternateNames": ["UAE"]
+  },
+  {
+    "name": "Ireland",
+    "code": "IE",
+    "alternateNames": []
+  },
+  {
+    "name": "Pakistan",
+    "code": "PK",
+    "alternateNames": []
+  }
+] 

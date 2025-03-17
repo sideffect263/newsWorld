@@ -12,6 +12,7 @@ const newsRoutes = require('./routes/news.routes');
 const sourcesRoutes = require('./routes/sources.routes');
 const userRoutes = require('./routes/user.routes');
 const statusRoutes = require('./routes/status.routes');
+const trendsRoutes = require('./routes/trends.routes');
 const scheduler = require('./services/scheduler');
 
 // Initialize express app
@@ -33,8 +34,10 @@ app.use(
       scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       scriptSrcElem: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:", "https://picsum.photos", "https://images.unsplash.com", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'", "http://localhost:5000", "http://127.0.0.1:5000"],
+      imgSrc: ["'self'", "data:", "https://picsum.photos", "https://images.unsplash.com", 
+               "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "*.openstreetmap.org", "*.tile.openstreetmap.org"],
+      connectSrc: ["'self'", "http://localhost:5000", "http://127.0.0.1:5000", 
+                   "nominatim.openstreetmap.org", "https://nominatim.openstreetmap.org"],
       fontSrc: ["'self'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       objectSrc: ["'none'"],
       mediaSrc: ["'none'"],
@@ -83,11 +86,17 @@ app.get('/', (req, res) => {
 
 app.use('/api/news', newsRoutes);
 app.use('/api/sources', sourcesRoutes);
+app.use('/api/trends', trendsRoutes);
 app.use('/status', statusRoutes);
 
 // Serve source management page
 app.get('/sources', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/sources.html'));
+});
+
+// Serve trends page
+app.get('/trends', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/trends.html'));
 });
 
 // Health check endpoint

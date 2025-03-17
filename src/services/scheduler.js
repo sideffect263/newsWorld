@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const newsFetcher = require('./newsFetcher');
 const Source = require('../models/source.model');
+const trendAnalyzer = require('./trendAnalyzer');
 
 // Initialize scheduled tasks and next scan times
 const tasks = {
@@ -125,9 +126,22 @@ exports.getDetailedScheduleInfo = async () => {
 };
 
 /**
- * Start the news fetching scheduler
+ * Initialize and start all schedulers
  */
-exports.startNewsScheduler = async () => {
+exports.startNewsScheduler = () => {
+  // Schedule news fetching jobs
+  scheduleNewsFetching();
+  
+  // Schedule trend analysis jobs
+  scheduleTrendAnalysis();
+  
+  console.log('News scheduler started');
+};
+
+/**
+ * Schedule news fetching jobs
+ */
+const scheduleNewsFetching = async () => {
   try {
     // Get all active sources
     const sources = await Source.find({ isActive: true });
@@ -276,5 +290,72 @@ exports.runManualFetch = async (method = null) => {
   } catch (error) {
     console.error('Error in manual news fetch:', error);
     throw error;
+  }
+};
+
+/**
+ * Schedule trend analysis jobs
+ */
+const scheduleTrendAnalysis = () => {
+  try {
+    // Hourly trends - every hour
+    cron.schedule('0 * * * *', async () => {
+      console.log('Running hourly trend analysis...');
+      try {
+        const result = await trendAnalyzer.analyzeTrends({
+          timeframe: 'hourly',
+          limit: 500
+        });
+        console.log(`Hourly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+      } catch (error) {
+        console.error('Error in hourly trend analysis job:', error);
+      }
+    });
+    
+    // Daily trends - every 6 hours
+    cron.schedule('0 */6 * * *', async () => {
+      console.log('Running daily trend analysis...');
+      try {
+        const result = await trendAnalyzer.analyzeTrends({
+          timeframe: 'daily',
+          limit: 1000
+        });
+        console.log(`Daily trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+      } catch (error) {
+        console.error('Error in daily trend analysis job:', error);
+      }
+    });
+    
+    // Weekly trends - once per day
+    cron.schedule('0 0 * * *', async () => {
+      console.log('Running weekly trend analysis...');
+      try {
+        const result = await trendAnalyzer.analyzeTrends({
+          timeframe: 'weekly',
+          limit: 5000
+        });
+        console.log(`Weekly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+      } catch (error) {
+        console.error('Error in weekly trend analysis job:', error);
+      }
+    });
+    
+    // Monthly trends - once per week
+    cron.schedule('0 0 * * 0', async () => {
+      console.log('Running monthly trend analysis...');
+      try {
+        const result = await trendAnalyzer.analyzeTrends({
+          timeframe: 'monthly',
+          limit: 10000
+        });
+        console.log(`Monthly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+      } catch (error) {
+        console.error('Error in monthly trend analysis job:', error);
+      }
+    });
+    
+    console.log('Trend analysis scheduler started');
+  } catch (error) {
+    console.error('Error setting up trend analysis scheduler:', error);
   }
 };

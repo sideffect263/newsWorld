@@ -2,6 +2,8 @@ const axios = require('axios');
 const RSSParser = require('rss-parser');
 const Source = require('../models/source.model');
 const Article = require('../models/article.model');
+const trendAnalyzer = require('./trendAnalyzer');
+const locationExtractor = require('./locationExtractor');
 
 // Initialize RSS parser
 const rssParser = new RSSParser();
@@ -23,6 +25,7 @@ exports.fetchAllNews = async (options = {}) => {
     
     let fetchedCount = 0;
     let skippedCount = 0;
+    let newArticles = [];
     
     for (const source of sources) {
       // Check if source is due for fetch
@@ -36,15 +39,34 @@ exports.fetchAllNews = async (options = {}) => {
         const result = await exports.fetchNewsFromSource(source._id);
         if (result.success) {
           fetchedCount++;
+          if (result.articlesAdded > 0) {
+            // Add to new articles count for trend analysis
+            newArticles.push({
+              source: source.name,
+              count: result.articlesAdded
+            });
+          }
         }
       } catch (error) {
         console.error(`Error fetching from source ${source.name}:`, error);
       }
     }
     
+    // Update trends with new articles if any were added
+    if (newArticles.length > 0) {
+      try {
+        const totalNewArticles = newArticles.reduce((sum, item) => sum + item.count, 0);
+        console.log(`Updating trends with ${totalNewArticles} new articles`);
+        await trendAnalyzer.updateTrendsWithNewArticles(newArticles);
+      } catch (error) {
+        console.error('Error updating trends:', error);
+      }
+    }
+    
     return {
       success: true,
-      message: `Completed fetch from ${fetchedCount} sources (${skippedCount} skipped)`
+      message: `Completed fetch from ${fetchedCount} sources (${skippedCount} skipped)`,
+      newArticles: newArticles
     };
   } catch (error) {
     console.error('Error in fetchAllNews:', error);
@@ -175,6 +197,33 @@ const fetchFromRSS = async (source) => {
     
     // Transform RSS items to articles
     const articles = feed.items.map(item => {
+      // Extract locations from feed metadata
+      const metadataLocations = locationExtractor.extractLocationsFromFeedMetadata(item);
+      
+      // Extract locations from content
+      const contentText = [
+        item.title || '',
+        item.contentSnippet || item.content || '',
+        item.content || ''
+      ].join(' ');
+      
+      const contentLocations = locationExtractor.extractLocations(contentText);
+      
+      // Combine and normalize locations
+      const allLocations = [...metadataLocations, ...contentLocations];
+      const normalizedLocations = locationExtractor.normalizeLocations(allLocations);
+      
+      // Extract top countries from locations
+      const extractedCountries = normalizedLocations
+        .filter(loc => loc.type === 'country' && loc.confidence >= 0.7)
+        .map(loc => loc.name);
+      
+      // Combine with source country if no countries found
+      const countries = extractedCountries.length > 0 
+        ? extractedCountries 
+        : [source.country];
+      
+      // Create article object
       return {
         title: item.title,
         description: item.contentSnippet || item.content,
@@ -188,8 +237,14 @@ const fetchFromRSS = async (source) => {
           url: source.url,
         },
         categories: item.categories || [source.category],
-        countries: [source.country],
+        countries: [...new Set(countries)], // Remove duplicates
         language: source.language,
+        // Add extracted locations as entities
+        entities: normalizedLocations.map(loc => ({
+          name: loc.name,
+          type: loc.type === 'country' ? 'location' : loc.type,
+          count: loc.count
+        }))
       };
     });
     
