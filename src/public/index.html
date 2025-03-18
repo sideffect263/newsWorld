@@ -4,15 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NewsWorld - Your Global News Aggregator</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="NewsWorld is a comprehensive global news aggregator providing real-time updates from diverse sources worldwide. Stay informed with personalized content on politics, technology, business, and more.">
+    <meta name="keywords" content="news, global news, news aggregator, real-time news, world news, personalized news, news sources">
+    <meta name="author" content="NewsWorld">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="NewsWorld - Your Global News Aggregator">
+    <meta property="og:description" content="Your one-stop destination for global news from multiple sources. Get real-time updates, personalized content, and comprehensive coverage of world events.">
+    <meta property="og:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
+    <meta property="og:url" content="https://newsworld.com">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NewsWorld">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NewsWorld - Your Global News Aggregator">
+    <meta name="twitter:description" content="Your one-stop destination for global news from multiple sources. Get real-time updates, personalized content, and comprehensive coverage of world events.">
+    <meta name="twitter:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://newsworld.com/">
+    
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-VL0BHL7LPW');
-</script>
+      gtag('config', 'G-VL0BHL7LPW');
+    </script>
+    
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
@@ -193,7 +218,81 @@
         </div>
     </footer>
 
+    <!-- JSON-LD for Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "NewsWorld",
+        "url": "https://newsworld.com/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://newsworld.com/news?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "description": "NewsWorld is a comprehensive global news aggregator providing real-time updates from diverse sources worldwide.",
+        "publisher": {
+            "@type": "Organization",
+            "name": "NewsWorld",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
+                "width": 512,
+                "height": 512
+            }
+        }
+    }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/scripts/index.js"></script>
+    
+    <!-- Modified script to add lazy loading for images -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Original index.js code
+        // Load header
+        fetch('/components/header.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+            });
+
+        // Load latest news preview with lazy loading
+        loadLatestNews();
+    });
+
+    // Load latest news preview
+    async function loadLatestNews() {
+        try {
+            const response = await fetch('/api/news/latest?limit=3');
+            const result = await response.json();
+            
+            if (result.success) {
+                const newsContainer = document.getElementById('latestNewsPreview');
+                newsContainer.innerHTML = result.data.map(article => `
+                    <div class="col-md-4">
+                        <div class="card news-preview">
+                            <img src="${article.imageUrl}" 
+                                 class="card-img-top" alt="${article.title}"
+                                 loading="lazy"> <!-- Added lazy loading -->
+                            <div class="category-badge">${article.categories[0]}</div>
+                            <div class="card-body">
+                                <h5 class="card-title">${article.title}</h5>
+                                <p class="card-text">${article.description || ''}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">${new Date(article.publishedAt).toLocaleDateString()}</small>
+                                    <a href="/news/${article._id}" class="btn btn-sm btn-outline-primary">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading latest news:', error);
+        }
+    }
+    </script>
 </body>
 </html> 

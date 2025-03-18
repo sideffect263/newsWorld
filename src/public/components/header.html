@@ -14,6 +14,16 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="/trends" id="nav-trends">
+                        <i class="bi bi-graph-up"></i> Trends
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sentiment" id="nav-sentiment">
+                        <i class="bi bi-emoji-smile"></i> Sentiment
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/sources" id="nav-sources">
                         <i class="bi bi-collection"></i> Sources
                     </a>
@@ -24,7 +34,26 @@
                     </a>
                 </li>
             </ul>
-            <div class="d-flex">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item logged-out">
+                    <a class="nav-link" href="/login.html">Login</a>
+                </li>
+                <li class="nav-item logged-out">
+                    <a class="nav-link" href="/register.html">Register</a>
+                </li>
+                <li class="nav-item dropdown logged-in" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <span id="username">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li><a class="dropdown-item" href="/saved">Saved Articles</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex ms-2">
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-light" id="refreshBtn">
                         <i class="bi bi-arrow-clockwise"></i> Refresh
@@ -44,6 +73,8 @@
         const path = window.location.pathname;
         const navItems = {
             '/news': 'nav-news',
+            '/trends': 'nav-trends',
+            '/sentiment': 'nav-sentiment',
             '/sources': 'nav-sources',
             '/status': 'nav-status'
         };
@@ -72,5 +103,26 @@
         } else {
             actionBtn.style.display = 'none';
         }
+        
+        // Setup auth UI
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
+        
+        if (token) {
+            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'none');
+            document.getElementById('username').textContent = username || 'User';
+        } else {
+            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'block');
+        }
+        
+        // Logout handler
+        document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        });
     });
 </script> 

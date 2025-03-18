@@ -115,9 +115,29 @@ exports.getArticleById = async (req, res, next) => {
       });
     }
 
+    // Automatically increment view count when article is fetched
+    article.viewCount = (article.viewCount || 0) + 1;
+    await article.save();
+
+    // Get related articles based on categories and entities
+    const categories = article.categories || [];
+    const entityNames = article.entities?.map(e => e.name) || [];
+    
+    // Get articles with matching categories or entities, excluding current article
+    const relatedArticles = await Article.find({
+      _id: { $ne: article._id },
+      $or: [
+        { categories: { $in: categories } },
+        { 'entities.name': { $in: entityNames } }
+      ]
+    })
+    .sort({ publishedAt: -1 })
+    .limit(5);
+    
     res.status(200).json({
       success: true,
       data: article,
+      relatedArticles
     });
   } catch (err) {
     next(err);
@@ -381,6 +401,70 @@ exports.unsaveArticle = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Article removed from saved',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Get related articles
+// @route   GET /api/news/related
+// @access  Public
+exports.getRelatedArticles = async (req, res, next) => {
+  try {
+    const { categories, keywords, exclude, limit = 5 } = req.query;
+    
+    if (!categories && !keywords) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide categories or keywords to find related articles',
+      });
+    }
+    
+    const query = {};
+    
+    // Add categories filter if provided
+    if (categories) {
+      const categoryList = Array.isArray(categories) ? categories : [categories];
+      query.categories = { $in: categoryList };
+    }
+    
+    // Add keyword search if provided
+    if (keywords) {
+      const keywordList = Array.isArray(keywords) ? keywords : [keywords];
+      
+      // Search in title, description, and entities
+      const keywordQueries = keywordList.map(keyword => ({
+        $or: [
+          { title: { $regex: keyword, $options: 'i' } },
+          { description: { $regex: keyword, $options: 'i' } },
+          { 'entities.name': { $regex: keyword, $options: 'i' } }
+        ]
+      }));
+      
+      // Add keyword queries to main query
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: keywordQueries }];
+        delete query.$or;
+      } else {
+        query.$or = keywordQueries;
+      }
+    }
+    
+    // Exclude specific article if provided
+    if (exclude) {
+      query._id = { $ne: exclude };
+    }
+    
+    // Get related articles
+    const articles = await Article.find(query)
+      .sort({ publishedAt: -1 })
+      .limit(parseInt(limit, 10));
+    
+    res.status(200).json({
+      success: true,
+      count: articles.length,
+      data: articles,
     });
   } catch (err) {
     next(err);

@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const path = require('path');
+const Article = require('./models/article.model');
 
 // Import routes (to be created)
 const newsRoutes = require('./routes/news.routes');
@@ -32,13 +33,13 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:", "https://picsum.photos", "https://images.unsplash.com", 
-               "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "*.openstreetmap.org", "*.tile.openstreetmap.org"],
+               "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "*.openstreetmap.org", "*.tile.openstreetmap.org", "https://www.google-analytics.com"],
       connectSrc: ["'self'", "http://localhost:5000", "http://127.0.0.1:5000", 
-                   "nominatim.openstreetmap.org", "https://nominatim.openstreetmap.org"],
+                   "nominatim.openstreetmap.org", "https://nominatim.openstreetmap.org", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
       fontSrc: ["'self'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
       objectSrc: ["'none'"],
       mediaSrc: ["'none'"],
@@ -63,6 +64,55 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // Serve favicon
 app.use('/favicon', express.static(path.join(__dirname, 'public/favicon')));
+
+// Explicitly serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/robots.txt'));
+});
+
+// Serve static sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/sitemap.xml'));
+});
+
+// Dynamically generate news sitemap with articles
+app.get('/news-sitemap.xml', async (req, res) => {
+  try {
+    const articles = await Article.find({})
+      .sort({ publishedAt: -1 })
+      .limit(1000)
+      .select('_id title publishedAt categories');
+
+    res.header('Content-Type', 'application/xml');
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n';
+    
+    articles.forEach(article => {
+      const pubDate = new Date(article.publishedAt).toISOString();
+      xml += '  <url>\n';
+      xml += `    <loc>https://newsworld.com/news/${article._id}</loc>\n`;
+      xml += `    <lastmod>${pubDate}</lastmod>\n`;
+      xml += '    <news:news>\n';
+      xml += '      <news:publication>\n';
+      xml += '        <news:name>NewsWorld</news:name>\n';
+      xml += '        <news:language>en</news:language>\n';
+      xml += '      </news:publication>\n';
+      xml += `      <news:publication_date>${pubDate}</news:publication_date>\n`;
+      xml += `      <news:title>${article.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</news:title>\n`;
+      if (article.categories && article.categories.length > 0) {
+        xml += `      <news:keywords>${article.categories.join(',')}</news:keywords>\n`;
+      }
+      xml += '    </news:news>\n';
+      xml += '  </url>\n';
+    });
+    
+    xml += '</urlset>';
+    res.send(xml);
+  } catch (error) {
+    console.error('Error generating news sitemap:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
 
 // Public routes (no authentication required)
 app.get('/login.html', (req, res) => {
@@ -106,9 +156,45 @@ app.get('/sentiment', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/sentiment.html'));
 });
 
+// Individual news article pages for SEO
+app.get('/news/:id', async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.redirect('/news');
+    }
+    
+    // Track view count
+    article.viewCount = (article.viewCount || 0) + 1;
+    await article.save();
+    
+    res.sendFile(path.join(__dirname, 'public/article.html'));
+  } catch (error) {
+    console.error('Error serving article page:', error);
+    res.redirect('/news');
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
+
+// Sitemaps index
+app.get('/sitemaps', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+  xml += '  <sitemap>\n';
+  xml += '    <loc>https://newsworld.com/sitemap.xml</loc>\n';
+  xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+  xml += '  </sitemap>\n';
+  xml += '  <sitemap>\n';
+  xml += '    <loc>https://newsworld.com/news-sitemap.xml</loc>\n';
+  xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+  xml += '  </sitemap>\n';
+  xml += '</sitemapindex>';
+  res.send(xml);
 });
 
 // Error handling middleware

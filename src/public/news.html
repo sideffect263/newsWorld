@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NewsWorld - News</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Browse the latest global news articles from various sources on NewsWorld. Filter by categories, countries, and topics to find the news that matters to you.">
+    <meta name="keywords" content="news articles, global news, breaking news, world news, news by category, international news, latest headlines">
+    <meta name="author" content="NewsWorld">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="NewsWorld - Latest News Articles">
+    <meta property="og:description" content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you.">
+    <meta property="og:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
+    <meta property="og:url" content="https://newsworld.com/news">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NewsWorld">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NewsWorld - Latest News Articles">
+    <meta name="twitter:description" content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you.">
+    <meta name="twitter:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://newsworld.com/news">
+    
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
@@ -17,6 +41,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/styles/main.css">
+    <style>
+        .news-card {
+            transition: transform 0.2s;
+            height: 100%;
+        }
+        .news-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .filter-bar {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="loading" class="loading d-none">
@@ -72,9 +124,411 @@
         <div class="row" id="newsGrid">
             <!-- News articles will be dynamically added here -->
         </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="News pagination" class="mt-4">
+            <ul class="pagination justify-content-center" id="pagination">
+                <!-- Pagination will be added dynamically -->
+            </ul>
+        </nav>
     </div>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>NewsWorld</h5>
+                    <p>Your trusted source for global news coverage.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/news" class="text-light">News</a></li>
+                        <li><a href="/sources" class="text-light">Sources</a></li>
+                        <li><a href="/status" class="text-light">Status</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Connect</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <small>&copy; 2024 NewsWorld. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JSON-LD for Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Latest News Articles - NewsWorld",
+        "url": "https://newsworld.com/news",
+        "description": "Browse the latest global news articles from various sources on NewsWorld.",
+        "publisher": {
+            "@type": "Organization",
+            "name": "NewsWorld",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
+                "width": 512,
+                "height": 512
+            }
+        },
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "NewsWorld",
+            "url": "https://newsworld.com"
+        }
+    }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/scripts/news.js"></script>
+    <script>
+        // Constants
+        const API_BASE_URL = '/api';
+        const COUNTRIES = {
+            'us': 'United States',
+            'gb': 'United Kingdom',
+            'ca': 'Canada',
+            'au': 'Australia',
+            'in': 'India',
+            'de': 'Germany',
+            'fr': 'France',
+            'jp': 'Japan',
+            'cn': 'China',
+            'ru': 'Russia',
+            'br': 'Brazil',
+            'za': 'South Africa',
+            'mx': 'Mexico',
+            'ar': 'Argentina',
+            'sg': 'Singapore'
+        };
+        const LANGUAGES = {
+            'en': 'English',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German',
+            'it': 'Italian',
+            'pt': 'Portuguese',
+            'ru': 'Russian',
+            'ja': 'Japanese',
+            'zh': 'Chinese',
+            'ar': 'Arabic',
+            'hi': 'Hindi'
+        };
+
+        // DOM Elements
+        const loading = document.getElementById('loading');
+        const newsGrid = document.getElementById('newsGrid');
+        const pagination = document.getElementById('pagination');
+
+        // State
+        let currentNews = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let pageSize = 12;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load header
+            fetch('/components/header.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('header').innerHTML = html;
+                });
+
+            // Initialize filters and load news
+            initializeFilters();
+            loadNews(1);
+            setupEventListeners();
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) {
+                document.getElementById('searchInput').value = urlParams.get('search');
+                filterNews();
+            }
+            if (urlParams.has('category')) {
+                document.getElementById('categoryFilter').value = urlParams.get('category');
+                filterNews();
+            }
+        });
+
+        // Initialize country and language dropdowns
+        function initializeFilters() {
+            const countryFilter = document.getElementById('countryFilter');
+            const languageFilter = document.getElementById('languageFilter');
+
+            // Populate country dropdowns
+            Object.entries(COUNTRIES).forEach(([code, name]) => {
+                countryFilter.add(new Option(name, code));
+            });
+
+            // Populate language dropdowns
+            Object.entries(LANGUAGES).forEach(([code, name]) => {
+                languageFilter.add(new Option(name, code));
+            });
+        }
+
+        // Load news from API
+        async function loadNews(page = 1) {
+            loading.classList.remove('d-none');
+            try {
+                currentPage = page;
+                
+                // Build query parameters
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                const category = document.getElementById('categoryFilter').value;
+                const country = document.getElementById('countryFilter').value;
+                const language = document.getElementById('languageFilter').value;
+                
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: pageSize
+                });
+                
+                if (searchTerm) params.append('search', searchTerm);
+                if (category) params.append('category', category);
+                if (country) params.append('country', country);
+                if (language) params.append('language', language);
+                
+                const response = await fetch(`${API_BASE_URL}/news?${params.toString()}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentNews = data.data;
+                    totalPages = Math.ceil(data.total / pageSize);
+                    renderNews();
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                newsGrid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <h4 class="text-muted">Error loading news. Please try again.</h4>
+                    </div>
+                `;
+            } finally {
+                loading.classList.add('d-none');
+            }
+        }
+
+        // Render news grid
+        function renderNews() {
+            newsGrid.innerHTML = '';
+            
+            if (currentNews.length === 0) {
+                newsGrid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <h4 class="text-muted">No news found matching your criteria</h4>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentNews.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-4';
+                
+                // Format publication date
+                const pubDate = new Date(article.publishedAt).toLocaleDateString();
+                
+                // Get sentiment class
+                let sentimentClass = '';
+                let sentimentIcon = '';
+                if (article.sentimentAssessment === 'positive') {
+                    sentimentClass = 'text-success';
+                    sentimentIcon = '<i class="bi bi-emoji-smile"></i>';
+                } else if (article.sentimentAssessment === 'negative') {
+                    sentimentClass = 'text-danger';
+                    sentimentIcon = '<i class="bi bi-emoji-frown"></i>';
+                }
+                
+                // Create article card with lazy loading for images
+                card.innerHTML = `
+                    <div class="card news-card h-100">
+                        ${article.imageUrl ? `
+                            <img src="${article.imageUrl}" 
+                                class="card-img-top" alt="${article.title}"
+                                loading="lazy" height="200" style="object-fit: cover;">
+                        ` : ''}
+                        <div class="card-body">
+                            <h5 class="card-title">${article.title}</h5>
+                            <p class="card-text">${article.description || ''}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="bi bi-newspaper"></i> ${article.source.name} 
+                                    <i class="bi bi-calendar3 ms-2"></i> ${pubDate}
+                                </small>
+                                ${article.sentimentAssessment ? `
+                                    <small class="${sentimentClass} ms-2">
+                                        ${sentimentIcon} ${article.sentimentAssessment}
+                                    </small>
+                                ` : ''}
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="bi bi-tag"></i> ${article.categories.join(', ')}
+                                    <i class="bi bi-globe ms-2"></i> ${COUNTRIES[article.countries[0]] || article.countries[0]}
+                                    <i class="bi bi-translate ms-2"></i> ${LANGUAGES[article.language] || article.language}
+                                </small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="/news/${article._id}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-newspaper"></i> Read Full Article
+                                </a>
+                                <a href="${article.url}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Original Source
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                newsGrid.appendChild(card);
+            });
+            
+            // Generate structured data for articles
+            generateArticlesStructuredData(currentNews);
+        }
+        
+        // Generate JSON-LD structured data for the current articles
+        function generateArticlesStructuredData(articles) {
+            if (!articles || articles.length === 0) return;
+            
+            // Remove existing articles schema if any
+            const existingSchema = document.getElementById('articles-schema');
+            if (existingSchema) existingSchema.remove();
+            
+            // Create schema for articles list
+            const articlesSchema = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": articles.map((article, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "item": {
+                        "@type": "NewsArticle",
+                        "headline": article.title,
+                        "url": `https://newsworld.com/news/${article._id}`,
+                        "datePublished": article.publishedAt,
+                        "description": article.description || "",
+                        "image": article.imageUrl || "https://newsworld.com/favicon/android-chrome-512x512.png",
+                        "author": {
+                            "@type": "Person",
+                            "name": article.author || article.source.name
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": article.source.name,
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
+                                "width": 512,
+                                "height": 512
+                            }
+                        },
+                        "mainEntityOfPage": {
+                            "@type": "WebPage",
+                            "@id": `https://newsworld.com/news/${article._id}`
+                        }
+                    }
+                }))
+            };
+            
+            // Add schema to page
+            const script = document.createElement('script');
+            script.id = 'articles-schema';
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(articlesSchema);
+            document.head.appendChild(script);
+        }
+        
+        // Render pagination controls
+        function renderPagination() {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Previous" ${currentPage > 1 ? 'onclick="loadNews(' + (currentPage - 1) + '); return false;"' : ''}>
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            `;
+            pagination.appendChild(prevLi);
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `
+                    <a class="page-link" href="#" onclick="loadNews(${i}); return false;">${i}</a>
+                `;
+                pagination.appendChild(pageLi);
+            }
+            
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Next" ${currentPage < totalPages ? 'onclick="loadNews(' + (currentPage + 1) + '); return false;"' : ''}>
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            `;
+            pagination.appendChild(nextLi);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter news
+            document.getElementById('searchInput').addEventListener('input', debounce(filterNews, 500));
+            document.getElementById('categoryFilter').addEventListener('change', filterNews);
+            document.getElementById('countryFilter').addEventListener('change', filterNews);
+            document.getElementById('languageFilter').addEventListener('change', filterNews);
+            document.getElementById('statusFilter').addEventListener('change', filterNews);
+        }
+
+        // Filter news based on search and filter criteria
+        function filterNews() {
+            loadNews(1); // Reset to first page when filtering
+            
+            // Update URL with filters for shareable links
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const category = document.getElementById('categoryFilter').value;
+            
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (category) params.append('category', category);
+            
+            // Update URL without reloading page
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.pushState({}, '', newUrl);
+        }
+        
+        // Debounce function for search input
+        function debounce(func, delay) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+    </script>
 </body>
 </html>
