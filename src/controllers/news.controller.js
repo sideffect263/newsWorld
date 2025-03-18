@@ -11,8 +11,6 @@ exports.getArticles = async (req, res, next) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 20;
     const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Article.countDocuments();
 
     // Build query
     const query = {};
@@ -42,6 +40,15 @@ exports.getArticles = async (req, res, next) => {
       query.sentimentAssessment = req.query.sentiment;
     }
 
+    // Search if provided (basic text search)
+    if (req.query.search) {
+      query.$or = [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } },
+        { content: { $regex: req.query.search, $options: 'i' } },
+      ];
+    }
+
     // Filter by sentiment range if provided
     if (req.query.minSentiment || req.query.maxSentiment) {
       query.sentiment = {};
@@ -67,33 +74,19 @@ exports.getArticles = async (req, res, next) => {
       query.publishedAt = { $lte: new Date(req.query.endDate) };
     }
 
-    // Execute query
+    // Get total count after applying filters for accurate pagination
+    const total = await Article.countDocuments(query);
+
+    // Execute query with pagination
     const articles = await Article.find(query)
       .sort({ publishedAt: -1 })
       .skip(startIndex)
       .limit(limit);
 
-    // Pagination result
-    const pagination = {};
-
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit,
-      };
-    }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit,
-      };
-    }
-
     res.status(200).json({
       success: true,
       count: articles.length,
-      pagination,
+      total: total,
       data: articles,
     });
   } catch (err) {
@@ -263,7 +256,10 @@ exports.getArticlesByCountry = async (req, res, next) => {
 // @access  Public
 exports.searchArticles = async (req, res, next) => {
   try {
-    if (!req.query.q) {
+    // Accept both 'q' and 'search' parameters for better compatibility
+    const searchQuery = req.query.q || req.query.search;
+    
+    if (!searchQuery) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a search query',
@@ -274,14 +270,20 @@ exports.searchArticles = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 20;
     const startIndex = (page - 1) * limit;
     
-    // Basic text search (in a real app, you might use Elasticsearch or MongoDB Atlas Search)
-    const articles = await Article.find({
+    // Create search query
+    const searchFilter = {
       $or: [
-        { title: { $regex: req.query.q, $options: 'i' } },
-        { description: { $regex: req.query.q, $options: 'i' } },
-        { content: { $regex: req.query.q, $options: 'i' } },
+        { title: { $regex: searchQuery, $options: 'i' } },
+        { description: { $regex: searchQuery, $options: 'i' } },
+        { content: { $regex: searchQuery, $options: 'i' } },
       ],
-    })
+    };
+    
+    // Get total count for pagination
+    const total = await Article.countDocuments(searchFilter);
+    
+    // Basic text search (in a real app, you might use Elasticsearch or MongoDB Atlas Search)
+    const articles = await Article.find(searchFilter)
       .sort({ publishedAt: -1 })
       .skip(startIndex)
       .limit(limit);
@@ -289,6 +291,7 @@ exports.searchArticles = async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: articles.length,
+      total: total,
       data: articles,
     });
   } catch (err) {

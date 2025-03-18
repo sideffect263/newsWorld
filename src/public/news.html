@@ -85,7 +85,12 @@
         <div class="filter-bar mb-4">
             <div class="row g-3">
                 <div class="col-md-3">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Search news...">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search news...">
+                        <button class="btn btn-primary" type="button" id="searchButton">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" id="categoryFilter">
@@ -290,23 +295,32 @@
                 const category = document.getElementById('categoryFilter').value;
                 const country = document.getElementById('countryFilter').value;
                 const language = document.getElementById('languageFilter').value;
+                const status = document.getElementById('statusFilter').value;
                 
                 const params = new URLSearchParams({
                     page: page,
                     limit: pageSize
                 });
                 
-                if (searchTerm) params.append('search', searchTerm);
+                // Determine which endpoint to use based on whether search is provided
+                let endpoint = `${API_BASE_URL}/news`;
+                
+                if (searchTerm) {
+                    endpoint = `${API_BASE_URL}/news/search`;
+                    params.append('q', searchTerm);
+                }
+                
                 if (category) params.append('category', category);
                 if (country) params.append('country', country);
                 if (language) params.append('language', language);
+                if (status) params.append('status', status);
                 
-                const response = await fetch(`${API_BASE_URL}/news?${params.toString()}`);
+                const response = await fetch(`${endpoint}?${params.toString()}`);
                 const data = await response.json();
                 
                 if (data.success) {
                     currentNews = data.data;
-                    totalPages = Math.ceil(data.total / pageSize);
+                    totalPages = Math.ceil((data.total || data.count) / pageSize);
                     renderNews();
                     renderPagination();
                 }
@@ -496,6 +510,13 @@
         function setupEventListeners() {
             // Filter news
             document.getElementById('searchInput').addEventListener('input', debounce(filterNews, 500));
+            document.getElementById('searchButton').addEventListener('click', filterNews);
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterNews();
+                }
+            });
             document.getElementById('categoryFilter').addEventListener('change', filterNews);
             document.getElementById('countryFilter').addEventListener('change', filterNews);
             document.getElementById('languageFilter').addEventListener('change', filterNews);
@@ -509,10 +530,14 @@
             // Update URL with filters for shareable links
             const searchTerm = document.getElementById('searchInput').value.trim();
             const category = document.getElementById('categoryFilter').value;
+            const country = document.getElementById('countryFilter').value;
+            const language = document.getElementById('languageFilter').value;
             
             const params = new URLSearchParams();
             if (searchTerm) params.append('search', searchTerm);
             if (category) params.append('category', category);
+            if (country) params.append('country', country);
+            if (language) params.append('language', language);
             
             // Update URL without reloading page
             const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');

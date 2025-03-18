@@ -22,31 +22,37 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Apply middleware
-app.use(helmet()); // Security headers
+// app.use(helmet()); // Remove default security headers since we're customizing below
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(morgan('dev')); // Logging
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
-// Configure Helmet for loading external resources
+// Apply a more permissive Content Security Policy to allow inline scripts
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; " +
+    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net https://cdn.jsdelivr.net; " +
+    "img-src 'self' data: https://picsum.photos https://images.unsplash.com cdn.jsdelivr.net https://cdn.jsdelivr.net *.openstreetmap.org *.tile.openstreetmap.org https://www.google-analytics.com; " +
+    "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 nominatim.openstreetmap.org https://nominatim.openstreetmap.org https://www.google-analytics.com https://www.googletagmanager.com; " +
+    "font-src 'self' cdn.jsdelivr.net https://cdn.jsdelivr.net; " +
+    "object-src 'none'; " +
+    "media-src 'none'; " +
+    "frame-src 'none';"
+  );
+  next();
+});
+
+// Apply other security headers using helmet
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:", "https://picsum.photos", "https://images.unsplash.com", 
-               "cdn.jsdelivr.net", "https://cdn.jsdelivr.net", "*.openstreetmap.org", "*.tile.openstreetmap.org", "https://www.google-analytics.com"],
-      connectSrc: ["'self'", "http://localhost:5000", "http://127.0.0.1:5000", 
-                   "nominatim.openstreetmap.org", "https://nominatim.openstreetmap.org", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
-      fontSrc: ["'self'", "cdn.jsdelivr.net", "https://cdn.jsdelivr.net"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'none'"],
-      frameSrc: ["'none'"],
-    },
+  helmet({
+    contentSecurityPolicy: false, // Disable CSP from helmet since we're using our custom one
   })
 );
+
+// Serve static files after all security headers are applied
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rate limiting
 const apiLimiter = rateLimit({

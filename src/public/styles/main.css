@@ -3,7 +3,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
     color: #212529;
-    padding-top: 56px; /* Account for fixed header */
+    padding-top: 110px; /* Updated to account for fixed header + ticker */
 }
 
 /* Header styles */
@@ -102,4 +102,78 @@ body {
 
 .refresh-btn {
     cursor: pointer;
+}
+
+/* Ticker styles */
+.trending-ticker-container {
+    margin-top: 56px; /* Adjust based on navbar height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 990;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.ticker-wrapper {
+    overflow: hidden;
+    width: 100%;
+    background-color: #f8f9fa;
+}
+
+.ticker-heading {
+    font-weight: bold;
+    white-space: nowrap;
+    color: #212529;
+    background-color: #ffc107;
+    padding: 5px 15px;
+    border-radius: 0 20px 20px 0;
+}
+
+.ticker-content {
+    overflow: hidden;
+    width: 100%;
+    padding: 8px 0;
+}
+
+.ticker-items {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker-scroll 25s linear infinite;
+    padding-right: 100px;
+}
+
+.ticker-items:hover {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    display: inline-block;
+    margin-right: 20px;
+    padding: 3px 12px;
+    border-radius: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.ticker-item:hover {
+    background-color: #e9ecef;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.ticker-item a {
+    color: #495057;
+    text-decoration: none;
+}
+
+@keyframes ticker-scroll {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
 } 

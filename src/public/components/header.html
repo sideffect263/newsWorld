@@ -67,62 +67,27 @@
     </div>
 </nav>
 
-<script>
-    // Set active nav item based on current page
-    document.addEventListener('DOMContentLoaded', () => {
-        const path = window.location.pathname;
-        const navItems = {
-            '/news': 'nav-news',
-            '/trends': 'nav-trends',
-            '/sentiment': 'nav-sentiment',
-            '/sources': 'nav-sources',
-            '/status': 'nav-status'
-        };
-
-        // Remove active class from all nav items
-        document.querySelectorAll('.nav-link').forEach(item => {
-            item.classList.remove('active');
-        });
-
-        // Add active class to current page's nav item
-        const currentNavItem = navItems[path];
-        if (currentNavItem) {
-            document.getElementById(currentNavItem).classList.add('active');
-        }
-
-        // Update action button based on current page
-        const actionBtn = document.getElementById('actionBtn');
-        const actionBtnText = document.getElementById('actionBtnText');
-        
-        if (path === '/sources') {
-            actionBtnText.textContent = 'Add Source';
-            actionBtn.style.display = 'inline-block';
-        } else if (path === '/news') {
-            actionBtnText.textContent = 'Add Article';
-            actionBtn.style.display = 'inline-block';
-        } else {
-            actionBtn.style.display = 'none';
-        }
-        
-        // Setup auth UI
-        const token = localStorage.getItem('token');
-        const username = localStorage.getItem('username');
-        
-        if (token) {
-            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'none');
-            document.getElementById('username').textContent = username || 'User';
-        } else {
-            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'block');
-        }
-        
-        // Logout handler
-        document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            window.location.href = '/';
-        });
-    });
-</script> 
+<!-- Trending Keywords Ticker -->
+<div class="trending-ticker-container">
+    <div class="container">
+        <div class="ticker-wrapper">
+            <div class="d-flex align-items-center">
+                <div class="ticker-heading">
+                    <i class="bi bi-fire"></i> Trending:
+                </div>
+                <div class="ticker-content">
+                    <div class="ticker-items" id="trending-keywords">
+                        <span class="ticker-item"><a href="/news?search=Technology">Technology (24)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Politics">Politics (18)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Health">Health (15)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Economy">Economy (12)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Climate">Climate (10)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Sports">Sports (9)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Entertainment">Entertainment (8)</a></span>
+                        <span class="ticker-item"><a href="/news?search=Science">Science (7)</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
