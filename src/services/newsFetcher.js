@@ -547,24 +547,43 @@ const saveArticles = async (articles, source) => {
         // Transform NYT categories if they exist
         if (article.categories && Array.isArray(article.categories)) {
           article.categories = article.categories.map(category => {
-            // If category is an object with _ property (NYT format)
-            if (typeof category === 'object' && category._) {
-              // Map NYT categories to our supported categories
-              const nytCategory = category._.toLowerCase();
-              if (nytCategory.includes('business')) return 'business';
-              if (nytCategory.includes('entertainment')) return 'entertainment';
-              if (nytCategory.includes('health')) return 'health';
-              if (nytCategory.includes('science')) return 'science';
-              if (nytCategory.includes('sports')) return 'sports';
-              if (nytCategory.includes('technology')) return 'technology';
-              if (nytCategory.includes('politics')) return 'politics';
-              if (nytCategory.includes('world')) return 'world';
-              if (nytCategory.includes('nation')) return 'nation';
-              if (nytCategory.includes('lifestyle')) return 'lifestyle';
-              return 'general';
+            // If category is an object (could be NYT format or other RSS formats)
+            if (typeof category === 'object') {
+              // Handle NYT format with _ property
+              if (category._) {
+                const nytCategory = category._.toLowerCase();
+                if (nytCategory.includes('business')) return 'business';
+                if (nytCategory.includes('entertainment')) return 'entertainment';
+                if (nytCategory.includes('health')) return 'health';
+                if (nytCategory.includes('science')) return 'science';
+                if (nytCategory.includes('sports')) return 'sports';
+                if (nytCategory.includes('technology')) return 'technology';
+                if (nytCategory.includes('politics')) return 'politics';
+                if (nytCategory.includes('world')) return 'world';
+                if (nytCategory.includes('nation')) return 'nation';
+                if (nytCategory.includes('lifestyle')) return 'lifestyle';
+                return 'general';
+              }
+              // Handle format with $ property (seen in some RSS feeds)
+              else if (category.$) {
+                // Extract domain or other properties if available
+                if (typeof category.$ === 'object') {
+                  // Try to determine category from domain or other properties
+                  // Default to general if no specific mapping found
+                  return 'general';
+                }
+                return String(category.$);
+              }
+              // Handle any other object format by extracting a string property or returning 'general'
+              else {
+                for (const key of Object.keys(category)) {
+                  if (typeof category[key] === 'string') return category[key];
+                }
+                return 'general';
+              }
             }
             return category;
-          }).filter(category => category); // Remove any undefined/null values
+          }).filter(category => category && typeof category === 'string'); // Remove any undefined/null/non-string values
         }
         
         // Create new article
