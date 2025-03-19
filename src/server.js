@@ -121,13 +121,13 @@ app.get('/news-sitemap.xml', async (req, res) => {
 });
 
 // Public routes (no authentication required)
-app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/login.html'));
-});
+// app.get('/login.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public/login.html'));
+// });
 
-app.get('/register.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/register.html'));
-});
+// app.get('/register.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public/register.html'));
+// });
 
 // Serve news page
 app.get('/news', (req, res) => {

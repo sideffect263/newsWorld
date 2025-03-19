@@ -40,9 +40,9 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/favicon.svg">
     <link rel="manifest" href="/favicon/site.webmanifest">
     
     <!-- Styles -->
@@ -53,52 +53,241 @@
         .hero-section {
             background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
             color: white;
-            padding: 100px 0;
+            padding: 120px 0 160px;
             margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
         }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .feature-card {
             border: none;
             border-radius: 15px;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             height: 100%;
+            background: #ffffff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
+
         .feature-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
+
         .feature-icon {
             font-size: 2.5rem;
             color: #0d6efd;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
         }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+
         .news-preview {
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
             margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
+
+        .news-preview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
         .news-preview img {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
+
+        .news-preview:hover img {
+            transform: scale(1.05);
+        }
+
         .category-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             background: rgba(13, 110, 253, 0.9);
             color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        .cta-section {
-            background: #f8f9fa;
-            padding: 50px 0;
-            margin-top: 50px;
-        }
+
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        section {
+            padding: 80px 0;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 60px;
+            height: 4px;
+            background: #0d6efd;
+            border-radius: 2px;
+        }
+
+        .text-center h2::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        footer {
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 60px 0 30px;
+        }
+
+        footer h5 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        footer h5::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 30px;
+            height: 2px;
+            background: #0d6efd;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #0d6efd;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #0d6efd;
+            transform: translateY(-3px);
+        }
+
+        /* Additional footer styles */
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .footer-links i {
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            opacity: 0.5;
+        }
+
+        .footer-contact li {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer-contact a {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer-contact a:hover {
+            color: #fff;
+        }
+
+        .list-inline-item:not(:last-child) {
+            margin-right: 1.5rem;
+        }
+
+        .text-light-50 {
+            color: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
@@ -108,22 +297,23 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="container">
+        <div class="container hero-content">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">Stay Informed with NewsWorld</h1>
+                    <h1 class="mb-4">Stay Informed with NewsWorld</h1>
                     <p class="lead mb-4">Your one-stop destination for global news from multiple sources. Get real-time updates, personalized content, and comprehensive coverage of world events.</p>
                     <div class="d-flex gap-3">
                         <a href="/news" class="btn btn-light btn-lg">
-                            <i class="bi bi-newspaper"></i> Read News
+                            <i class="bi bi-newspaper me-2"></i> Read News
                         </a>
                         <a href="/register.html" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-person-plus"></i> Get Started
+                            <i class="bi bi-person-plus me-2"></i> Get Started
                         </a>
                     </div>
                 </div>
                 <div class="col-lg-6">
-                 
+                    <!-- Add an illustration or image here if desired -->
+                </div>
             </div>
         </div>
     </section>
@@ -170,50 +360,70 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container text-center">
-            <h2 class="mb-4">Ready to Stay Informed?</h2>
-            <p class="lead mb-4">Join NewsWorld today and get access to comprehensive news coverage from around the globe.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/register.html" class="btn btn-primary btn-lg">
-                    <i class="bi bi-person-plus"></i> Create Account
-                </a>
-                <a href="/login.html" class="btn btn-outline-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right"></i> Sign In
-                </a>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4">
+    <footer class="bg-dark text-light py-5">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
                     <h5>NewsWorld</h5>
-                    <p>Your trusted source for global news coverage.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/news" class="text-light">News</a></li>
-                        <li><a href="/sources" class="text-light">Sources</a></li>
-                        <li><a href="/status" class="text-light">Status</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Connect</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                    <p class="text-light-50 mb-4">Your trusted source for global news coverage. Stay informed with real-time updates and comprehensive analysis.</p>
+                    <div class="social-links d-flex gap-3 mb-4">
+                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                     </div>
                 </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="/news"><i class="bi bi-chevron-right"></i> News</a></li>
+                        <li><a href="/trends"><i class="bi bi-chevron-right"></i> Trends</a></li>
+                        <li><a href="/sources"><i class="bi bi-chevron-right"></i> Sources</a></li>
+                        <li><a href="/status"><i class="bi bi-chevron-right"></i> Status</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Categories</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="/news?category=politics"><i class="bi bi-chevron-right"></i> Politics</a></li>
+                        <li><a href="/news?category=technology"><i class="bi bi-chevron-right"></i> Technology</a></li>
+                        <li><a href="/news?category=business"><i class="bi bi-chevron-right"></i> Business</a></li>
+                        <li><a href="/news?category=science"><i class="bi bi-chevron-right"></i> Science</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled footer-contact">
+                        <li class="mb-2">
+                            <i class="bi bi-envelope-fill me-2"></i>
+                            <a href="mailto:contact@newsworld.com">contact@newsworld.com</a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-geo-alt-fill me-2"></i>
+                            123 News Street, NY 10001
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-telephone-fill me-2"></i>
+                            +1 (555) 123-4567
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <small>&copy; 2024 NewsWorld. All rights reserved.</small>
+            <hr class="my-4 border-light opacity-10">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NewsWorld. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="/privacy">Privacy Policy</a></li>
+                        <li class="list-inline-item">·</li>
+                        <li class="list-inline-item"><a href="/terms">Terms of Use</a></li>
+                        <li class="list-inline-item">·</li>
+                        <li class="list-inline-item"><a href="/sitemap">Sitemap</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </footer>
@@ -306,32 +516,6 @@
                 actionBtn.style.display = 'none';
             }
         }
-        
-        // Setup auth UI
-        const token = localStorage.getItem('token');
-        const username = localStorage.getItem('username');
-        
-        if (token) {
-            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'none');
-            if (document.getElementById('username')) {
-                document.getElementById('username').textContent = username || 'User';
-            }
-        } else {
-            document.querySelectorAll('.logged-out').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('.logged-in').forEach(el => el.style.display = 'none');
-        }
-        
-        // Logout handler
-        document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            window.location.href = '/';
-        });
-        
-        // Try to fetch trending keywords
-        tryFetchTrendingKeywords();
     }
     
     // Function to attempt to fetch trending keywords

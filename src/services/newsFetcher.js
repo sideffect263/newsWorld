@@ -189,97 +189,145 @@ const fetchFromRSS = async (source) => {
       return { success: false, message: 'Invalid RSS configuration' };
     }
     
-    // Fetch RSS feed
-    const feed = await rssParser.parseURL(source.rssDetails.feedUrl);
-    
-    if (!feed || !feed.items || !feed.items.length) {
-      return { success: false, message: 'No items found in RSS feed' };
-    }
-    
-    // Transform RSS items to articles
-    const articles = feed.items.map(item => {
-      // Extract locations from feed metadata
-      const metadataLocations = locationExtractor.extractLocationsFromFeedMetadata(item);
-      
-      // Extract locations from content
-      const contentText = [
-        item.title || '',
-        item.contentSnippet || item.content || '',
-        item.content || ''
-      ].join(' ');
-      
-      const contentLocations = locationExtractor.extractLocations(contentText);
-      
-      // Combine and normalize locations
-      const allLocations = [...metadataLocations, ...contentLocations];
-      const normalizedLocations = locationExtractor.normalizeLocations(allLocations);
-      
-      // Extract top countries using country codes
-      const extractedCountries = normalizedLocations
-        .filter(loc => loc.type === 'country' && loc.confidence >= 0.7 && loc.countryCode)
-        .map(loc => loc.countryCode);
-      
-      // Combine with source country if no countries found
-      const countries = extractedCountries.length > 0 
-        ? extractedCountries 
-        : [source.country];
-      
-      // Analyze sentiment
-      const sentimentText = [
-        item.title || '',
-        item.contentSnippet || item.content || ''
-      ].join(' ');
-      
-      const sentimentResult = sentimentAnalyzer.analyzeSentiment(sentimentText);
-      let sentimentAssessment = 'neutral';
-      
-      if (sentimentResult.comparative >= 0.1) {
-        sentimentAssessment = 'positive';
-      } else if (sentimentResult.comparative <= -0.1) {
-        sentimentAssessment = 'negative';
+    // First fetch the raw content with axios to handle encoding properly
+    const response = await axios.get(source.rssDetails.feedUrl, {
+      responseType: 'arraybuffer',
+      headers: {
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*'
       }
-      
-      // Create article object
-      return {
-        title: item.title,
-        description: item.contentSnippet || item.content,
-        content: item.content,
-        url: item.link,
-        publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
-        author: item.creator || item.author,
-        source: {
-          id: source._id.toString(),
-          name: source.name,
-          url: source.url,
-        },
-        categories: item.categories || [source.category],
-        countries: [...new Set(countries)], // Remove duplicates
-        language: source.language,
-        // Add sentiment data
-        sentiment: sentimentResult.comparative,
-        sentimentAssessment: sentimentAssessment,
-        // Add extracted locations as entities
-        entities: normalizedLocations.map(loc => ({
-          name: loc.name,
-          type: loc.type === 'country' ? 'location' : loc.type, // Ensure all entity types are valid
-          count: loc.count
-        }))
-      };
     });
-    
-    // Save articles to database
-    const savedCount = await saveArticles(articles, source);
-    
-    return {
-      success: true,
-      message: `Successfully fetched ${articles.length} articles from RSS feed`,
-      articlesAdded: savedCount,
-    };
+
+    // Try different encoding approaches
+    let xmlContent;
+    let feed;
+
+    // Attempt 1: Try UTF-8
+    try {
+      xmlContent = response.data.toString('utf8');
+      xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-8"');
+      feed = await rssParser.parseString(xmlContent);
+      if (feed && feed.items) return processFeed(feed, source);
+    } catch (e) {
+      console.log('UTF-8 parsing failed, trying UTF-16LE');
+    }
+
+    // Attempt 2: Try UTF-16LE
+    try {
+      xmlContent = response.data.toString('utf16le');
+      xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-16"');
+      feed = await rssParser.parseString(xmlContent);
+      if (feed && feed.items) return processFeed(feed, source);
+    } catch (e) {
+      console.log('UTF-16LE parsing failed, trying with BOM removal');
+    }
+
+    // Attempt 3: Try removing BOM and forcing UTF-8
+    try {
+      // Remove BOM if present and force UTF-8
+      let data = response.data;
+      if (data[0] === 0xEF && data[1] === 0xBB && data[2] === 0xBF) {
+        data = data.slice(3);
+      }
+      xmlContent = data.toString('utf8');
+      xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-8"');
+      feed = await rssParser.parseString(xmlContent);
+      if (feed && feed.items) return processFeed(feed, source);
+    } catch (e) {
+      console.log('BOM removal attempt failed');
+      throw new Error('Failed to parse RSS feed with any encoding method');
+    }
+
+    throw new Error('No valid items found in RSS feed');
     
   } catch (error) {
     console.error('Error in fetchFromRSS:', error);
     return { success: false, message: error.message };
   }
+};
+
+// Helper function to process feed and return result
+const processFeed = async (feed, source) => {
+  if (!feed || !feed.items || !feed.items.length) {
+    return { success: false, message: 'No items found in RSS feed' };
+  }
+  
+  // Transform RSS items to articles
+  const articles = feed.items.map(item => {
+    // Extract locations from feed metadata
+    const metadataLocations = locationExtractor.extractLocationsFromFeedMetadata(item);
+    
+    // Extract locations from content
+    const contentText = [
+      item.title || '',
+      item.contentSnippet || item.content || '',
+      item.content || ''
+    ].join(' ');
+    
+    const contentLocations = locationExtractor.extractLocations(contentText);
+    
+    // Combine and normalize locations
+    const allLocations = [...metadataLocations, ...contentLocations];
+    const normalizedLocations = locationExtractor.normalizeLocations(allLocations);
+    
+    // Extract top countries using country codes
+    const extractedCountries = normalizedLocations
+      .filter(loc => loc.type === 'country' && loc.confidence >= 0.7 && loc.countryCode)
+      .map(loc => loc.countryCode);
+    
+    // Combine with source country if no countries found
+    const countries = extractedCountries.length > 0 
+      ? extractedCountries 
+      : [source.country];
+    
+    // Analyze sentiment
+    const sentimentText = [
+      item.title || '',
+      item.contentSnippet || item.content || ''
+    ].join(' ');
+    
+    const sentimentResult = sentimentAnalyzer.analyzeSentiment(sentimentText);
+    let sentimentAssessment = 'neutral';
+    
+    if (sentimentResult.comparative >= 0.1) {
+      sentimentAssessment = 'positive';
+    } else if (sentimentResult.comparative <= -0.1) {
+      sentimentAssessment = 'negative';
+    }
+    
+    // Create article object
+    return {
+      title: item.title,
+      description: item.contentSnippet || item.content,
+      content: item.content,
+      url: item.link,
+      publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
+      author: item.creator || item.author,
+      source: {
+        id: source._id.toString(),
+        name: source.name,
+        url: source.url,
+      },
+      categories: item.categories || [source.category],
+      countries: [...new Set(countries)], // Remove duplicates
+      language: source.language,
+      sentiment: sentimentResult.comparative,
+      sentimentAssessment: sentimentAssessment,
+      entities: normalizedLocations.map(loc => ({
+        name: loc.name,
+        type: loc.type === 'country' ? 'location' : loc.type,
+        count: loc.count
+      }))
+    };
+  });
+  
+  // Save articles to database
+  const savedCount = await saveArticles(articles, source);
+  
+  return {
+    success: true,
+    message: `Successfully fetched ${articles.length} articles from RSS feed`,
+    articlesAdded: savedCount,
+  };
 };
 
 /**
