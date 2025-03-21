@@ -61,8 +61,7 @@ exports.getSourceById = async (req, res, next) => {
 exports.getSourcesByCategory = async (req, res, next) => {
   try {
     const sources = await Source.find({
-      category: req.params.category,
-      isActive: true,
+      category: req.params.category
     }).sort({ name: 1 });
 
     res.status(200).json({
@@ -81,8 +80,7 @@ exports.getSourcesByCategory = async (req, res, next) => {
 exports.getSourcesByCountry = async (req, res, next) => {
   try {
     const sources = await Source.find({
-      country: req.params.countryCode,
-      isActive: true,
+      country: req.params.countryCode
     }).sort({ name: 1 });
 
     res.status(200).json({
@@ -101,8 +99,7 @@ exports.getSourcesByCountry = async (req, res, next) => {
 exports.getSourcesByLanguage = async (req, res, next) => {
   try {
     const sources = await Source.find({
-      language: req.params.languageCode,
-      isActive: true,
+      language: req.params.languageCode
     }).sort({ name: 1 });
 
     res.status(200).json({
@@ -250,7 +247,7 @@ exports.deleteSource = async (req, res, next) => {
 
 // @desc    Test source fetch
 // @route   POST /api/sources/:id/test
-// @access  Private (Admin)
+// @access  Public
 exports.testSourceFetch = async (req, res, next) => {
   try {
     const source = await Source.findById(req.params.id);
@@ -267,10 +264,25 @@ exports.testSourceFetch = async (req, res, next) => {
     
     let testResult = {
       success: true,
-      message: 'Test fetch successful',
+      message: `Test fetch successful for ${source.name} using ${source.fetchMethod} method`,
       fetchMethod: source.fetchMethod,
       sampleData: null,
+      sourceDetails: {
+        name: source.name,
+        url: source.url,
+        fetchMethod: source.fetchMethod
+      }
     };
+
+    // Add method-specific details
+    if (source.fetchMethod === 'rss') {
+      testResult.sourceDetails.feedUrl = source.rssDetails?.feedUrl || 'No feed URL specified';
+    } else if (source.fetchMethod === 'api') {
+      testResult.sourceDetails.apiType = source.apiDetails?.type || 'No API type specified';
+      testResult.sourceDetails.endpoint = source.apiDetails?.endpoint || 'No endpoint specified';
+    } else if (source.fetchMethod === 'scraping') {
+      testResult.sourceDetails.targetUrl = source.scrapingDetails?.targetUrl || 'No target URL specified';
+    }
 
     // Mock different responses based on fetch method
     if (source.fetchMethod === 'api') {

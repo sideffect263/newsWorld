@@ -1,40 +1,130 @@
+const Article = require('../models/article.model');
 const Trend = require('../models/trend.model');
+const ErrorResponse = require('../utils/errorResponse');
 const trendAnalyzer = require('../services/trendAnalyzer');
+
+// @desc    Get trends
+// @route   GET /api/trends
+// @access  Public
+exports.getTrends = async (req, res, next) => {
+  try {
+    const timeframe = req.query.timeframe || 'daily';
+    
+    // Get all trends without user filtering
+    const trends = await Trend.find({
+      timeframe: timeframe
+    }).sort({ count: -1, lastUpdated: -1 }).limit(20);
+    
+    res.status(200).json({
+      success: true,
+      count: trends.length,
+      data: trends
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // @desc    Get trending topics
 // @route   GET /api/trends
 // @access  Public
 exports.getTrends = async (req, res, next) => {
   try {
-    const { 
-      timeframe = 'daily',
-      entityType,
-      category,
-      country,
-      limit = 20
-    } = req.query;
+    const filter = req.query.filter || 'all';
+    let query = {};
     
-    const limitNum = parseInt(limit, 10);
+    if (filter === 'mine') {
+      if (!req.user) {
+        return next(new ErrorResponse('Not authorized to access personal trends', 401));
+      }
+      
+      // Get user's preferred sources and categories
+      const user = await User.findById(req.user.id).populate('preferences.sources');
+      const userSourceIds = user.preferences.sources.map(source => source._id);
+      const userCategories = user.preferences.categories || [];
+      
+      // Build query for user's content
+      query.$or = [
+        { 'source._id': { $in: userSourceIds } },
+        { categories: { $in: userCategories } }
+      ];
+    }
+
+    // Time range filter
+    const timeRange = req.query.timeRange || '7d';
+    const endDate = new Date();
+    let startDate = new Date();
     
-    const result = await trendAnalyzer.getTrendingTopics({
-      timeframe,
-      entityType,
-      category,
-      country,
-      limit: limitNum
-    });
-    
-    if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        message: result.message
-      });
+    switch(timeRange) {
+      case '24h':
+        startDate.setHours(startDate.getHours() - 24);
+        break;
+      case '7d':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(startDate.getDate() - 90);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 7);
     }
     
+    query.publishedAt = { $gte: startDate, $lte: endDate };
+
+    // Get articles for trend analysis
+    const articles = await Article.find(query)
+      .select('title description categories entities keywords publishedAt source')
+      .sort({ publishedAt: -1 });
+
+    // Process trends data
+    const trendsData = {
+      topics: {},
+      keywords: {},
+      entities: {},
+      categories: {},
+      sources: {}
+    };
+
+    articles.forEach(article => {
+      // Process keywords
+      article.keywords.forEach(keyword => {
+        trendsData.keywords[keyword] = (trendsData.keywords[keyword] || 0) + 1;
+      });
+
+      // Process entities
+      article.entities.forEach(entity => {
+        trendsData.entities[entity.name] = (trendsData.entities[entity.name] || 0) + 1;
+      });
+
+      // Process categories
+      article.categories.forEach(category => {
+        trendsData.categories[category] = (trendsData.categories[category] || 0) + 1;
+      });
+
+      // Process sources
+      const sourceName = article.source.name;
+      trendsData.sources[sourceName] = (trendsData.sources[sourceName] || 0) + 1;
+    });
+
+    // Sort and limit results
+    const sortAndLimit = (obj, limit = 10) => {
+      return Object.entries(obj)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, limit)
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+    };
+
+    trendsData.keywords = sortAndLimit(trendsData.keywords);
+    trendsData.entities = sortAndLimit(trendsData.entities);
+    trendsData.categories = sortAndLimit(trendsData.categories);
+    trendsData.sources = sortAndLimit(trendsData.sources);
+
     res.status(200).json({
       success: true,
-      count: result.count,
-      data: result.data
+      data: trendsData
     });
   } catch (err) {
     next(err);

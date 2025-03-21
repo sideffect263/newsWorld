@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary main-header fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary main-header fixed-top" style="padding: 10px;">
     <div class="container">
         <a class="navbar-brand" href="/">
             <i class="bi bi-newspaper"></i> NewsWorld
@@ -34,35 +34,8 @@
                     </a>
                 </li>
             </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item logged-out">
-                    <a class="nav-link" href="/login.html">Login</a>
-                </li>
-                <li class="nav-item logged-out">
-                    <a class="nav-link" href="/register.html">Register</a>
-                </li>
-                <li class="nav-item dropdown logged-in" style="display: none;">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        <span id="username">User</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
-                        <li><a class="dropdown-item" href="/saved">Saved Articles</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="d-flex ms-2">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-light" id="refreshBtn">
-                        <i class="bi bi-arrow-clockwise"></i> Refresh
-                    </button>
-                    <button type="button" class="btn btn-light" id="actionBtn">
-                        <i class="bi bi-plus-lg"></i> <span id="actionBtnText">Add</span>
-                    </button>
-                </div>
-            </div>
+            
+          
         </div>
     </div>
 </nav>
@@ -90,4 +63,7 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<!-- Header Scripts -->
+<script src="/js/header.js"></script>

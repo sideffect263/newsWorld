@@ -25,10 +25,10 @@ router.get('/country/:countryCode', getSourcesByCountry);
 router.get('/language/:languageCode', getSourcesByLanguage);
 router.get('/:id', getSourceById);
 
-// Protected routes (require authentication)
-router.post('/', createSource); // Removed protect and authorize middleware
-router.put('/:id', updateSource); // Removed protect and authorize middleware
-router.delete('/:id', deleteSource); // Removed protect and authorize middleware
-router.post('/:id/test', testSourceFetch); // Removed protect and authorize middleware
+// API routes for managing sources
+router.post('/', createSource);
+router.put('/:id', updateSource);
+router.delete('/:id', deleteSource);
+router.post('/:id/test', testSourceFetch);
 
 module.exports = router;

@@ -7,7 +7,7 @@ router.get('/', sentimentController.getSentimentAnalysis);
 router.get('/stats', sentimentController.getSentimentStats);
 router.get('/categories', sentimentController.getSentimentByCategory);
 
-// Protected routes (admin only)
-router.post('/update',  sentimentController.updateSentiment);
+// API route for sentiment updates
+router.post('/update', sentimentController.updateSentiment);
 
 module.exports = router; 

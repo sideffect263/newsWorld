@@ -103,7 +103,6 @@ function updateUI(data) {
     document.getElementById('articleCount').textContent = data.counts.articles.toLocaleString();
     document.getElementById('sourceCount').textContent = data.counts.sources.toLocaleString();
     document.getElementById('activeSourceCount').textContent = data.counts.activeSources.toLocaleString();
-    document.getElementById('userCount').textContent = data.counts.users.toLocaleString();
     
     // Latest Articles
     const latestArticlesList = document.getElementById('latestArticlesList');
@@ -287,6 +286,43 @@ async function checkAdminStatus() {
     }
 }
 
+ // Function to attempt to fetch trending keywords
+ function tryFetchTrendingKeywords() {
+    fetch('/api/trends/keywords?timeframe=daily')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('API response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data && data.data.length > 0) {
+                const tickerContainer = document.getElementById('trending-keywords');
+                if (tickerContainer) {
+                    tickerContainer.innerHTML = '';
+                    
+                    data.data.forEach(item => {
+                        const tickerItem = document.createElement('span');
+                        tickerItem.className = 'ticker-item';
+                        
+                        const link = document.createElement('a');
+                        link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
+                        link.textContent = `${item.keyword} (${item.count})`;
+                        
+                        tickerItem.appendChild(link);
+                        tickerContainer.appendChild(tickerItem);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.log('Using default trending keywords:', error);
+            // Keep using the default keywords
+        });
+}
+
+
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Get DOM elements
@@ -298,6 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchStatusData();
     fetchArticlesByDay();
     checkAdminStatus();
+    
+        // Fetch trending keywords
+        tryFetchTrendingKeywords();
     
     // Set up event listeners only if elements exist
     if (refreshBtn) {

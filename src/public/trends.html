@@ -15,7 +15,7 @@
   <title>NewsWorld - Trending Topics</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="./styles/main.css">
   <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
   <style>
     .trend-item {
@@ -65,7 +65,7 @@
   <!-- Include header component -->
   <div id="header"></div>
 
-  <div class="container mt-4">
+  <div class="container mt-4" style="padding-top: 150px !important;">
     <h1 class="mb-4">Trending Topics</h1>
     
     <div class="row mb-4">
@@ -255,6 +255,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/filter-handler.js"></script>
+  <script src="/scripts/trends.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Load header component
@@ -269,6 +272,9 @@
       
       // Load initial trends
       loadTrends();
+
+      // Load trending keywords
+      tryFetchTrendingKeywords();
       
       // Initialize chart
       const ctx = document.getElementById('trendChart').getContext('2d');
@@ -443,6 +449,43 @@
           });
         });
       }
+
+        // Function to attempt to fetch trending keywords
+    function tryFetchTrendingKeywords() {
+        fetch('/api/trends/keywords?timeframe=daily')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('API response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.data && data.data.length > 0) {
+                    const tickerContainer = document.getElementById('trending-keywords');
+                    if (tickerContainer) {
+                        tickerContainer.innerHTML = '';
+                        
+                        data.data.forEach(item => {
+                            const tickerItem = document.createElement('span');
+                            tickerItem.className = 'ticker-item';
+                            
+                            const link = document.createElement('a');
+                            link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
+                            link.textContent = `${item.keyword} (${item.count})`;
+                            
+                            tickerItem.appendChild(link);
+                            tickerContainer.appendChild(tickerItem);
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Using default trending keywords:', error);
+                // Keep using the default keywords
+            });
+    }
+
+   
       
       // Function to update chart
       function updateChart(trends, label) {
@@ -567,4 +610,4 @@
     });
   </script>
 </body>
-</html> 
+</html>

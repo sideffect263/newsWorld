@@ -12,8 +12,6 @@ const {
   getArticlesByCountry,
   searchArticles,
   incrementViewCount,
-  saveArticle,
-  unsaveArticle,
   getRelatedArticles
 } = require('../controllers/news.controller');
 
@@ -29,9 +27,5 @@ router.get('/related', getRelatedArticles);
 
 router.get('/:id', getArticleById);
 router.put('/:id/view', incrementViewCount);
-
-// Private routes - authentication temporarily disabled
-router.post('/save/:id', saveArticle);
-router.delete('/save/:id', unsaveArticle);
 
 module.exports = router;

@@ -151,7 +151,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1rem 0;
+            padding: 0;
         }
 
         .btn {
@@ -305,9 +305,6 @@
                     <div class="d-flex gap-3">
                         <a href="/news" class="btn btn-light btn-lg">
                             <i class="bi bi-newspaper me-2"></i> Read News
-                        </a>
-                        <a href="/register.html" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-person-plus me-2"></i> Get Started
                         </a>
                     </div>
                 </div>
@@ -478,6 +475,9 @@
 
         // Load latest news preview with lazy loading
         loadLatestNews();
+        
+        // Fetch trending keywords
+        tryFetchTrendingKeywords();
     });
     
     // Setup navigation functionality
@@ -564,9 +564,6 @@
                 newsContainer.innerHTML = result.data.map(article => `
                     <div class="col-md-4">
                         <div class="card news-preview">
-                            <img src="${article.imageUrl}" 
-                                 class="card-img-top" alt="${article.title}"
-                                 loading="lazy"> <!-- Added lazy loading -->
                             <div class="category-badge">${article.categories[0]}</div>
                             <div class="card-body">
                                 <h5 class="card-title">${article.title}</h5>
@@ -586,4 +583,4 @@
     }
     </script>
 </body>
-</html> 
+</html>

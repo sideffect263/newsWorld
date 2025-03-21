@@ -80,7 +80,7 @@
     <!-- Include common header -->
     <div id="header"></div>
 
-    <div class="container py-4">
+    <div class="container " style="padding-top: 150px;">
         <!-- Filter Bar -->
         <div class="filter-bar mb-4">
             <div class="row g-3">
@@ -197,6 +197,8 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/filter-handler.js"></script>
+    <script src="/scripts/news.js"></script>
     <script>
         // Constants
         const API_BASE_URL = '/api';
@@ -241,6 +243,7 @@
         let currentPage = 1;
         let totalPages = 1;
         let pageSize = 12;
+        let showingAllNews = true;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -256,16 +259,11 @@
             loadNews(1);
             setupEventListeners();
             
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('search')) {
-                document.getElementById('searchInput').value = urlParams.get('search');
-                filterNews();
-            }
-            if (urlParams.has('category')) {
-                document.getElementById('categoryFilter').value = urlParams.get('category');
-                filterNews();
-            }
+            // Listen for source filter changes from header.js
+            document.addEventListener('sourceFilterChanged', function(e) {
+                showingAllNews = e.detail.showAll;
+                loadNews(1); // Reset to first page when filter changes
+            });
         });
 
         // Initialize country and language dropdowns
@@ -299,23 +297,17 @@
                 
                 const params = new URLSearchParams({
                     page: page,
-                    limit: pageSize
+                    limit: pageSize,
+                    filter: showingAllNews ? 'all' : 'mine'
                 });
                 
-                // Determine which endpoint to use based on whether search is provided
-                let endpoint = `${API_BASE_URL}/news`;
-                
-                if (searchTerm) {
-                    endpoint = `${API_BASE_URL}/news/search`;
-                    params.append('q', searchTerm);
-                }
-                
+                if (searchTerm) params.append('search', searchTerm);
                 if (category) params.append('category', category);
                 if (country) params.append('country', country);
                 if (language) params.append('language', language);
                 if (status) params.append('status', status);
                 
-                const response = await fetch(`${endpoint}?${params.toString()}`);
+                const response = await fetch(`${API_BASE_URL}/news?${params.toString()}`);
                 const data = await response.json();
                 
                 if (data.success) {

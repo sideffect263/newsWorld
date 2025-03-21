@@ -128,4 +128,4 @@ sourceSchema.index({ fetchMethod: 1 });
 
 const Source = mongoose.model('Source', sourceSchema);
 
-module.exports = Source; 
+module.exports = Source;

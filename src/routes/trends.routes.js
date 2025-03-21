@@ -10,7 +10,7 @@ router.get('/categories', trendsController.getTrendingCategories);
 router.get('/locations', trendsController.getTrendingLocations);
 router.get('/:id/articles', trendsController.getTrendArticles);
 
-// Protected routes (admin only)
+// API route for trend analysis
 router.post('/analyze',trendsController.triggerTrendAnalysis);
 
 module.exports = router; 

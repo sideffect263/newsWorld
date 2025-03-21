@@ -3,9 +3,9 @@ const os = require('os');
 const mongoose = require('mongoose');
 const Article = require('../models/article.model');
 const Source = require('../models/source.model');
-const User = require('../models/user.model');
 const scheduler = require('../services/scheduler');
 const newsFetcher = require('../services/newsFetcher');
+const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Serve the status page HTML
 // @route   GET /status
@@ -57,7 +57,6 @@ exports.getStatusData = async (req, res, next) => {
     const articleCount = await Article.countDocuments();
     const sourceCount = await Source.countDocuments();
     const activeSourceCount = await Source.countDocuments({ isActive: true });
-    const userCount = await User.countDocuments();
 
     // Get latest articles
     const latestArticles = await Article.find()
@@ -81,7 +80,6 @@ exports.getStatusData = async (req, res, next) => {
           articles: articleCount,
           sources: sourceCount,
           activeSources: activeSourceCount,
-          users: userCount,
         },
         latestArticles,
         topArticles,

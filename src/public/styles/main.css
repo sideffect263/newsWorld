@@ -3,7 +3,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
     color: #212529;
-    padding-top: 110px; /* Updated to account for fixed header + ticker */
 }
 
 /* Header styles */
@@ -106,19 +105,17 @@ body {
 
 /* Ticker styles */
 .trending-ticker-container {
-    margin-top: 56px; /* Adjust based on navbar height */
+    margin-top: 86px; /* Adjust based on navbar height */
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 990;
-    border-bottom: 1px solid #e5e5e5;
 }
 
 .ticker-wrapper {
     overflow: hidden;
     width: 100%;
-    background-color: #f8f9fa;
 }
 
 .ticker-heading {

@@ -11,7 +11,6 @@ const Article = require('./models/article.model');
 // Import routes (to be created)
 const newsRoutes = require('./routes/news.routes');
 const sourcesRoutes = require('./routes/sources.routes');
-const userRoutes = require('./routes/user.routes');
 const statusRoutes = require('./routes/status.routes');
 const trendsRoutes = require('./routes/trends.routes');
 const sentimentRoutes = require('./routes/sentiment.routes');
@@ -103,7 +102,7 @@ app.get('/news-sitemap.xml', async (req, res) => {
       xml += '        <news:name>NewsWorld</news:name>\n';
       xml += '        <news:language>en</news:language>\n';
       xml += '      </news:publication>\n';
-      xml += `      <news:publication_date>${pubDate}</news:publication_date>\n`;
+      xml += `      <news:publication_date>${pubDate}</publication_date>\n`;
       xml += `      <news:title>${article.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</news:title>\n`;
       if (article.categories && article.categories.length > 0) {
         xml += `      <news:keywords>${article.categories.join(',')}</news:keywords>\n`;
@@ -121,31 +120,25 @@ app.get('/news-sitemap.xml', async (req, res) => {
 });
 
 // Public routes (no authentication required)
-// app.get('/login.html', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public/login.html'));
-// });
-
-// app.get('/register.html', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public/register.html'));
-// });
 
 // Serve news page
 app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/news.html'));
 });
 
-// Protected routes
-app.use('/api/users', userRoutes); // Removed authenticateToken middleware
+// Removed protect middleware from routes
+app.use('/api/sources', sourcesRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.use('/api/news', newsRoutes);
-app.use('/api/sources', sourcesRoutes);
 app.use('/api/trends', trendsRoutes);
 app.use('/api/sentiment', sentimentRoutes);
 app.use('/status', statusRoutes);
+
+// Removed reference to /api/users route
 
 // Serve source management page
 app.get('/sources', (req, res) => {
@@ -186,22 +179,26 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
-// Sitemaps index
 app.get('/sitemaps', (req, res) => {
   res.header('Content-Type', 'application/xml');
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-  xml += '  <sitemap>\n';
-  xml += '    <loc>https://newsworld.com/sitemap.xml</loc>\n';
-  xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
-  xml += '  </sitemap>\n';
-  xml += '  <sitemap>\n';
-  xml += '    <loc>https://newsworld.com/news-sitemap.xml</loc>\n';
-  xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
-  xml += '  </sitemap>\n';
-  xml += '</sitemapindex>';
+
+  const lastMod = new Date().toISOString(); // Use a single timestamp
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://newsworld.com/sitemap.xml</loc>
+    <lastmod>${lastMod}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://newsworld.com/news-sitemap.xml</loc>
+    <lastmod>${lastMod}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+
   res.send(xml);
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

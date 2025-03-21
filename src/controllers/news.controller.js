@@ -1,5 +1,4 @@
 const Article = require('../models/article.model');
-const User = require('../models/user.model');
 const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Get all articles with pagination
@@ -14,6 +13,9 @@ exports.getArticles = async (req, res, next) => {
 
     // Build query
     const query = {};
+    
+    // Remove user-specific filtering since authentication is removed
+    // All articles are public now
 
     // Filter by category if provided
     if (req.query.category) {
@@ -317,93 +319,11 @@ exports.incrementViewCount = async (req, res, next) => {
       });
     }
 
-    // If user is logged in, add to read history
-    if (req.user) {
-      await User.findByIdAndUpdate(
-        req.user.id,
-        {
-          $push: {
-            readHistory: {
-              article: req.params.id,
-              readAt: Date.now(),
-            },
-          },
-        }
-      );
-    }
+    // User tracking removed as authentication has been removed
 
     res.status(200).json({
       success: true,
       data: article,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// @desc    Save article for user
-// @route   POST /api/news/save/:id
-// @access  Private
-exports.saveArticle = async (req, res, next) => {
-  try {
-    const article = await Article.findById(req.params.id);
-
-    if (!article) {
-      return res.status(404).json({
-        success: false,
-        message: 'Article not found',
-      });
-    }
-
-    // Check if article is already saved
-    const user = await User.findById(req.user.id);
-    
-    if (user.savedArticles.includes(req.params.id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Article already saved',
-      });
-    }
-
-    // Add article to saved articles
-    await User.findByIdAndUpdate(
-      req.user.id,
-      { $push: { savedArticles: req.params.id } }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: 'Article saved',
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// @desc    Remove saved article for user
-// @route   DELETE /api/news/save/:id
-// @access  Private
-exports.unsaveArticle = async (req, res, next) => {
-  try {
-    // Check if article exists
-    const article = await Article.findById(req.params.id);
-
-    if (!article) {
-      return res.status(404).json({
-        success: false,
-        message: 'Article not found',
-      });
-    }
-
-    // Remove article from saved articles
-    await User.findByIdAndUpdate(
-      req.user.id,
-      { $pull: { savedArticles: req.params.id } }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: 'Article removed from saved',
     });
   } catch (err) {
     next(err);

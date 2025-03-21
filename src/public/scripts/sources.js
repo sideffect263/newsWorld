@@ -31,6 +31,9 @@ let currentSourceId = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Get DOM elements
+    loading = document.getElementById('loading');
+    
     // Initialize Bootstrap modals
     sourceModal = new bootstrap.Modal(document.getElementById('sourceModal'));
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
@@ -39,6 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFilters();
     loadSources();
     setupEventListeners();
+
+    // Fetch trending keywords
+    tryFetchTrendingKeywords();
+
+    // Add Source button
+    const addSourceBtn = document.getElementById('addSourceBtn');
+    if (addSourceBtn) {
+        addSourceBtn.addEventListener('click', () => {
+            resetSourceForm();
+            sourceModal.show();
+        });
+    }
 
     // Load header
     fetch('/components/header.html')
@@ -79,6 +94,41 @@ function initializeFilters() {
     });
 }
 
+// Function to attempt to fetch trending keywords
+function tryFetchTrendingKeywords() {
+    fetch('/api/trends/keywords?timeframe=daily')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('API response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data && data.data.length > 0) {
+                const tickerContainer = document.getElementById('trending-keywords');
+                if (tickerContainer) {
+                    tickerContainer.innerHTML = '';
+                    
+                    data.data.forEach(item => {
+                        const tickerItem = document.createElement('span');
+                        tickerItem.className = 'ticker-item';
+                        
+                        const link = document.createElement('a');
+                        link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
+                        link.textContent = `${item.keyword} (${item.count})`;
+                        
+                        tickerItem.appendChild(link);
+                        tickerContainer.appendChild(tickerItem);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.log('Using default trending keywords:', error);
+            // Keep using the default keywords
+        });
+}
+
 // Load sources from API
 async function loadSources() {
     loading.classList.remove('d-none');
@@ -102,7 +152,39 @@ async function loadSources() {
 function renderSources() {
     sourcesGrid.innerHTML = '';
     
+    if (!currentSources || currentSources.length === 0) {
+        sourcesGrid.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No sources available. Add a new source to get started!
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
     currentSources.forEach(source => {
+        // Format last fetched date if available
+        let lastFetched = 'Never';
+        if (source.lastFetchedAt) {
+            const date = new Date(source.lastFetchedAt);
+            lastFetched = date.toLocaleString();
+        }
+        
+        // Format fetch status
+        let statusBadge = 'bg-secondary';
+        let statusText = 'Unknown';
+        
+        if (source.fetchStatus) {
+            if (source.fetchStatus.success) {
+                statusBadge = 'bg-success';
+                statusText = 'Success';
+            } else {
+                statusBadge = 'bg-danger';
+                statusText = 'Error';
+            }
+        }
+        
         const card = document.createElement('div');
         card.className = 'col-md-4 mb-4';
         card.innerHTML = `
@@ -124,6 +206,19 @@ function renderSources() {
                             <i class="bi bi-link-45deg"></i> ${source.url}
                         </a>
                     </p>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small><strong>Fetch Method:</strong> ${source.fetchMethod}</small>
+                        </div>
+                        <div class="col-6">
+                            <small><strong>Status:</strong> <span class="badge ${statusBadge}">${statusText}</span></small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <small><strong>Last Fetched:</strong> ${lastFetched}</small>
+                        </div>
+                    </div>
                     <div class="source-actions">
                         <button class="btn btn-sm btn-primary test-source" data-id="${source._id}">
                             <i class="bi bi-play-fill"></i>
@@ -142,8 +237,32 @@ function renderSources() {
     });
 }
 
+// Function to show/hide form fields based on fetch method
+function updateFetchMethodFields(fetchMethod) {
+    const feedUrlContainer = document.getElementById('feedUrlContainer');
+    const apiConfigContainer = document.getElementById('apiConfigContainer');
+    
+    // Show/hide based on fetch method
+    if (fetchMethod === 'rss') {
+        feedUrlContainer.style.display = 'block';
+        apiConfigContainer.style.display = 'none';
+    } else if (fetchMethod === 'api') {
+        feedUrlContainer.style.display = 'none';
+        apiConfigContainer.style.display = 'block';
+    } else {
+        // For scraping or other methods
+        feedUrlContainer.style.display = 'none';
+        apiConfigContainer.style.display = 'none';
+    }
+}
+
 // Setup event listeners
 function setupEventListeners() {
+    // Fetch method change
+    document.getElementById('sourceFetchMethod').addEventListener('change', function(e) {
+        updateFetchMethodFields(e.target.value);
+    });
+
     // Save source
     document.getElementById('saveSourceBtn').addEventListener('click', async () => {
         if (!sourceForm.checkValidity()) {
@@ -158,10 +277,27 @@ function setupEventListeners() {
             country: document.getElementById('sourceCountry').value,
             language: document.getElementById('sourceLanguage').value,
             fetchMethod: document.getElementById('sourceFetchMethod').value,
-            feedUrl: document.getElementById('sourceFeedUrl').value,
-            apiConfig: document.getElementById('sourceApiConfig').value,
             isActive: document.getElementById('sourceActive').checked
         };
+
+        // Add fetch method specific details
+        const fetchMethod = document.getElementById('sourceFetchMethod').value;
+        if (fetchMethod === 'rss') {
+            sourceData.rssDetails = {
+                feedUrl: document.getElementById('sourceFeedUrl').value
+            };
+        } else if (fetchMethod === 'api') {
+            const apiConfigStr = document.getElementById('sourceApiConfig').value;
+            try {
+                sourceData.apiDetails = apiConfigStr ? JSON.parse(apiConfigStr) : {};
+            } catch (e) {
+                alert('Invalid JSON format in API configuration');
+                return;
+            }
+        } else if (fetchMethod === 'scraping') {
+            // If there are specific fields for scraping, add them here
+            sourceData.scrapingDetails = {};
+        }
 
         loading.classList.remove('d-none');
         try {
@@ -209,9 +345,25 @@ function setupEventListeners() {
                 document.getElementById('sourceCountry').value = source.country;
                 document.getElementById('sourceLanguage').value = source.language;
                 document.getElementById('sourceFetchMethod').value = source.fetchMethod;
-                document.getElementById('sourceFeedUrl').value = source.feedUrl || '';
-                document.getElementById('sourceApiConfig').value = source.apiConfig ? JSON.stringify(source.apiConfig, null, 2) : '';
+                
+                // Handle different fetch methods and their specific details
+                if (source.fetchMethod === 'rss' && source.rssDetails) {
+                    document.getElementById('sourceFeedUrl').value = source.rssDetails.feedUrl || '';
+                } else {
+                    document.getElementById('sourceFeedUrl').value = '';
+                }
+                
+                // Handle API configuration
+                if (source.fetchMethod === 'api' && source.apiDetails) {
+                    document.getElementById('sourceApiConfig').value = JSON.stringify(source.apiDetails, null, 2);
+                } else {
+                    document.getElementById('sourceApiConfig').value = '';
+                }
+                
                 document.getElementById('sourceActive').checked = source.isActive;
+                
+                // Show/hide relevant fields based on fetch method
+                updateFetchMethodFields(source.fetchMethod);
                 
                 sourceModal.show();
             }
@@ -268,7 +420,7 @@ function setupEventListeners() {
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Source test successful!');
+                    showTestResults(result.data);
                 } else {
                     alert(result.message || 'Source test failed');
                 }
@@ -367,4 +519,89 @@ function renderFilteredSources(sources) {
         `;
         sourcesGrid.appendChild(card);
     });
+}
+
+// Reset the source form for a new source
+function resetSourceForm() {
+    currentSourceId = null;
+    sourceForm.reset();
+    document.getElementById('sourceModalTitle').textContent = 'Add New Source';
+    
+    // Set default values
+    document.getElementById('sourceActive').checked = true;
+    
+    // Show the RSS feed field by default
+    updateFetchMethodFields('rss');
+}
+
+// Show test results in a modal
+function showTestResults(data) {
+    // Create modal if it doesn't exist
+    if (!document.getElementById('testResultsModal')) {
+        const modalHTML = `
+        <div class="modal fade" id="testResultsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Source Test Results</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="testResultsBody">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    // Populate modal with results
+    const resultsBody = document.getElementById('testResultsBody');
+    
+    let html = `
+        <div class="alert alert-${data.success ? 'success' : 'danger'}">
+            ${data.message}
+        </div>
+        
+        <h6>Source Details</h6>
+        <ul class="list-group mb-3">
+    `;
+    
+    // Add source details
+    for (const [key, value] of Object.entries(data.sourceDetails)) {
+        html += `<li class="list-group-item"><strong>${key}:</strong> ${value}</li>`;
+    }
+    
+    html += '</ul>';
+    
+    // Add sample data if available
+    if (data.sampleData) {
+        // Add summary info
+        html += '<h6>Summary</h6>';
+        html += '<ul class="list-group mb-3">';
+        
+        if (data.sampleData.articles) {
+            html += `<li class="list-group-item"><strong>Articles Found:</strong> ${data.sampleData.articles.length}</li>`;
+        } else if (data.sampleData.items) {
+            html += `<li class="list-group-item"><strong>Items Found:</strong> ${data.sampleData.items.length}</li>`;
+        }
+        
+        // Add last fetch time
+        const fetchTime = new Date().toLocaleString();
+        html += `<li class="list-group-item"><strong>Test Performed:</strong> ${fetchTime}</li>`;
+        html += '</ul>';
+        
+        // Show sample data
+        html += '<h6>Sample Data</h6>';
+        html += '<pre class="border p-3 bg-light">' + JSON.stringify(data.sampleData, null, 2) + '</pre>';
+    }
+    
+    resultsBody.innerHTML = html;
+    
+    // Show modal
+    const testModal = new bootstrap.Modal(document.getElementById('testResultsModal'));
+    testModal.show();
 }

@@ -1,43 +1,42 @@
 const sentimentAnalyzer = require('../services/sentimentAnalyzer');
 const Article = require('../models/article.model');
+const ErrorResponse = require('../utils/errorResponse');
 
-// @desc    Get sentiment analysis for articles
+// @desc    Get sentiment analysis
 // @route   GET /api/sentiment
 // @access  Public
 exports.getSentimentAnalysis = async (req, res, next) => {
   try {
-    const { 
-      startDate,
-      endDate,
-      category,
-      source,
-      country,
-      timeframe = 'daily'
-    } = req.query;
+    // Get sentiment analysis without user filtering
+    const timeframe = req.query.timeframe || '7d';
+    const limit = parseInt(req.query.limit) || 20;
     
-    // Convert dates if provided
-    const startDateObj = startDate ? new Date(startDate) : undefined;
-    const endDateObj = endDate ? new Date(endDate) : undefined;
+    // Base query
+    const query = {};
     
-    // Analyze sentiment trends
-    const result = await sentimentAnalyzer.analyzeSentimentTrends({
-      startDate: startDateObj,
-      endDate: endDateObj,
-      category,
-      source,
-      country
-    });
-    
-    if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        message: result.message
-      });
+    // Apply date filter based on timeframe
+    const dateFilter = getDateFilter(timeframe);
+    if (dateFilter) {
+      query.publishedAt = dateFilter;
     }
+    
+    // Apply category filter if provided
+    if (req.query.category) {
+      query.categories = req.query.category;
+    }
+    
+    // Get articles with sentiment data
+    const articles = await Article.find({
+      ...query,
+      sentiment: { $exists: true }
+    })
+    .sort({ publishedAt: -1 })
+    .limit(limit);
     
     res.status(200).json({
       success: true,
-      data: result.data
+      count: articles.length,
+      data: articles
     });
   } catch (err) {
     next(err);
