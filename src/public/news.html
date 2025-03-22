@@ -189,7 +189,9 @@
         }
         
         .card-body {
+            
             padding: 1.5rem;
+            padding-top: 50px;
         }
         
         .card-title {
@@ -302,10 +304,40 @@
             color: #6c757d;
         }
         
+        .sentiment-indicator {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .sentiment-indicator.sentiment-positive {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        
+        .sentiment-indicator.sentiment-negative {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .sentiment-indicator.sentiment-neutral {
+            background-color: rgba(108, 117, 125, 0.1);
+        }
+        
         .card-action-buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 1rem;
+            gap: 10px;
+        }
+        
+        .card-action-buttons .btn {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .empty-state {
@@ -816,13 +848,14 @@
                                     class="card-img-top" alt="${article.title}"
                                     loading="lazy">
                             ` : `
-                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted" style="height: 220px;">
-                                    <i class="bi bi-image" style="font-size: 3rem;"></i>
-                                </div>
+                              
                             `}
                         </div>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">${article.title}</h5>
+                            <div class="sentiment-indicator ${sentimentClass} mb-2">
+                                ${sentimentIcon} ${sentimentText} Sentiment
+                            </div>
                             <p class="card-text">${article.description || 'No description available'}</p>
                             
                             <div class="meta-info mt-auto">
@@ -836,10 +869,7 @@
                                 </span>
                             </div>
                             
-                            <div class="meta-info">
-                                <span class="${sentimentClass}">
-                                    ${sentimentIcon} ${sentimentText}
-                                </span>
+                            <div class="meta-info mb-3">
                                 <span>
                                     <i class="bi bi-globe"></i>
                                     ${COUNTRIES[article.countries[0]] || article.countries[0]}
@@ -852,10 +882,10 @@
                             
                             <div class="card-action-buttons">
                                 <a href="/news/${article._id}" class="btn btn-primary">
-                                    Read Article
+                                    <i class="bi bi-newspaper me-1"></i> Read on NewsWorld
                                 </a>
                                 <a href="${article.url}" target="_blank" class="btn btn-outline-secondary">
-                                    Source <i class="bi bi-box-arrow-up-right"></i>
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Original Source
                                 </a>
                             </div>
                         </div>

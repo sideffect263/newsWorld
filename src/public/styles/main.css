@@ -113,6 +113,117 @@ body {
     z-index: 990;
 }
 
+/* Sentiment Indicator Styles */
+.sentiment-positive {
+    color: #28a745;
+}
+
+.sentiment-negative {
+    color: #dc3545;
+}
+
+.sentiment-neutral {
+    color: #6c757d;
+}
+
+.sentiment-indicator {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.sentiment-indicator.sentiment-positive {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.sentiment-indicator.sentiment-negative {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.sentiment-indicator.sentiment-neutral {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Card Action Buttons */
+.card-action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    gap: 10px;
+}
+
+.card-action-buttons .btn {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Meta Info */
+.meta-info {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-info i {
+    margin-right: 0.25rem;
+}
+
+.meta-info span {
+    margin-right: 1rem;
+}
+
+/* Category Badge */
+.category-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(13, 110, 253, 0.9);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* News Card */
+.news-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+    height: 100%;
+    border: none;
+    background-color: white;
+    position: relative;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.news-card .card-img-top {
+    height: 220px;
+    object-fit: cover;
+    transition: all 0.5s ease;
+}
+
+.news-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
 .ticker-wrapper {
     overflow: hidden;
     width: 100%;

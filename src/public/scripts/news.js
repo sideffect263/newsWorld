@@ -117,23 +117,75 @@ function renderNews() {
     currentNews.forEach(article => {
         const card = document.createElement('div');
         card.className = 'col-md-4 mb-4';
+
+        // Format publication date
+        const pubDate = new Date(article.publishedAt).toLocaleDateString();
+        
+        // Get sentiment class
+        let sentimentClass = 'sentiment-neutral';
+        let sentimentIcon = '<i class="bi bi-emoji-neutral"></i>';
+        let sentimentText = 'Neutral';
+        
+        if (article.sentimentAssessment === 'positive') {
+            sentimentClass = 'sentiment-positive';
+            sentimentIcon = '<i class="bi bi-emoji-smile"></i>';
+            sentimentText = 'Positive';
+        } else if (article.sentimentAssessment === 'negative') {
+            sentimentClass = 'sentiment-negative';
+            sentimentIcon = '<i class="bi bi-emoji-frown"></i>';
+            sentimentText = 'Negative';
+        }
+        
         card.innerHTML = `
             <div class="card news-card h-100">
-                <div class="card-body">
+                <div class="position-relative overflow-hidden">
+                    ${article.categories && article.categories.length > 0 ? 
+                        `<div class="category-badge">${article.categories[0]}</div>` : ''}
+                    ${article.imageUrl ? `
+                        <img src="${article.imageUrl}" 
+                            class="card-img-top" alt="${article.title}"
+                            loading="lazy">
+                    ` : `
+                       
+                    `}
+                </div>
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${article.title}</h5>
-                    <p class="card-text">${article.description}</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <i class="bi bi-tag"></i> ${article.categories.join(', ')}
-                            <i class="bi bi-globe ms-2"></i> ${COUNTRIES[article.countries[0]] || article.countries[0]}
-                            <i class="bi bi-translate ms-2"></i> ${LANGUAGES[article.language] || article.language}
-                        </small>
-                    </p>
-                    <p class="card-text">
-                        <a href="${article.url}" target="_blank" class="text-decoration-none">
-                            <i class="bi bi-link-45deg"></i> Read more
+                    <div class="sentiment-indicator ${sentimentClass} mb-2">
+                        ${sentimentIcon} ${sentimentText} Sentiment
+                    </div>
+                    <p class="card-text">${article.description || 'No description available'}</p>
+                    
+                    <div class="meta-info mt-auto">
+                        <span>
+                            <i class="bi bi-newspaper"></i>
+                            ${article.source ? article.source.name : 'Unknown Source'}
+                        </span>
+                        <span>
+                            <i class="bi bi-calendar3"></i>
+                            ${pubDate}
+                        </span>
+                    </div>
+                    
+                    <div class="meta-info mb-3">
+                        <span>
+                            <i class="bi bi-globe"></i>
+                            ${COUNTRIES[article.countries[0]] || article.countries[0] || 'Unknown'}
+                        </span>
+                        <span>
+                            <i class="bi bi-translate"></i>
+                            ${LANGUAGES[article.language] || article.language || 'Unknown'}
+                        </span>
+                    </div>
+                    
+                    <div class="card-action-buttons">
+                        <a href="/news/${article._id}" class="btn btn-primary">
+                            <i class="bi bi-newspaper me-1"></i> Read on NewsWorld
                         </a>
-                    </p>
+                        <a href="${article.url}" target="_blank" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Original Source
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
@@ -190,23 +242,75 @@ function renderFilteredNews(news) {
     news.forEach(article => {
         const card = document.createElement('div');
         card.className = 'col-md-4 mb-4';
+
+        // Format publication date
+        const pubDate = new Date(article.publishedAt).toLocaleDateString();
+        
+        // Get sentiment class
+        let sentimentClass = 'sentiment-neutral';
+        let sentimentIcon = '<i class="bi bi-emoji-neutral"></i>';
+        let sentimentText = 'Neutral';
+        
+        if (article.sentimentAssessment === 'positive') {
+            sentimentClass = 'sentiment-positive';
+            sentimentIcon = '<i class="bi bi-emoji-smile"></i>';
+            sentimentText = 'Positive';
+        } else if (article.sentimentAssessment === 'negative') {
+            sentimentClass = 'sentiment-negative';
+            sentimentIcon = '<i class="bi bi-emoji-frown"></i>';
+            sentimentText = 'Negative';
+        }
+        
         card.innerHTML = `
             <div class="card news-card h-100">
-                <div class="card-body">
+                <div class="position-relative overflow-hidden">
+                    ${article.categories && article.categories.length > 0 ? 
+                        `<div class="category-badge">${article.categories[0]}</div>` : ''}
+                    ${article.imageUrl ? `
+                        <img src="${article.imageUrl}" 
+                            class="card-img-top" alt="${article.title}"
+                            loading="lazy">
+                    ` : `
+                       
+                    `}
+                </div>
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${article.title}</h5>
-                    <p class="card-text">${article.description}</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <i class="bi bi-tag"></i> ${article.categories.join(', ')}
-                            <i class="bi bi-globe ms-2"></i> ${COUNTRIES[article.countries[0]] || article.countries[0]}
-                            <i class="bi bi-translate ms-2"></i> ${LANGUAGES[article.language] || article.language}
-                        </small>
-                    </p>
-                    <p class="card-text">
-                        <a href="${article.url}" target="_blank" class="text-decoration-none">
-                            <i class="bi bi-link-45deg"></i> Read more
+                    <div class="sentiment-indicator ${sentimentClass} mb-2">
+                        ${sentimentIcon} ${sentimentText} Sentiment
+                    </div>
+                    <p class="card-text">${article.description || 'No description available'}</p>
+                    
+                    <div class="meta-info mt-auto">
+                        <span>
+                            <i class="bi bi-newspaper"></i>
+                            ${article.source ? article.source.name : 'Unknown Source'}
+                        </span>
+                        <span>
+                            <i class="bi bi-calendar3"></i>
+                            ${pubDate}
+                        </span>
+                    </div>
+                    
+                    <div class="meta-info mb-3">
+                        <span>
+                            <i class="bi bi-globe"></i>
+                            ${COUNTRIES[article.countries[0]] || article.countries[0] || 'Unknown'}
+                        </span>
+                        <span>
+                            <i class="bi bi-translate"></i>
+                            ${LANGUAGES[article.language] || article.language || 'Unknown'}
+                        </span>
+                    </div>
+                    
+                    <div class="card-action-buttons">
+                        <a href="/news/${article._id}" class="btn btn-primary">
+                            <i class="bi bi-newspaper me-1"></i> Read on NewsWorld
                         </a>
-                    </p>
+                        <a href="${article.url}" target="_blank" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Original Source
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
