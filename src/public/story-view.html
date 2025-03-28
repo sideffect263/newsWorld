@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Follow the evolving narrative of this news story. See how events unfold, track key developments, and understand the bigger picture through our AI-generated storyline.">
+    <title>Story View | NewsWorld</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+    <style>
+        /* Timeline styling */
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #0d6efd, #6610f2);
+            border-radius: 2px;
+        }
+        
+        .chapter {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding: 0 0 1.5rem 0;
+        }
+        
+        .chapter-marker {
+            position: absolute;
+            left: -2.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .chapter-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .chapter-date {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .chapter-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .articles-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+        
+        .article-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .article-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .article-source {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        
+        .article-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .story-sidebar {
+            position: sticky;
+            top: 6rem;
+        }
+        
+        .entity-tag {
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50px;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
+        .entity-tag.person {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        
+        .entity-tag.organization {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .entity-tag.location {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .entity-tag.event {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        
+        .prediction-card {
+            border-left: 4px solid #6610f2;
+            background-color: #f8f9fa;
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .confidence-meter {
+            height: 4px;
+            background-color: #e9ecef;
+            margin-top: 0.75rem;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            background-color: #6610f2;
+        }
+        
+        .story-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        /* Loading animation */
+        .timeline-loading .chapter {
+            opacity: 0.7;
+        }
+        
+        .timeline-loading .chapter-marker {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .chapter-summary {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            font-style: italic;
+            color: #495057;
+            margin-bottom: 1.25rem;
+            padding-left: 1rem;
+            border-left: 3px solid #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with navigation -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-globe me-2"></i>NewsWorld
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/news">News</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/stories" aria-current="page">Stories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/trends">Trends</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sentiment">Sentiment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sources">Sources</a>
+                    </li>
+                </ul>
+                <a class="btn btn-outline-light" href="/stories">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Stories
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4">
+        <div id="storyContent" class="pb-5">
+            <!-- Loading placeholder -->
+            <div class="story-header placeholder-glow">
+                <h1 class="display-5 fw-bold placeholder col-8"></h1>
+                <div class="placeholder col-12"></div>
+                <div class="placeholder col-10"></div>
+                <div class="d-flex mt-3">
+                    <span class="placeholder col-2 me-2"></span>
+                    <span class="placeholder col-2 me-2"></span>
+                    <span class="placeholder col-2"></span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 timeline-loading">
+                    <div class="chapter">
+                        <div class="chapter-marker">1</div>
+                        <h2 class="chapter-title placeholder-glow">
+                            <span class="placeholder col-8"></span>
+                        </h2>
+                        <div class="chapter-date placeholder-glow">
+                            <span class="placeholder col-4"></span>
+                        </div>
+                        <div class="chapter-content placeholder-glow">
+                            <span class="placeholder col-12"></span>
+                            <span class="placeholder col-12"></span>
+                            <span class="placeholder col-10"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="chapter">
+                        <div class="chapter-marker">2</div>
+                        <h2 class="chapter-title placeholder-glow">
+                            <span class="placeholder col-8"></span>
+                        </h2>
+                        <div class="chapter-date placeholder-glow">
+                            <span class="placeholder col-4"></span>
+                        </div>
+                        <div class="chapter-content placeholder-glow">
+                            <span class="placeholder col-12"></span>
+                            <span class="placeholder col-12"></span>
+                            <span class="placeholder col-10"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="story-sidebar">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body placeholder-glow">
+                                <h5 class="card-title placeholder col-8"></h5>
+                                <div class="placeholder col-12"></div>
+                                <div class="placeholder col-10"></div>
+                                <div class="placeholder col-8"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-globe me-2"></i>NewsWorld</h5>
+                    <p class="text-muted">
+                        Intelligent news aggregation and analysis
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">
+                        &copy; 2023 NewsWorld. All rights reserved.
+                    </p>
+                    <p class="text-muted">
+                        Data is automatically gathered from public RSS feeds.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Extract story ID from URL
+            const pathParts = window.location.pathname.split('/');
+            const storyId = pathParts[pathParts.length - 1];
+            
+            if (!storyId) {
+                showError('Story ID not found in URL');
+                return;
+            }
+            
+            // Fetch story data
+            fetch(`/api/stories/${storyId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Story not found');
+                    }
+                    return response.json();
+                })
+                .then(responseData => {
+                    if (responseData.status === 'success' && responseData.data) {
+                        renderStory(responseData.data);
+                    } else {
+                        showError('Error loading story data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching story:', error);
+                    showError('Error loading story: ' + error.message);
+                });
+            
+            // Render the story data
+            function renderStory(story) {
+                document.title = `${story.title} | NewsWorld`;
+                
+                // Update meta description
+                const metaDescription = document.querySelector('meta[name="description"]');
+                if (metaDescription) {
+                    metaDescription.setAttribute('content', story.summary);
+                }
+                
+                // Generate the main content HTML
+                const contentHTML = `
+                    <div class="story-header">
+                        <h1 class="display-5 fw-bold mb-3">${story.title}</h1>
+                        <p class="lead">${story.summary}</p>
+                        
+                        <div class="d-flex flex-wrap mt-3">
+                            ${generateCategoryBadges(story.categories)}
+                        </div>
+                        
+                        ${story.timeline ? `
+                        <div class="mt-3 text-muted">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            ${formatTimeRange(story.timeline.startDate, story.timeline.endDate)}
+                            
+                            ${story.timeline.ongoing ? 
+                                '<span class="badge bg-success ms-2">Ongoing</span>' : 
+                                '<span class="badge bg-secondary ms-2">Completed</span>'
+                            }
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-8">
+                            ${generateTimeline(story.chapters)}
+                        </div>
+                        
+                        <div class="col-lg-4">
+                            <div class="story-sidebar">
+                                ${generateKeyEntitiesCard(story.entities)}
+                                
+                                ${generatePredictionsSection(story.predictions)}
+                                
+                                ${story.relatedStories && story.relatedStories.length > 0 ? 
+                                    generateRelatedStoriesCard(story.relatedStories) : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update the DOM
+                document.getElementById('storyContent').innerHTML = contentHTML;
+            }
+            
+            // Helper function to format time range
+            function formatTimeRange(startDate, endDate) {
+                if (!startDate) return '';
+                
+                const start = new Date(startDate);
+                const end = endDate ? new Date(endDate) : new Date();
+                
+                const formatOptions = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                
+                return `${start.toLocaleDateString('en-US', formatOptions)} to ${end.toLocaleDateString('en-US', formatOptions)}`;
+            }
+            
+            // Generate category badges HTML
+            function generateCategoryBadges(categories) {
+                if (!categories || categories.length === 0) return '';
+                
+                const categoryColors = {
+                    politics: 'danger',
+                    technology: 'success',
+                    business: 'info',
+                    health: 'warning',
+                    science: 'dark',
+                    world: 'secondary',
+                    general: 'primary'
+                };
+                
+                return categories.map(category => {
+                    const color = categoryColors[category] || 'primary';
+                    return `<span class="badge bg-${color} me-2">${category}</span>`;
+                }).join('');
+            }
+            
+            // Generate timeline HTML
+            function generateTimeline(chapters) {
+                if (!chapters || chapters.length === 0) {
+                    return '<div class="alert alert-info">No chapters available for this story yet.</div>';
+                }
+                
+                // Sort chapters by date
+                const sortedChapters = [...chapters].sort((a, b) => {
+                    return new Date(a.publishedAt) - new Date(b.publishedAt);
+                });
+                
+                let timelineHTML = '<div class="timeline">';
+                
+                sortedChapters.forEach((chapter, index) => {
+                    const chapterDate = chapter.publishedAt ? 
+                        new Date(chapter.publishedAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        }) : '';
+                    
+                    timelineHTML += `
+                        <div class="chapter" id="chapter-${index + 1}">
+                            <div class="chapter-marker">${index + 1}</div>
+                            <h2 class="chapter-title">${chapter.title}</h2>
+                            ${chapterDate ? `<div class="chapter-date"><i class="bi bi-calendar3 me-1"></i>${chapterDate}</div>` : ''}
+                            
+                            ${chapter.summary ? `<div class="chapter-summary">${chapter.summary}</div>` : ''}
+                            
+                            <div class="chapter-content">
+                                ${chapter.content ? chapter.content.replace(/\n/g, '<br>') : 'No content available for this chapter.'}
+                            </div>
+                            
+                            ${chapter.articles && chapter.articles.length > 0 ? 
+                                generateArticlesList(chapter.articles) : ''}
+                        </div>
+                    `;
+                });
+                
+                timelineHTML += '</div>';
+                return timelineHTML;
+            }
+            
+            // Generate articles list HTML
+            function generateArticlesList(articles) {
+                if (!articles || articles.length === 0) return '';
+                
+                let html = `
+                    <div class="articles-container">
+                        <h5><i class="bi bi-newspaper me-1"></i>Source Articles (${articles.length})</h5>
+                `;
+                
+                articles.forEach(article => {
+                    const publishedDate = article.publishedAt ? 
+                        new Date(article.publishedAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        }) : '';
+                    
+                    html += `
+                        <div class="article-item">
+                            <h6><a href="${article.url}" target="_blank" rel="noopener">${article.title}</a></h6>
+                            <div class="article-source">
+                                <i class="bi bi-building me-1"></i>${article.source?.name || 'Unknown Source'}
+                            </div>
+                            ${publishedDate ? `<div class="article-date"><i class="bi bi-calendar3 me-1"></i>${publishedDate}</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                return html;
+            }
+            
+            // Generate key entities card HTML
+            function generateKeyEntitiesCard(entities) {
+                if (!entities || entities.length === 0) return '';
+                
+                // Sort entities by importance
+                const sortedEntities = [...entities].sort((a, b) => b.importance - a.importance);
+                
+                let html = `
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Key Entities</h5>
+                        </div>
+                        <div class="card-body">
+                `;
+                
+                sortedEntities.forEach(entity => {
+                    html += `<span class="entity-tag ${entity.type}">${entity.name}</span>`;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                return html;
+            }
+            
+            // Generate predictions section HTML
+            function generatePredictionsSection(predictions) {
+                if (!predictions || predictions.length === 0) return '';
+                
+                let html = `
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Predictions & Implications</h5>
+                `;
+                
+                predictions.forEach(prediction => {
+                    const confidence = prediction.confidence || 0.5;
+                    const confidencePercent = Math.round(confidence * 100);
+                    
+                    html += `
+                        <div class="prediction-card">
+                            <p class="mb-2">${prediction.content}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Confidence Level:</small>
+                                <small class="text-muted">${confidencePercent}%</small>
+                            </div>
+                            <div class="confidence-meter">
+                                <div class="confidence-level" style="width: ${confidencePercent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                return html;
+            }
+            
+            // Generate related stories card HTML
+            function generateRelatedStoriesCard(relatedStories) {
+                let html = `
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Related Stories</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                `;
+                
+                relatedStories.forEach(story => {
+                    html += `
+                        <li class="list-group-item">
+                            <a href="/stories/${story._id}" class="text-decoration-none">
+                                ${story.title}
+                            </a>
+                        </li>
+                    `;
+                });
+                
+                html += `
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                return html;
+            }
+            
+            // Show error message
+            function showError(message) {
+                document.getElementById('storyContent').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        ${message}
+                    </div>
+                    <div class="text-center">
+                        <a href="/stories" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-1"></i>Back to Stories
+                        </a>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -14,6 +14,7 @@ const sourcesRoutes = require('./routes/sources.routes');
 const statusRoutes = require('./routes/status.routes');
 const trendsRoutes = require('./routes/trends.routes');
 const sentimentRoutes = require('./routes/sentiment.routes');
+const storyRoutes = require('./routes/story.routes'); // New story routes
 const scheduler = require('./services/scheduler');
 
 // Initialize express app
@@ -126,6 +127,32 @@ app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/news.html'));
 });
 
+// Serve stories page (new)
+app.get('/stories', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/story.html'));
+});
+
+// Serve individual story page (new)
+app.get('/stories/:id', async (req, res) => {
+  try {
+    // Check if story exists (for SEO purposes)
+    const Story = require('./models/story.model');
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.redirect('/stories');
+    }
+    
+    // Track view count
+    story.viewCount = (story.viewCount || 0) + 1;
+    await story.save();
+    
+    res.sendFile(path.join(__dirname, 'public/story-view.html'));
+  } catch (error) {
+    console.error('Error serving story page:', error);
+    res.redirect('/stories');
+  }
+});
+
 // Removed protect middleware from routes
 app.use('/api/sources', sourcesRoutes);
 
@@ -136,6 +163,7 @@ app.get('/', (req, res) => {
 app.use('/api/news', newsRoutes);
 app.use('/api/trends', trendsRoutes);
 app.use('/api/sentiment', sentimentRoutes);
+app.use('/api/stories', storyRoutes); // New route
 app.use('/status', statusRoutes);
 
 // Removed reference to /api/users route

@@ -4,25 +4,29 @@ const Source = require('../models/source.model');
 const Article = require('../models/article.model');
 const trendAnalyzer = require('./trendAnalyzer');
 const sentimentAnalyzer = require('./sentimentAnalyzer');
+const axios = require('axios');
 
 // Initialize scheduled tasks and next scan times
 const tasks = {
   rss: null,
   api: null,
-  scraping: null
+  scraping: null,
+  stories: null // Add stories task
 };
 
 const nextScanTimes = {
   rss: null,
   api: null,
-  scraping: null
+  scraping: null,
+  stories: null // Add stories next scan time
 };
 
 // Default schedules for different source types
 const defaultSchedules = {
   rss: '*/15 * * * *',      // Every 15 minutes
   api: '*/30 * * * *',      // Every 30 minutes
-  scraping: '0 * * * *'     // Every hour
+  scraping: '0 * * * *',    // Every hour
+  stories: '0 */6 * * *'    // Every 6 hours
 };
 
 /**
@@ -140,6 +144,9 @@ exports.startNewsScheduler = () => {
   // Schedule sentiment analysis jobs
   scheduleSentimentAnalysis();
   
+  // Schedule story generation jobs
+  scheduleStoryGeneration();
+  
   console.log('News scheduler started');
 };
 
@@ -255,7 +262,8 @@ exports.getCurrentSchedules = () => {
   return {
     rss: tasks.rss ? defaultSchedules.rss : null,
     api: tasks.api ? defaultSchedules.api : null,
-    scraping: tasks.scraping ? defaultSchedules.scraping : null
+    scraping: tasks.scraping ? defaultSchedules.scraping : null,
+    stories: tasks.stories ? defaultSchedules.stories : null
   };
 };
 
@@ -422,5 +430,86 @@ const scheduleSentimentAnalysis = () => {
     console.log('Sentiment analysis scheduler started');
   } catch (error) {
     console.error('Error setting up sentiment analysis scheduler:', error);
+  }
+};
+
+/**
+ * Schedule story generation
+ */
+const scheduleStoryGeneration = () => {
+  try {
+    // Stop existing task if any
+    if (tasks.stories) {
+      tasks.stories.stop();
+      tasks.stories = null;
+    }
+    
+    const schedule = defaultSchedules.stories;
+    console.log(`Starting story generation scheduler with schedule: ${schedule}`);
+    
+    // Calculate and store next scan time
+    nextScanTimes.stories = calculateNextScanTime(schedule);
+    
+    // Create the story generation function
+    const generateStoriesFunction = async () => {
+      console.log(`Running story generation at ${new Date().toISOString()}`);
+      try {
+        // Use internal API call to trigger story generation
+        // In production, you might want to call the story controller directly
+        // This approach avoids circular dependencies
+        const result = await triggerStoryGeneration();
+        console.log(`Story generation result: ${result.message}`);
+        
+        // Update next scan time after successful generation
+        nextScanTimes.stories = calculateNextScanTime(schedule);
+        console.log(`Next story generation scheduled at: ${nextScanTimes.stories.toISOString()}`);
+      } catch (error) {
+        console.error('Error during story generation:', error);
+      }
+    };
+    
+    // Schedule the task
+    tasks.stories = cron.schedule(schedule, generateStoriesFunction);
+    
+    // Run initial story generation after a delay to ensure articles are fetched
+    setTimeout(async () => {
+      await generateStoriesFunction();
+      console.log('Initial story generation completed');
+    }, 5 * 60 * 1000); // 5 minutes delay
+    
+    console.log('Story generation scheduler started successfully');
+    return true;
+  } catch (error) {
+    console.error('Error starting story generation scheduler:', error);
+    return false;
+  }
+};
+
+/**
+ * Trigger story generation through API
+ */
+const triggerStoryGeneration = async () => {
+  try {
+    // Make an internal API call to the story generation endpoint
+    // This avoids direct dependency on the controller
+    const serverUrl = process.env.SERVER_URL || 'http://localhost:5000';
+    const response = await axios.post(`${serverUrl}/api/stories/generate`, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    return {
+      success: true,
+      message: 'Story generation triggered successfully',
+      data: response.data
+    };
+  } catch (error) {
+    console.error('Error triggering story generation:', error);
+    return {
+      success: false,
+      message: 'Failed to trigger story generation',
+      error: error.message
+    };
   }
 };
