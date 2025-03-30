@@ -44,6 +44,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// SEO optimizations
+app.use((req, res, next) => {
+  // Add X-Robots-Tag header to allow indexing on all pages
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  
+  // Add Link header with sitemap URL for search engines
+  res.setHeader('Link', '</sitemaps>; rel="sitemap"');
+  
+  next();
+});
+
 // Apply other security headers using helmet
 app.use(
   helmet({
@@ -103,7 +114,7 @@ app.get('/news-sitemap.xml', async (req, res) => {
       xml += '        <news:name>NewsWorld</news:name>\n';
       xml += '        <news:language>en</news:language>\n';
       xml += '      </news:publication>\n';
-      xml += `      <news:publication_date>${pubDate}</publication_date>\n`;
+      xml += `      <news:publication_date>${pubDate}</news:publication_date>\n`;
       xml += `      <news:title>${article.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</news:title>\n`;
       if (article.categories && article.categories.length > 0) {
         xml += `      <news:keywords>${article.categories.join(',')}</news:keywords>\n`;
@@ -116,6 +127,69 @@ app.get('/news-sitemap.xml', async (req, res) => {
     res.send(xml);
   } catch (error) {
     console.error('Error generating news sitemap:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Generate a stories sitemap
+app.get('/stories-sitemap.xml', async (req, res) => {
+  try {
+    const Story = require('./models/story.model');
+    const stories = await Story.find({})
+      .sort({ updatedAt: -1 })
+      .limit(1000)
+      .select('_id title updatedAt timeline categories keywords relevancyScore');
+
+    res.header('Content-Type', 'application/xml');
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n';
+    
+    stories.forEach(story => {
+      const lastMod = new Date(story.updatedAt).toISOString();
+      // Calculate priority based on relevancy score (scale 0-1)
+      const priority = Math.min(1, Math.max(0.1, (story.relevancyScore || 0) / 1000)).toFixed(1);
+      
+      xml += '  <url>\n';
+      xml += `    <loc>https://newsworld.com/stories/${story._id}</loc>\n`;
+      xml += `    <lastmod>${lastMod}</lastmod>\n`;
+      
+      // Add changefreq based on whether the story is ongoing
+      if (story.timeline && story.timeline.ongoing) {
+        xml += '    <changefreq>daily</changefreq>\n';
+      } else {
+        xml += '    <changefreq>weekly</changefreq>\n';
+      }
+      
+      // Add priority
+      xml += `    <priority>${priority}</priority>\n`;
+      
+      // Add news-specific tags
+      xml += '    <news:news>\n';
+      xml += '      <news:publication>\n';
+      xml += '        <news:name>NewsWorld</news:name>\n';
+      xml += '        <news:language>en</news:language>\n';
+      xml += '      </news:publication>\n';
+      xml += `      <news:publication_date>${lastMod}</news:publication_date>\n`;
+      xml += `      <news:title>${story.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</news:title>\n`;
+      
+      // Add keywords from categories and keywords
+      const allKeywords = [
+        ...(story.categories || []),
+        ...(story.keywords || [])
+      ];
+      
+      if (allKeywords.length > 0) {
+        xml += `      <news:keywords>${allKeywords.join(',')}</news:keywords>\n`;
+      }
+      
+      xml += '    </news:news>\n';
+      xml += '  </url>\n';
+    });
+    
+    xml += '</urlset>';
+    res.send(xml);
+  } catch (error) {
+    console.error('Error generating stories sitemap:', error);
     res.status(500).send('Error generating sitemap');
   }
 });
@@ -220,6 +294,10 @@ app.get('/sitemaps', (req, res) => {
   </sitemap>
   <sitemap>
     <loc>https://newsworld.com/news-sitemap.xml</loc>
+    <lastmod>${lastMod}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://newsworld.com/stories-sitemap.xml</loc>
     <lastmod>${lastMod}</lastmod>
   </sitemap>
 </sitemapindex>`;

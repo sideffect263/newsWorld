@@ -3,13 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore AI-generated narrative stories based on trending news topics. Follow evolving storylines and see how connected events unfold over time.">
-    <title>News Stories - Narrative Timelines | NewsWorld</title>
+    <meta name="description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
+    <title>News Stories & Narratives | NewsWorld</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://newsworld.com/stories">
+    <meta property="og:title" content="News Stories & Narratives | NewsWorld">
+    <meta property="og:description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
+    <meta property="og:image" content="/favicon/android-chrome-512x512.png">
+    <meta property="og:site_name" content="NewsWorld">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="News Stories & Narratives | NewsWorld">
+    <meta name="twitter:description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
+    <meta name="twitter:image" content="/favicon/android-chrome-512x512.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://newsworld.com/stories">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="styles/common.css">
-    <link rel="icon" type="image/png" href="favicon/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="favicon/favicon-16x16.png" sizes="16x16">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "News Stories & Narratives",
+      "description": "Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.",
+      "url": "https://newsworld.com/stories",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "NewsWorld",
+        "url": "https://newsworld.com"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "NewsWorld",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "/favicon/android-chrome-512x512.png"
+        }
+      }
+    }
+    </script>
     <style>
         .story-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -575,17 +618,26 @@
                     }
                 }
                 
+                // Format date for structured data
+                const publishDate = story.timeline && story.timeline.startDate 
+                    ? new Date(story.timeline.startDate).toISOString()
+                    : new Date().toISOString();
+                
+                // Create article with structured data attributes
                 col.innerHTML = `
-                    <div class="card story-card">
-                        <div class="card-body">
-                            <h2 class="card-title">${story.title}</h2>
-                            <p class="card-text">${story.summary}</p>
+                    <article class="card story-card h-100" itemscope itemtype="https://schema.org/Article">
+                        <meta itemprop="datePublished" content="${publishDate}">
+                        ${story.keywords ? `<meta itemprop="keywords" content="${story.keywords.join(', ')}">` : ''}
+                        ${story.categories ? `<meta itemprop="articleSection" content="${story.categories.join(', ')}">` : ''}
+                        <div class="card-body d-flex flex-column">
+                            <h2 class="card-title h5" itemprop="headline">${story.title}</h2>
+                            <p class="card-text flex-grow-1" itemprop="description">${story.summary}</p>
                             
                             <div class="d-flex justify-content-between align-items-start mt-3">
                                 <div>
                                     ${categoryBadges}
                                 </div>
-                                <small class="text-muted">${timeString}</small>
+                                <small class="text-muted" itemprop="dateCreated">${timeString}</small>
                             </div>
                             
                             <div class="timeline-indicator">
@@ -597,11 +649,16 @@
                                 </div>
                             </div>
                             
-                            <div class="mt-3">
-                                <a href="/stories/${story._id}" class="btn btn-primary btn-sm">Read Full Story</a>
+                            <div class="mt-3 text-end">
+                                <a href="/stories/${story._id}" class="btn btn-primary btn-sm" itemprop="url">
+                                    Read Full Story <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
+                        <span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+                            <meta itemprop="name" content="NewsWorld">
+                        </span>
+                    </article>
                 `;
                 
                 return col;

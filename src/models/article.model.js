@@ -97,6 +97,14 @@ const articleSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    relatedArticles: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Article'
+    }],
+    storyReferences: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Story'
+    }]
   },
   {
     timestamps: true,
@@ -112,6 +120,8 @@ articleSchema.index({ categories: 1 });
 articleSchema.index({ countries: 1 });
 articleSchema.index({ 'source.name': 1 });
 articleSchema.index({ 'entities.name': 1, 'entities.type': 1 });
+articleSchema.index({ relatedArticles: 1 });
+articleSchema.index({ storyReferences: 1 });
 
 // Virtual for article age
 articleSchema.virtual('age').get(function() {

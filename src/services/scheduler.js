@@ -26,7 +26,7 @@ const defaultSchedules = {
   rss: '*/15 * * * *',      // Every 15 minutes
   api: '*/30 * * * *',      // Every 30 minutes
   scraping: '0 * * * *',    // Every hour
-  stories: '0 */6 * * *'    // Every 6 hours
+  stories: '0 */3 * * *'    // Every 3 hours (changed from 6)
 };
 
 /**
@@ -490,8 +490,10 @@ const scheduleStoryGeneration = () => {
  */
 const triggerStoryGeneration = async () => {
   try {
+    // First, find potentially related articles that might be good for stories
+    await findRelatedArticles();
+
     // Make an internal API call to the story generation endpoint
-    // This avoids direct dependency on the controller
     const serverUrl = process.env.SERVER_URL || 'http://localhost:5000';
     const response = await axios.post(`${serverUrl}/api/stories/generate`, {}, {
       headers: {
@@ -513,3 +515,78 @@ const triggerStoryGeneration = async () => {
     };
   }
 };
+
+/**
+ * Find related articles that could be used in stories
+ * This helps prepare the data for story generation by grouping related content
+ */
+async function findRelatedArticles() {
+  try {
+    const Article = require('../models/article.model');
+    
+    // Get recent articles from the last 72 hours
+    const cutoffDate = new Date();
+    cutoffDate.setHours(cutoffDate.getHours() - 72);
+    
+    // Get articles that have entities but haven't been processed for relationships
+    const articles = await Article.find({
+      publishedAt: { $gte: cutoffDate },
+      'entities.0': { $exists: true }, // Has at least one entity
+      relatedArticles: { $exists: false } // Hasn't been processed yet
+    }).limit(200);
+    
+    if (articles.length === 0) {
+      console.log('No new articles to process for relationships');
+      return;
+    }
+    
+    console.log(`Finding relationships among ${articles.length} articles`);
+    
+    // Track related article pairs
+    const relationPairs = [];
+    
+    // For each article, find potential matches based on shared entities
+    for (let i = 0; i < articles.length; i++) {
+      const article = articles[i];
+      const articleEntities = new Set(article.entities.map(e => `${e.type}:${e.name.toLowerCase()}`));
+      
+      // Compare with other articles
+      for (let j = i + 1; j < articles.length; j++) {
+        const otherArticle = articles[j];
+        const otherEntities = new Set(otherArticle.entities.map(e => `${e.type}:${e.name.toLowerCase()}`));
+        
+        // Find common entities
+        const commonEntities = [...articleEntities].filter(entity => otherEntities.has(entity));
+        
+        // If they share enough entities, mark as related
+        if (commonEntities.length >= 2) {
+          relationPairs.push({
+            sourceId: article._id,
+            targetId: otherArticle._id,
+            commonEntities: commonEntities
+          });
+        }
+      }
+      
+      // Mark as processed by adding an empty relatedArticles array
+      await Article.findByIdAndUpdate(article._id, { 
+        $set: { relatedArticles: [] } 
+      });
+    }
+    
+    // Update related articles in the database
+    for (const pair of relationPairs) {
+      await Article.findByIdAndUpdate(pair.sourceId, {
+        $addToSet: { relatedArticles: pair.targetId }
+      });
+      
+      await Article.findByIdAndUpdate(pair.targetId, {
+        $addToSet: { relatedArticles: pair.sourceId }
+      });
+    }
+    
+    console.log(`Found ${relationPairs.length} article relationships`);
+  } catch (error) {
+    console.error('Error finding related articles:', error);
+  }
+}

@@ -97,6 +97,11 @@ const storySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    relevancyScore: {
+      type: Number,
+      default: 0,
+      index: true
+    },
     relatedStories: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Story'
@@ -117,6 +122,7 @@ storySchema.index({ keywords: 1 });
 storySchema.index({ countries: 1 });
 storySchema.index({ 'timeline.startDate': 1 });
 storySchema.index({ 'entities.name': 1, 'entities.type': 1 });
+storySchema.index({ 'timeline.ongoing': 1, relevancyScore: -1 });
 
 // Calculate article count
 storySchema.virtual('articleCount').get(function() {

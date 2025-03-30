@@ -1,7 +1,14 @@
+# Robots.txt for NewsWorld
+
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /login.html
-Disallow: /register.html
+Allow: /news/
+Allow: /stories/
+Allow: /trends/
+Allow: /sentiment/
 
-Sitemap: https://newsworld.com/sitemap.xml 
+# Sitemaps
+Sitemap: https://newsworld.com/sitemaps
+Sitemap: https://newsworld.com/sitemap.xml
+Sitemap: https://newsworld.com/news-sitemap.xml
+Sitemap: https://newsworld.com/stories-sitemap.xml 
