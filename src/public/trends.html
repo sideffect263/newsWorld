@@ -258,6 +258,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/filter-handler.js"></script>
   <script src="/scripts/trends.js"></script>
+  <script src="/js/trending-keywords.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Load header component
@@ -273,7 +274,7 @@
       // Load initial trends
       loadTrends();
 
-      // Load trending keywords
+      // Load trending keywords from the common implementation
       tryFetchTrendingKeywords();
       
       // Initialize chart
@@ -450,43 +451,6 @@
         });
       }
 
-        // Function to attempt to fetch trending keywords
-    function tryFetchTrendingKeywords() {
-        fetch('/api/trends/keywords?timeframe=daily')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('API response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && data.data && data.data.length > 0) {
-                    const tickerContainer = document.getElementById('trending-keywords');
-                    if (tickerContainer) {
-                        tickerContainer.innerHTML = '';
-                        
-                        data.data.forEach(item => {
-                            const tickerItem = document.createElement('span');
-                            tickerItem.className = 'ticker-item';
-                            
-                            const link = document.createElement('a');
-                            link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
-                            link.textContent = `${item.keyword} (${item.count})`;
-                            
-                            tickerItem.appendChild(link);
-                            tickerContainer.appendChild(tickerItem);
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                console.log('Using default trending keywords:', error);
-                // Keep using the default keywords
-            });
-    }
-
-   
-      
       // Function to update chart
       function updateChart(trends, label) {
         if (!trends || !trends.length) return;

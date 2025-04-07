@@ -462,7 +462,17 @@ const scheduleStoryGeneration = () => {
         
         // Update next scan time after successful generation
         nextScanTimes.stories = calculateNextScanTime(schedule);
-        console.log(`Next story generation scheduled at: ${nextScanTimes.stories.toISOString()}`);
+        try {
+          if (nextScanTimes.stories instanceof Date && !isNaN(nextScanTimes.stories)) {
+            console.log(`Next story generation scheduled at: ${nextScanTimes.stories.toISOString()}`);
+          } else {
+            console.log(`Next story generation scheduled, but date could not be formatted: ${nextScanTimes.stories}`);
+          }
+        } catch (error) {
+          console.error('Error formatting next scan time:', error);
+          console.log(`Next story generation scheduled at an invalid date. Resetting to current time + 3 hours.`);
+          nextScanTimes.stories = new Date(Date.now() + 3 * 60 * 60 * 1000);
+        }
       } catch (error) {
         console.error('Error during story generation:', error);
       }

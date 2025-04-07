@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFilters();
     loadNews();
     setupEventListeners();
-
-    // Fetch trending keywords
+    
+    // Load trending keywords
     tryFetchTrendingKeywords();
 });
 
@@ -54,41 +54,6 @@ function initializeFilters() {
     Object.entries(LANGUAGES).forEach(([code, name]) => {
         languageFilter.add(new Option(name, code));
     });
-}
-
- // Function to attempt to fetch trending keywords
- function tryFetchTrendingKeywords() {
-    fetch('/api/trends/keywords?timeframe=daily')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('API response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success && data.data && data.data.length > 0) {
-                const tickerContainer = document.getElementById('trending-keywords');
-                if (tickerContainer) {
-                    tickerContainer.innerHTML = '';
-                    
-                    data.data.forEach(item => {
-                        const tickerItem = document.createElement('span');
-                        tickerItem.className = 'ticker-item';
-                        
-                        const link = document.createElement('a');
-                        link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
-                        link.textContent = `${item.keyword} (${item.count})`;
-                        
-                        tickerItem.appendChild(link);
-                        tickerContainer.appendChild(tickerItem);
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.log('Using default trending keywords:', error);
-            // Keep using the default keywords
-        });
 }
 
 // Load news from API

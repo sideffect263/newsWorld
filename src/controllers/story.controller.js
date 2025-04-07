@@ -244,6 +244,23 @@ async function createOrUpdateStories() {
     // Get all article IDs to update story references later
     const allArticleIds = cluster.articles.map(article => article._id);
     
+    // Validate dates before using them
+    const validateDate = (date) => {
+      const validDate = new Date(date);
+      return !isNaN(validDate) ? validDate : new Date();
+    };
+
+    // Get safe start and end dates for the timeline
+    const earliestArticleDate = cluster.articles.reduce((earliest, article) => {
+      const pubDate = validateDate(article.publishedAt);
+      return pubDate < earliest ? pubDate : earliest;
+    }, new Date());
+
+    const latestArticleDate = cluster.articles.reduce((latest, article) => {
+      const pubDate = validateDate(article.publishedAt);
+      return pubDate > latest ? pubDate : latest;
+    }, new Date(0)); // Start with epoch
+    
     if (story) {
       // Update existing story
       const articleIds = cluster.articles.map(article => article._id);
@@ -287,7 +304,7 @@ async function createOrUpdateStories() {
               summary: chapterSummary,
               content: generateChapterContent(articles),
               articles: articles.map(a => a._id),
-              publishedAt: articles[0].publishedAt,
+              publishedAt: validateDate(articles[0].publishedAt),
               updatedAt: new Date()
             });
           }
@@ -320,7 +337,7 @@ async function createOrUpdateStories() {
           summary: generateChapterSummary(articles),
           content: generateChapterContent(articles),
           articles: articles.map(a => a._id),
-          publishedAt: articles[0].publishedAt,
+          publishedAt: validateDate(articles[0].publishedAt),
           updatedAt: new Date()
         });
       }
@@ -343,8 +360,8 @@ async function createOrUpdateStories() {
         categories: Array.from(cluster.categories),
         predictions: generatePredictions(chapters, cluster.categories, sentimentTrend),
         timeline: {
-          startDate: cluster.articles[0].publishedAt,
-          endDate: cluster.articles[cluster.articles.length - 1].publishedAt,
+          startDate: earliestArticleDate,
+          endDate: latestArticleDate,
           ongoing: true
         },
         countries: Array.from(cluster.countries),
@@ -796,8 +813,22 @@ function groupArticlesByDate(articles) {
 
 // Format date for grouping (YYYY-MM-DD)
 function formatDateForGrouping(date) {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  try {
+    const d = new Date(date);
+    
+    // Check if date is valid
+    if (isNaN(d.getTime())) {
+      console.warn(`Invalid date encountered: ${date}, using current date instead`);
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+    
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  } catch (error) {
+    console.error(`Error formatting date: ${date}`, error);
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
 }
 
 // Extract keywords from articles

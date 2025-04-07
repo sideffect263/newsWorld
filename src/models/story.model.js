@@ -126,7 +126,7 @@ storySchema.index({ 'timeline.ongoing': 1, relevancyScore: -1 });
 
 // Calculate article count
 storySchema.virtual('articleCount').get(function() {
-  return this.chapters.reduce((count, chapter) => count + chapter.articles.length, 0);
+  return this.chapters ? this.chapters.reduce((count, chapter) => count + chapter.articles.length, 0) : 0;
 });
 
 // Pre-save hook to ensure categories are lowercase

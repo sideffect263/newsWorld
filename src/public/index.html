@@ -693,19 +693,27 @@
     }
     </script>
 
+    <!-- Critical scripts first -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/scripts/index.js"></script>
-    <!-- Chart.js for data visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    
+    <!-- App scripts -->
+    <script src="/js/header.js"></script>
+    <script src="/js/trending-keywords.js"></script>
+    <script src="/scripts/index.js"></script>
     
     <!-- Modified script to add lazy loading for images -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("Index page: DOM Content Loaded");
+        
         // Load header
         fetch('/components/header.html')
             .then(response => response.text())
             .then(html => {
                 document.getElementById('header').innerHTML = html;
+                console.log("Header loaded into page");
                 
                 // Initialize Bootstrap components after header is loaded
                 // This ensures the hamburger menu and dropdowns work correctly
@@ -715,6 +723,19 @@
                 // Setup header functionality
                 const path = window.location.pathname;
                 setupNavigation(path);
+                
+                // Now that header is loaded, try to fetch trending keywords
+                console.log("Calling tryFetchTrendingKeywords after header loaded");
+                if (typeof window.tryFetchTrendingKeywords === 'function') {
+                    window.tryFetchTrendingKeywords();
+                } else if (typeof tryFetchTrendingKeywords === 'function') {
+                    tryFetchTrendingKeywords();
+                } else {
+                    console.error("tryFetchTrendingKeywords function not available!");
+                }
+            })
+            .catch(err => {
+                console.error("Error loading header:", err);
             });
 
         // Load latest news preview with lazy loading
@@ -725,9 +746,6 @@
         
         // Load trend analysis data
         loadTrendData();
-        
-        // Fetch trending keywords
-        tryFetchTrendingKeywords();
     });
     
     // Setup navigation functionality
@@ -779,21 +797,9 @@
             })
             .then(data => {
                 if (data.success && data.data && data.data.length > 0) {
-                    const tickerContainer = document.getElementById('trending-keywords');
-                    if (tickerContainer) {
-                        tickerContainer.innerHTML = '';
-                        
-                        data.data.forEach(item => {
-                            const tickerItem = document.createElement('span');
-                            tickerItem.className = 'ticker-item';
-                            
-                            const link = document.createElement('a');
-                            link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
-                            link.textContent = `${item.keyword} (${item.count})`;
-                            
-                            tickerItem.appendChild(link);
-                            tickerContainer.appendChild(tickerItem);
-                        });
+                    // Use the updateTrendingKeywords function from header.js
+                    if (typeof updateTrendingKeywords === 'function') {
+                        updateTrendingKeywords(data.data);
                     }
                 }
             })
@@ -809,21 +815,9 @@
                     { keyword: "Renewable Energy", count: 59 }
                 ];
                 
-                const tickerContainer = document.getElementById('trending-keywords');
-                if (tickerContainer) {
-                    tickerContainer.innerHTML = '';
-                    
-                    fallbackKeywords.forEach(item => {
-                        const tickerItem = document.createElement('span');
-                        tickerItem.className = 'ticker-item';
-                        
-                        const link = document.createElement('a');
-                        link.href = `/news?search=${encodeURIComponent(item.keyword)}`;
-                        link.textContent = `${item.keyword} (${item.count})`;
-                        
-                        tickerItem.appendChild(link);
-                        tickerContainer.appendChild(tickerItem);
-                    });
+                // Use the updateTrendingKeywords function from header.js
+                if (typeof updateTrendingKeywords === 'function') {
+                    updateTrendingKeywords(fallbackKeywords);
                 }
             });
     }

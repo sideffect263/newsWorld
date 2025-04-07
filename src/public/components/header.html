@@ -54,15 +54,18 @@
                     <i class="bi bi-fire"></i> Trending:
                 </div>
                 <div class="ticker-content">
-                    <div class="ticker-items" id="trending-keywords">
-                        <span class="ticker-item"><a href="/news?search=Technology">Technology (24)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Politics">Politics (18)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Health">Health (15)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Economy">Economy (12)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Climate">Climate (10)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Sports">Sports (9)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Entertainment">Entertainment (8)</a></span>
-                        <span class="ticker-item"><a href="/news?search=Science">Science (7)</a></span>
+                    <!-- Swiper container -->
+                    <div class="swiper trending-swiper">
+                        <div class="swiper-wrapper" id="trending-keywords">
+                            <div class="swiper-slide"><a href="/news?search=Technology">Technology (24)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Politics">Politics (18)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Health">Health (15)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Economy">Economy (12)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Climate">Climate (10)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Sports">Sports (9)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Entertainment">Entertainment (8)</a></div>
+                            <div class="swiper-slide"><a href="/news?search=Science">Science (7)</a></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,5 +73,28 @@
     </div>
 </div>
 
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
 <!-- Header Scripts -->
 <script src="/js/header.js"></script>
+
+<!-- Debug info - load time -->
+<script>
+    console.log('Header component loaded: ' + new Date().toISOString());
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Header DOM Content Loaded: ' + new Date().toISOString());
+        
+        // Add window load event to make sure Swiper is available
+        window.addEventListener('load', () => {
+            console.log('Window fully loaded: ' + new Date().toISOString());
+            console.log('Swiper globally available:', typeof Swiper !== 'undefined');
+            if (typeof window.updateTrendingKeywords === 'function') {
+                console.log('updateTrendingKeywords is globally available');
+            }
+        });
+    });
+</script>
