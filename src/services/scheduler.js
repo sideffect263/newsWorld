@@ -5,6 +5,7 @@ const Article = require("../models/article.model");
 const trendAnalyzer = require("./trendAnalyzer");
 const sentimentAnalyzer = require("./sentimentAnalyzer");
 const axios = require("axios");
+const cronParser = require("cron-parser");
 
 // Initialize scheduled tasks and next scan times
 const tasks = {
@@ -34,8 +35,7 @@ const defaultSchedules = {
  */
 const calculateNextScanTime = (cronExpression) => {
   try {
-    const parser = require("cron-parser");
-    const interval = parser.parseExpression(cronExpression);
+    const interval = cronParser.parseExpression(cronExpression);
     const nextDate = interval.next().toDate();
 
     // Validate the calculated date
