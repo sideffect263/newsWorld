@@ -1,85 +1,55 @@
-const cron = require('node-cron');
-const newsFetcher = require('./newsFetcher');
-const Source = require('../models/source.model');
-const Article = require('../models/article.model');
-const trendAnalyzer = require('./trendAnalyzer');
-const sentimentAnalyzer = require('./sentimentAnalyzer');
-const axios = require('axios');
+const cron = require("node-cron");
+const newsFetcher = require("./newsFetcher");
+const Source = require("../models/source.model");
+const Article = require("../models/article.model");
+const trendAnalyzer = require("./trendAnalyzer");
+const sentimentAnalyzer = require("./sentimentAnalyzer");
+const axios = require("axios");
 
 // Initialize scheduled tasks and next scan times
 const tasks = {
   rss: null,
   api: null,
   scraping: null,
-  stories: null // Add stories task
+  stories: null, // Add stories task
 };
 
 const nextScanTimes = {
   rss: null,
   api: null,
   scraping: null,
-  stories: null // Add stories next scan time
+  stories: null, // Add stories next scan time
 };
 
 // Default schedules for different source types
 const defaultSchedules = {
-  rss: '*/15 * * * *',      // Every 15 minutes
-  api: '*/30 * * * *',      // Every 30 minutes
-  scraping: '0 * * * *',    // Every hour
-  stories: '0 */3 * * *'    // Every 3 hours (changed from 6)
+  rss: "*/15 * * * *", // Every 15 minutes
+  api: "*/30 * * * *", // Every 30 minutes
+  scraping: "0 * * * *", // Every hour
+  stories: "0 */3 * * *", // Every 3 hours (changed from 6)
 };
 
 /**
- * Calculate next scan time from cron schedule
+ * Calculate next scan time based on cron schedule
  */
-const calculateNextScanTime = (schedule) => {
+const calculateNextScanTime = (cronExpression) => {
   try {
-    const now = new Date();
-    const parts = schedule.split(' ');
-    if (parts.length !== 5) return null;
+    const parser = require("cron-parser");
+    const interval = parser.parseExpression(cronExpression);
+    const nextDate = interval.next().toDate();
 
-    const [minute, hour, day, month, weekday] = parts;
-    
-    // Create next date
-    const next = new Date(now);
-    
-    // Handle different schedule patterns
-    if (minute === '*' && hour === '*') {
-      // Every minute
-      next.setMinutes(next.getMinutes() + 1);
-    } else if (minute.startsWith('*/')) {
-      // Every X minutes
-      const interval = parseInt(minute.split('/')[1]);
-      next.setMinutes(Math.ceil(next.getMinutes() / interval) * interval);
-    } else if (minute === '0' && hour === '*') {
-      // Every hour
-      next.setHours(next.getHours() + 1);
-      next.setMinutes(0);
-    } else {
-      // Specific minute and hour
-      const targetMinute = minute === '*' ? 0 : parseInt(minute);
-      const targetHour = hour === '*' ? next.getHours() : parseInt(hour);
-      
-      next.setHours(targetHour);
-      next.setMinutes(targetMinute);
-      
-      // If the calculated time is in the past, move to the next occurrence
-      if (next <= now) {
-        if (minute === '*' && hour !== '*') {
-          next.setHours(next.getHours() + 1);
-          next.setMinutes(0);
-        } else if (hour === '*' && minute !== '*') {
-          next.setMinutes(next.getMinutes() + 60);
-        } else {
-          next.setDate(next.getDate() + 1);
-        }
-      }
+    // Validate the calculated date
+    if (isNaN(nextDate.getTime())) {
+      console.warn(`Invalid next scan date calculated from cron expression: ${cronExpression}`);
+      // Fallback to 3 hours from now
+      return new Date(Date.now() + 3 * 60 * 60 * 1000);
     }
-    
-    return next;
+
+    return nextDate;
   } catch (error) {
-    console.error(`Error calculating next scan time for schedule ${schedule}:`, error);
-    return null;
+    console.error(`Error calculating next scan time from cron expression: ${cronExpression}`, error);
+    // Fallback to 3 hours from now
+    return new Date(Date.now() + 3 * 60 * 60 * 1000);
   }
 };
 
@@ -88,33 +58,33 @@ const calculateNextScanTime = (schedule) => {
  */
 exports.getDetailedScheduleInfo = async () => {
   const sources = await Source.find({ isActive: true });
-  
+
   const scheduleInfo = {
     methods: {},
-    sources: []
+    sources: [],
   };
 
   // Group sources by fetch method
   const sourceGroups = {
-    rss: sources.filter(s => s.fetchMethod === 'rss'),
-    api: sources.filter(s => s.fetchMethod === 'api'),
-    scraping: sources.filter(s => s.fetchMethod === 'scraping')
+    rss: sources.filter((s) => s.fetchMethod === "rss"),
+    api: sources.filter((s) => s.fetchMethod === "api"),
+    scraping: sources.filter((s) => s.fetchMethod === "scraping"),
   };
 
   // Get info for each method
   for (const [method, sources] of Object.entries(sourceGroups)) {
     const schedule = defaultSchedules[method];
     const nextScan = calculateNextScanTime(schedule);
-    
+
     scheduleInfo.methods[method] = {
       schedule,
       nextScan: nextScan ? nextScan.toISOString() : null,
       isRunning: !!tasks[method],
-      sourceCount: sources.length
+      sourceCount: sources.length,
     };
 
     // Add individual source info
-    sources.forEach(source => {
+    sources.forEach((source) => {
       scheduleInfo.sources.push({
         id: source._id,
         name: source.name,
@@ -123,7 +93,7 @@ exports.getDetailedScheduleInfo = async () => {
         nextScan: nextScan ? nextScan.toISOString() : null,
         lastFetched: source.lastFetchedAt ? source.lastFetchedAt.toISOString() : null,
         fetchStatus: source.fetchStatus,
-        fetchFrequency: source.fetchFrequency
+        fetchFrequency: source.fetchFrequency,
       });
     });
   }
@@ -137,17 +107,17 @@ exports.getDetailedScheduleInfo = async () => {
 exports.startNewsScheduler = () => {
   // Schedule news fetching jobs
   scheduleNewsFetching();
-  
+
   // Schedule trend analysis jobs
   scheduleTrendAnalysis();
-  
+
   // Schedule sentiment analysis jobs
   scheduleSentimentAnalysis();
-  
+
   // Schedule story generation jobs
   scheduleStoryGeneration();
-  
-  console.log('News scheduler started');
+
+  console.log("News scheduler started");
 };
 
 /**
@@ -157,12 +127,12 @@ const scheduleNewsFetching = async () => {
   try {
     // Get all active sources
     const sources = await Source.find({ isActive: true });
-    
+
     // Group sources by fetch method
     const sourceGroups = {
-      rss: sources.filter(s => s.fetchMethod === 'rss'),
-      api: sources.filter(s => s.fetchMethod === 'api'),
-      scraping: sources.filter(s => s.fetchMethod === 'scraping')
+      rss: sources.filter((s) => s.fetchMethod === "rss"),
+      api: sources.filter((s) => s.fetchMethod === "api"),
+      scraping: sources.filter((s) => s.fetchMethod === "scraping"),
     };
 
     // Start schedulers for each group
@@ -172,10 +142,10 @@ const scheduleNewsFetching = async () => {
       }
     }
 
-    console.log('All news schedulers started successfully');
+    console.log("All news schedulers started successfully");
     return true;
   } catch (error) {
-    console.error('Error starting news schedulers:', error);
+    console.error("Error starting news schedulers:", error);
     return false;
   }
 };
@@ -202,9 +172,9 @@ const startMethodScheduler = async (method, sources) => {
       console.log(`Running ${method} fetch at ${new Date().toISOString()}`);
       try {
         // Force fetch regardless of frequency for initial run
-        const result = await newsFetcher.fetchAllNews({ 
+        const result = await newsFetcher.fetchAllNews({
           fetchMethod: method,
-          forceFetch: true // Add this option to newsFetcher
+          forceFetch: true, // Add this option to newsFetcher
         });
         console.log(`${method} fetch result: ${result.message}`);
         // Update next scan time after successful fetch
@@ -232,7 +202,7 @@ const startMethodScheduler = async (method, sources) => {
  */
 exports.stopNewsScheduler = () => {
   let stopped = false;
-  
+
   for (const [method, task] of Object.entries(tasks)) {
     if (task) {
       task.stop();
@@ -240,11 +210,11 @@ exports.stopNewsScheduler = () => {
       stopped = true;
     }
   }
-  
+
   if (stopped) {
-    console.log('All news schedulers stopped');
+    console.log("All news schedulers stopped");
   }
-  
+
   return stopped;
 };
 
@@ -252,7 +222,7 @@ exports.stopNewsScheduler = () => {
  * Check if the scheduler is running
  */
 exports.isSchedulerRunning = () => {
-  return Object.values(tasks).some(task => task !== null);
+  return Object.values(tasks).some((task) => task !== null);
 };
 
 /**
@@ -263,7 +233,7 @@ exports.getCurrentSchedules = () => {
     rss: tasks.rss ? defaultSchedules.rss : null,
     api: tasks.api ? defaultSchedules.api : null,
     scraping: tasks.scraping ? defaultSchedules.scraping : null,
-    stories: tasks.stories ? defaultSchedules.stories : null
+    stories: tasks.stories ? defaultSchedules.stories : null,
   };
 };
 
@@ -279,7 +249,7 @@ exports.updateSchedule = async (method, schedule) => {
   try {
     defaultSchedules[method] = schedule;
     const sources = await Source.find({ isActive: true, fetchMethod: method });
-    
+
     if (sources.length > 0) {
       await startMethodScheduler(method, sources);
       return true;
@@ -297,11 +267,11 @@ exports.updateSchedule = async (method, schedule) => {
  */
 exports.runManualFetch = async (method = null) => {
   console.log(`Running manual news fetch at ${new Date().toISOString()}`);
-  
+
   try {
     return await newsFetcher.fetchAllNews(method ? { fetchMethod: method } : null);
   } catch (error) {
-    console.error('Error in manual news fetch:', error);
+    console.error("Error in manual news fetch:", error);
     throw error;
   }
 };
@@ -312,64 +282,64 @@ exports.runManualFetch = async (method = null) => {
 const scheduleTrendAnalysis = () => {
   try {
     // Hourly trends - every hour
-    cron.schedule('0 * * * *', async () => {
-      console.log('Running hourly trend analysis...');
+    cron.schedule("0 * * * *", async () => {
+      console.log("Running hourly trend analysis...");
       try {
         const result = await trendAnalyzer.analyzeTrends({
-          timeframe: 'hourly',
-          limit: 500
+          timeframe: "hourly",
+          limit: 500,
         });
-        console.log(`Hourly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+        console.log(`Hourly trend analysis completed: ${result.success ? "Success" : "Failed"}`);
       } catch (error) {
-        console.error('Error in hourly trend analysis job:', error);
+        console.error("Error in hourly trend analysis job:", error);
       }
     });
-    
+
     // Daily trends - every 6 hours
-    cron.schedule('0 */6 * * *', async () => {
-      console.log('Running daily trend analysis...');
+    cron.schedule("0 */6 * * *", async () => {
+      console.log("Running daily trend analysis...");
       try {
         const result = await trendAnalyzer.analyzeTrends({
-          timeframe: 'daily',
-          limit: 1000
+          timeframe: "daily",
+          limit: 1000,
         });
-        console.log(`Daily trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+        console.log(`Daily trend analysis completed: ${result.success ? "Success" : "Failed"}`);
       } catch (error) {
-        console.error('Error in daily trend analysis job:', error);
+        console.error("Error in daily trend analysis job:", error);
       }
     });
-    
+
     // Weekly trends - once per day
-    cron.schedule('0 0 * * *', async () => {
-      console.log('Running weekly trend analysis...');
+    cron.schedule("0 0 * * *", async () => {
+      console.log("Running weekly trend analysis...");
       try {
         const result = await trendAnalyzer.analyzeTrends({
-          timeframe: 'weekly',
-          limit: 5000
+          timeframe: "weekly",
+          limit: 5000,
         });
-        console.log(`Weekly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+        console.log(`Weekly trend analysis completed: ${result.success ? "Success" : "Failed"}`);
       } catch (error) {
-        console.error('Error in weekly trend analysis job:', error);
+        console.error("Error in weekly trend analysis job:", error);
       }
     });
-    
+
     // Monthly trends - once per week
-    cron.schedule('0 0 * * 0', async () => {
-      console.log('Running monthly trend analysis...');
+    cron.schedule("0 0 * * 0", async () => {
+      console.log("Running monthly trend analysis...");
       try {
         const result = await trendAnalyzer.analyzeTrends({
-          timeframe: 'monthly',
-          limit: 10000
+          timeframe: "monthly",
+          limit: 10000,
         });
-        console.log(`Monthly trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+        console.log(`Monthly trend analysis completed: ${result.success ? "Success" : "Failed"}`);
       } catch (error) {
-        console.error('Error in monthly trend analysis job:', error);
+        console.error("Error in monthly trend analysis job:", error);
       }
     });
-    
-    console.log('Trend analysis scheduler started');
+
+    console.log("Trend analysis scheduler started");
   } catch (error) {
-    console.error('Error setting up trend analysis scheduler:', error);
+    console.error("Error setting up trend analysis scheduler:", error);
   }
 };
 
@@ -379,57 +349,54 @@ const scheduleTrendAnalysis = () => {
 const scheduleSentimentAnalysis = () => {
   try {
     // Update sentiment for missing articles - every 3 hours
-    cron.schedule('0 */3 * * *', async () => {
-      console.log('Running sentiment analysis update...');
+    cron.schedule("0 */3 * * *", async () => {
+      console.log("Running sentiment analysis update...");
       try {
         // Find articles from the past week that don't have sentiment analysis
         const lastWeek = new Date();
         lastWeek.setDate(lastWeek.getDate() - 7);
-        
+
         const articles = await Article.find({
           publishedAt: { $gte: lastWeek },
-          $or: [
-            { sentiment: { $exists: false } },
-            { sentimentAssessment: { $exists: false } }
-          ]
+          $or: [{ sentiment: { $exists: false } }, { sentimentAssessment: { $exists: false } }],
         }).limit(500);
-        
+
         if (articles.length === 0) {
-          console.log('No articles found needing sentiment updates');
+          console.log("No articles found needing sentiment updates");
           return;
         }
-        
+
         const result = await sentimentAnalyzer.updateSentimentForNewArticles(articles);
         console.log(`Sentiment analysis update completed: ${result.count} articles updated`);
       } catch (error) {
-        console.error('Error in sentiment analysis update job:', error);
+        console.error("Error in sentiment analysis update job:", error);
       }
     });
-    
+
     // Daily sentiment trends - once per day
-    cron.schedule('0 1 * * *', async () => {
-      console.log('Running daily sentiment trend analysis...');
+    cron.schedule("0 1 * * *", async () => {
+      console.log("Running daily sentiment trend analysis...");
       try {
         // Get start and end dates (past 3 days)
         const endDate = new Date();
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 3);
-        
+
         const result = await sentimentAnalyzer.analyzeSentimentTrends({
           startDate,
           endDate,
-          updateArticles: true
+          updateArticles: true,
         });
-        
-        console.log(`Daily sentiment trend analysis completed: ${result.success ? 'Success' : 'Failed'}`);
+
+        console.log(`Daily sentiment trend analysis completed: ${result.success ? "Success" : "Failed"}`);
       } catch (error) {
-        console.error('Error in daily sentiment trend analysis job:', error);
+        console.error("Error in daily sentiment trend analysis job:", error);
       }
     });
-    
-    console.log('Sentiment analysis scheduler started');
+
+    console.log("Sentiment analysis scheduler started");
   } catch (error) {
-    console.error('Error setting up sentiment analysis scheduler:', error);
+    console.error("Error setting up sentiment analysis scheduler:", error);
   }
 };
 
@@ -443,54 +410,64 @@ const scheduleStoryGeneration = () => {
       tasks.stories.stop();
       tasks.stories = null;
     }
-    
+
     const schedule = defaultSchedules.stories;
     console.log(`Starting story generation scheduler with schedule: ${schedule}`);
-    
+
     // Calculate and store next scan time
     nextScanTimes.stories = calculateNextScanTime(schedule);
-    
+
     // Create the story generation function
     const generateStoriesFunction = async () => {
       console.log(`Running story generation at ${new Date().toISOString()}`);
       try {
         // Use internal API call to trigger story generation
-        // In production, you might want to call the story controller directly
-        // This approach avoids circular dependencies
         const result = await triggerStoryGeneration();
-        console.log(`Story generation result: ${result.message}`);
-        
-        // Update next scan time after successful generation
-        nextScanTimes.stories = calculateNextScanTime(schedule);
+
+        if (result.success) {
+          console.log(`Story generation result: ${result.message}`);
+        } else {
+          console.error(`Story generation failed: ${result.message}`);
+        }
+
+        // Update next scan time after generation (successful or not)
         try {
-          if (nextScanTimes.stories instanceof Date && !isNaN(nextScanTimes.stories)) {
+          nextScanTimes.stories = calculateNextScanTime(schedule);
+
+          // Only try to format the date if it's valid
+          if (nextScanTimes.stories instanceof Date && !isNaN(nextScanTimes.stories.getTime())) {
             console.log(`Next story generation scheduled at: ${nextScanTimes.stories.toISOString()}`);
           } else {
-            console.log(`Next story generation scheduled, but date could not be formatted: ${nextScanTimes.stories}`);
+            console.warn(`Invalid next scan time calculated: ${nextScanTimes.stories}`);
+            // Reset to a safe value
+            nextScanTimes.stories = new Date(Date.now() + 3 * 60 * 60 * 1000);
+            console.log(`Reset next story generation to: ${nextScanTimes.stories.toISOString()}`);
           }
-        } catch (error) {
-          console.error('Error formatting next scan time:', error);
-          console.log(`Next story generation scheduled at an invalid date. Resetting to current time + 3 hours.`);
+        } catch (timeError) {
+          console.error("Error handling next scan time:", timeError);
           nextScanTimes.stories = new Date(Date.now() + 3 * 60 * 60 * 1000);
+          console.log(`Reset next story generation to: ${nextScanTimes.stories.toISOString()}`);
         }
       } catch (error) {
-        console.error('Error during story generation:', error);
+        console.error("Error during story generation:", error);
+        // Set next scan time even after error
+        nextScanTimes.stories = new Date(Date.now() + 3 * 60 * 60 * 1000);
       }
     };
-    
+
     // Schedule the task
     tasks.stories = cron.schedule(schedule, generateStoriesFunction);
-    
+
     // Run initial story generation after a delay to ensure articles are fetched
     setTimeout(async () => {
       await generateStoriesFunction();
-      console.log('Initial story generation completed');
+      console.log("Initial story generation completed");
     }, 5 * 60 * 1000); // 5 minutes delay
-    
-    console.log('Story generation scheduler started successfully');
+
+    console.log("Story generation scheduler started successfully");
     return true;
   } catch (error) {
-    console.error('Error starting story generation scheduler:', error);
+    console.error("Error starting story generation scheduler:", error);
     return false;
   }
 };
@@ -503,25 +480,46 @@ const triggerStoryGeneration = async () => {
     // First, find potentially related articles that might be good for stories
     await findRelatedArticles();
 
-    // Make an internal API call to the story generation endpoint
-    const serverUrl = process.env.SERVER_URL || 'http://localhost:5000';
-    const response = await axios.post(`${serverUrl}/api/stories/generate`, {}, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    return {
-      success: true,
-      message: 'Story generation triggered successfully',
-      data: response.data
-    };
+    try {
+      // Instead of making an API call to ourselves (which can cause ECONNREFUSED),
+      // directly import and call the controller function
+      const storyController = require("../controllers/story.controller");
+      const result = await storyController.generateStoriesDirectly();
+
+      return {
+        success: true,
+        message: "Story generation completed successfully",
+        data: result,
+      };
+    } catch (controllerError) {
+      console.error("Error in story controller:", controllerError);
+
+      // Fallback to API call approach if direct call fails
+      console.log("Falling back to API method for story generation");
+      const serverUrl = process.env.SERVER_URL || "http://localhost:5000";
+      const response = await axios.post(
+        `${serverUrl}/api/stories/generate`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000, // Add timeout to prevent hanging requests
+        },
+      );
+
+      return {
+        success: true,
+        message: "Story generation triggered successfully via API",
+        data: response.data,
+      };
+    }
   } catch (error) {
-    console.error('Error triggering story generation:', error);
+    console.error("Error triggering story generation:", error);
     return {
       success: false,
-      message: 'Failed to trigger story generation',
-      error: error.message
+      message: "Failed to trigger story generation",
+      error: error.message,
     };
   }
 };
@@ -532,71 +530,71 @@ const triggerStoryGeneration = async () => {
  */
 async function findRelatedArticles() {
   try {
-    const Article = require('../models/article.model');
-    
+    const Article = require("../models/article.model");
+
     // Get recent articles from the last 72 hours
     const cutoffDate = new Date();
     cutoffDate.setHours(cutoffDate.getHours() - 72);
-    
+
     // Get articles that have entities but haven't been processed for relationships
     const articles = await Article.find({
       publishedAt: { $gte: cutoffDate },
-      'entities.0': { $exists: true }, // Has at least one entity
-      relatedArticles: { $exists: false } // Hasn't been processed yet
+      "entities.0": { $exists: true }, // Has at least one entity
+      relatedArticles: { $exists: false }, // Hasn't been processed yet
     }).limit(200);
-    
+
     if (articles.length === 0) {
-      console.log('No new articles to process for relationships');
+      console.log("No new articles to process for relationships");
       return;
     }
-    
+
     console.log(`Finding relationships among ${articles.length} articles`);
-    
+
     // Track related article pairs
     const relationPairs = [];
-    
+
     // For each article, find potential matches based on shared entities
     for (let i = 0; i < articles.length; i++) {
       const article = articles[i];
-      const articleEntities = new Set(article.entities.map(e => `${e.type}:${e.name.toLowerCase()}`));
-      
+      const articleEntities = new Set(article.entities.map((e) => `${e.type}:${e.name.toLowerCase()}`));
+
       // Compare with other articles
       for (let j = i + 1; j < articles.length; j++) {
         const otherArticle = articles[j];
-        const otherEntities = new Set(otherArticle.entities.map(e => `${e.type}:${e.name.toLowerCase()}`));
-        
+        const otherEntities = new Set(otherArticle.entities.map((e) => `${e.type}:${e.name.toLowerCase()}`));
+
         // Find common entities
-        const commonEntities = [...articleEntities].filter(entity => otherEntities.has(entity));
-        
+        const commonEntities = [...articleEntities].filter((entity) => otherEntities.has(entity));
+
         // If they share enough entities, mark as related
         if (commonEntities.length >= 2) {
           relationPairs.push({
             sourceId: article._id,
             targetId: otherArticle._id,
-            commonEntities: commonEntities
+            commonEntities: commonEntities,
           });
         }
       }
-      
+
       // Mark as processed by adding an empty relatedArticles array
-      await Article.findByIdAndUpdate(article._id, { 
-        $set: { relatedArticles: [] } 
+      await Article.findByIdAndUpdate(article._id, {
+        $set: { relatedArticles: [] },
       });
     }
-    
+
     // Update related articles in the database
     for (const pair of relationPairs) {
       await Article.findByIdAndUpdate(pair.sourceId, {
-        $addToSet: { relatedArticles: pair.targetId }
+        $addToSet: { relatedArticles: pair.targetId },
       });
-      
+
       await Article.findByIdAndUpdate(pair.targetId, {
-        $addToSet: { relatedArticles: pair.sourceId }
+        $addToSet: { relatedArticles: pair.sourceId },
       });
     }
-    
+
     console.log(`Found ${relationPairs.length} article relationships`);
   } catch (error) {
-    console.error('Error finding related articles:', error);
+    console.error("Error finding related articles:", error);
   }
 }

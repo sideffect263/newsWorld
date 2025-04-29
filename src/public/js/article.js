@@ -541,48 +541,156 @@ function highlightEntity(entityName) {
 
 async function loadRelatedArticles(article) {
   try {
-    // Use categories and entities to find related content
+    // Use a combination of approaches to find related content
     const categories = article.categories || [];
     const keywords = article.entities?.map((e) => e.name).slice(0, 3) || [];
 
-    // Build query params
-    const params = new URLSearchParams();
-    categories.forEach((category) => params.append("categories", category));
-    keywords.forEach((keyword) => params.append("keywords", keyword));
-    params.append("limit", "5");
-    params.append("exclude", article._id);
+    // Strategy 1: Try to get content by categories and keywords
+    let relatedArticles = [];
 
-    const response = await fetch(`/api/news/related?${params.toString()}`);
-    const result = await response.json();
+    if (categories.length > 0 || keywords.length > 0) {
+      // Build query params for semantic relevance
+      const params = new URLSearchParams();
 
+      // Add a random offset to get different articles each time
+      const randomOffset = Math.floor(Math.random() * 20);
+      params.append("offset", randomOffset);
+
+      // Only use 1-2 categories max for more diversity
+      const randomCategories = categories.sort(() => 0.5 - Math.random()).slice(0, 2);
+      randomCategories.forEach((category) => params.append("categories", category));
+
+      // Use fewer but more relevant keywords
+      const priorityKeywords = keywords.slice(0, 2);
+      priorityKeywords.forEach((keyword) => params.append("keywords", keyword));
+
+      params.append("limit", "3");
+      params.append("exclude", article._id);
+
+      // Make the API call
+      const response = await fetch(`/api/news/related?${params.toString()}`);
+      const result = await response.json();
+
+      if (result.success && result.data && result.data.length > 0) {
+        relatedArticles = result.data;
+      }
+    }
+
+    // Strategy 2: If we don't have enough articles, add some recent popular ones
+    if (relatedArticles.length < 5) {
+      const neededCount = 5 - relatedArticles.length;
+      const popularParams = new URLSearchParams();
+      popularParams.append("limit", neededCount);
+      popularParams.append("exclude", article._id);
+
+      // Exclude the IDs of articles we already have
+      relatedArticles.forEach((a) => popularParams.append("exclude", a._id));
+
+      const popularResponse = await fetch(`/api/news/top?${popularParams.toString()}`);
+      const popularResult = await popularResponse.json();
+
+      if (popularResult.success && popularResult.data && popularResult.data.length > 0) {
+        // Add the popular articles to our related articles
+        relatedArticles = [...relatedArticles, ...popularResult.data];
+      }
+    }
+
+    // If we still don't have 5 articles, try to get recent ones
+    if (relatedArticles.length < 5) {
+      const neededCount = 5 - relatedArticles.length;
+      const latestParams = new URLSearchParams();
+      latestParams.append("limit", neededCount);
+      latestParams.append("exclude", article._id);
+
+      // Exclude the IDs of articles we already have
+      relatedArticles.forEach((a) => latestParams.append("exclude", a._id));
+
+      const latestResponse = await fetch(`/api/news/latest?${latestParams.toString()}`);
+      const latestResult = await latestResponse.json();
+
+      if (latestResult.success && latestResult.data && latestResult.data.length > 0) {
+        // Add the latest articles to our related articles
+        relatedArticles = [...relatedArticles, ...latestResult.data];
+      }
+    }
+
+    // Shuffle the final list of articles for more randomness
+    relatedArticles = relatedArticles.sort(() => 0.5 - Math.random());
+
+    // Now display the related articles
     const container = document.getElementById("related-articles");
 
-    if (!result.success || !result.data || result.data.length === 0) {
-      container.innerHTML = '<p class="text-center text-muted py-3">No related articles found</p>';
+    if (relatedArticles.length === 0) {
+      container.innerHTML = '<div class="no-related-articles">No related articles found</div>';
       return;
     }
 
     container.innerHTML = "";
-    result.data.forEach((related) => {
+    relatedArticles.forEach((related) => {
       const date = new Date(related.publishedAt).toLocaleDateString();
+
+      // Create article link element
       const item = document.createElement("a");
 
       // Use slug for URL if available
       item.href = related.slug ? `/news/${related.slug}` : `/news/${related._id}`;
+      item.className = "related-article-item";
 
-      item.className = "list-group-item list-group-item-action";
+      // Determine sentiment class if available
+      let sentimentClass = "";
+      if (related.sentimentAssessment) {
+        sentimentClass = `sentiment-${related.sentimentAssessment}-badge`;
+      }
+
+      // HTML structure for the related article item
       item.innerHTML = `
-                <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">${related.title}</h6>
-                </div>
-                <small class="text-muted">${related.source.name} - ${date}</small>
-            `;
+        <div class="related-article-img-container">
+          ${
+            sentimentClass
+              ? `<div class="sentiment-badge ${sentimentClass}" title="${related.sentimentAssessment} sentiment"></div>`
+              : ""
+          }
+          <img src="${related.imageUrl || "/images/placeholder-news.jpg"}" alt="${
+        related.title
+      }" class="related-article-img" onerror="this.src='/images/placeholder-news.jpg'">
+        </div>
+        <div class="related-article-content">
+          <h6 class="related-article-title">${related.title}</h6>
+          <div class="related-article-meta">
+            <span class="related-article-source" title="${related.source.name}"><i class="bi bi-newspaper"></i>${
+        related.source.name
+      }</span>
+            <span class="related-article-date"><i class="bi bi-calendar3"></i>${date}</span>
+          </div>
+        </div>
+      `;
+
       container.appendChild(item);
     });
+
+    // Update the server-side cache to avoid showing the same articles again
+    try {
+      const cacheUpdate = new URLSearchParams();
+      cacheUpdate.append("articleId", article._id);
+      relatedArticles.forEach((a) => cacheUpdate.append("shown", a._id));
+
+      // Non-blocking fetch to update shown articles in cache
+      fetch(`/api/news/${article._id}/viewed-related`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: cacheUpdate,
+      }).catch(() => {
+        // Silently fail if this endpoint doesn't exist
+      });
+    } catch (e) {
+      // Ignore errors for this enhancement
+    }
   } catch (error) {
     console.error("Error loading related articles:", error);
     document.getElementById("related-articles").innerHTML =
-      '<p class="text-center text-muted py-3">Could not load related articles</p>';
+      '<div class="no-related-articles">Could not load related articles</div>';
   }
 }
 
