@@ -1,627 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Dynamic title will be set by JavaScript -->
     <title>NewsWorld - Article</title>
-    
+
     <!-- Meta tags for SEO -->
-    <meta id="meta-description" name="description" content="Read the latest news articles from NewsWorld, your global news aggregator">
-    <meta id="meta-keywords" name="keywords" content="news, article, global news">
-    
+    <meta
+      id="meta-description"
+      name="description"
+      content="Read the latest news articles from NewsWorld, your global news aggregator"
+    />
+    <meta id="meta-keywords" name="keywords" content="news, article, global news" />
+
     <!-- Open Graph tags for social sharing -->
-    <meta id="og-title" property="og:title" content="NewsWorld Article">
-    <meta id="og-description" property="og:description" content="Read the latest news from NewsWorld">
-    <meta id="og-image" property="og:image" content="/favicon/android-chrome-512x512.png">
-    <meta id="og-url" property="og:url" content="">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="NewsWorld">
-    
+    <meta id="og-title" property="og:title" content="NewsWorld Article" />
+    <meta id="og-description" property="og:description" content="Read the latest news from NewsWorld" />
+    <meta id="og-image" property="og:image" content="/favicon/android-chrome-512x512.png" />
+    <meta id="og-url" property="og:url" content="" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="NewsWorld" />
+
     <!-- Twitter Card tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta id="twitter-title" name="twitter:title" content="NewsWorld Article">
-    <meta id="twitter-description" name="twitter:description" content="Read the latest news from NewsWorld">
-    <meta id="twitter-image" name="twitter:image" content="/favicon/android-chrome-512x512.png">
-    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta id="twitter-title" name="twitter:title" content="NewsWorld Article" />
+    <meta id="twitter-description" name="twitter:description" content="Read the latest news from NewsWorld" />
+    <meta id="twitter-image" name="twitter:image" content="/favicon/android-chrome-512x512.png" />
+
+    <!-- Canonical URL for SEO -->
+    <link id="canonical-link" rel="canonical" href="" />
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VL0BHL7LPW');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-VL0BHL7LPW");
     </script>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+
     <!-- Styles -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/styles/main.css">
-    <style>
-        .article-header {
-            padding: 3rem 0;
-            background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
-            color: white;
-            margin-bottom: 2rem;
-        }
-        .article-meta {
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .article-image {
-            width: 100%;
-            max-height: 500px;
-            object-fit: cover;
-            margin-bottom: 2rem;
-            border-radius: 8px;
-        }
-        .article-content {
-            font-size: 1.1rem;
-            line-height: 1.8;
-        }
-        .article-tags {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e9ecef;
-        }
-        .tag-badge {
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .related-articles {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e9ecef;
-        }
-        .social-share {
-            margin-top: 2rem;
-        }
-        .social-share a {
-            margin-right: 1rem;
-            font-size: 1.5rem;
-        }
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-    </style>
-</head>
-<body>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/styles/article.css" />
+  </head>
+  <body>
     <div id="loading" class="loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
 
     <!-- Include common header -->
     <div id="header"></div>
 
-    <div class="article-header" style="padding-top: 150px;">
-        <div class="container">
-            <h1 id="article-title" class="display-4 fw-bold"></h1>
-            <div class="article-meta d-flex flex-wrap align-items-center text-white opacity-75">
-                <div class="me-4 mb-2">
-                    <i class="bi bi-calendar3"></i>
-                    <span id="article-date"></span>
-                </div>
-                <div class="me-4 mb-2">
-                    <i class="bi bi-person"></i>
-                    <span id="article-author">Unknown</span>
-                </div>
-                <div class="me-4 mb-2">
-                    <i class="bi bi-newspaper"></i>
-                    <span id="article-source"></span>
-                </div>
-                <div class="me-4 mb-2">
-                    <i class="bi bi-globe"></i>
-                    <span id="article-country"></span>
-                </div>
-                <div class="me-4 mb-2">
-                    <i class="bi bi-translate"></i>
-                    <span id="article-language"></span>
-                </div>
-                <div class="mb-2">
-                    <i class="bi bi-eye"></i>
-                    <span id="article-views">0</span> views
-                </div>
-            </div>
+    <div class="article-header" style="padding-top: 150px">
+      <div class="container randoimg">
+        <h1 id="article-title" class="display-4 fw-bold"></h1>
+        <div class="article-meta d-flex flex-wrap align-items-center text-white opacity-75">
+          <div class="me-4 mb-2">
+            <i class="bi bi-calendar3"></i>
+            <span id="article-date"></span>
+          </div>
+          <div class="me-4 mb-2">
+            <i class="bi bi-person"></i>
+            <span id="article-author">Unknown</span>
+          </div>
+          <div class="me-4 mb-2">
+            <i class="bi bi-newspaper"></i>
+            <span id="article-source"></span>
+          </div>
+          <div class="me-4 mb-2">
+            <i class="bi bi-globe"></i>
+            <span id="article-country"></span>
+          </div>
+          <div class="me-4 mb-2">
+            <i class="bi bi-translate"></i>
+            <span id="article-language"></span>
+          </div>
+          <div class="me-4 mb-2">
+            <i class="bi bi-eye"></i>
+            <span id="article-views">0</span> views
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="container mb-5">
-        <div class="row">
-            <div class="col-lg-8">
-                <div id="article-image-container" class="mb-4">
-                    <!-- Article image will be inserted here if available -->
-                </div>
-                
-                <div id="article-sentiment" class="alert mb-4">
-                    <!-- Sentiment analysis will be displayed here -->
-                </div>
-                
-                <div id="article-content" class="article-content mb-4">
-                    <!-- Article content will be inserted here -->
-                </div>
-                
-                <div class="article-tags" id="article-tags">
-                    <!-- Tags will be inserted here -->
-                </div>
-                
-                <div class="social-share">
-                    <h5>Share this article:</h5>
-                    <div class="d-flex">
-                        <a href="#" id="share-twitter" target="_blank" class="text-decoration-none">
-                            <i class="bi bi-twitter text-primary"></i>
-                        </a>
-                        <a href="#" id="share-facebook" target="_blank" class="text-decoration-none">
-                            <i class="bi bi-facebook text-primary"></i>
-                        </a>
-                        <a href="#" id="share-linkedin" target="_blank" class="text-decoration-none">
-                            <i class="bi bi-linkedin text-primary"></i>
-                        </a>
-                        <a href="#" id="share-email" class="text-decoration-none">
-                            <i class="bi bi-envelope-fill text-primary"></i>
-                        </a>
-                    </div>
-                </div>
+      <div class="row">
+        <div class="col-lg-8">
+          <div id="article-image-container" class="mb-4">
+            <!-- Article image will be inserted here if available -->
+          </div>
+
+          <div id="article-sentiment" class="alert mb-4">
+            <!-- Sentiment analysis will be displayed here -->
+          </div>
+
+          <div id="article-content" class="article-content mb-4">
+            <!-- Article content will be inserted here -->
+          </div>
+
+          <div id="article-attribution" class="article-attribution mb-4">
+            <!-- Source attribution will be inserted here -->
+          </div>
+
+          <div class="article-tags" id="article-tags">
+            <!-- Tags will be inserted here -->
+          </div>
+
+          <div class="social-share">
+            <h5>Share this article:</h5>
+            <div class="d-flex">
+              <a href="#" id="share-twitter" target="_blank" class="text-decoration-none">
+                <i class="bi bi-twitter text-primary"></i>
+              </a>
+              <a href="#" id="share-facebook" target="_blank" class="text-decoration-none">
+                <i class="bi bi-facebook text-primary"></i>
+              </a>
+              <a href="#" id="share-linkedin" target="_blank" class="text-decoration-none">
+                <i class="bi bi-linkedin text-primary"></i>
+              </a>
+              <a href="#" id="share-email" class="text-decoration-none">
+                <i class="bi bi-envelope-fill text-primary"></i>
+              </a>
             </div>
-            
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Related Articles</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="related-articles" class="list-group list-group-flush">
-                            <!-- Related articles will be inserted here -->
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Trending Topics</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="trending-topics">
-                            <!-- Trending topics will be inserted here -->
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0">Related Articles</h5>
+            </div>
+            <div class="card-body">
+              <div id="related-articles" class="list-group list-group-flush">
+                <!-- Related articles will be inserted here -->
+                <div class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0">Trending Topics</h5>
+            </div>
+            <div class="card-body">
+              <div id="trending-topics">
+                <!-- Trending topics will be inserted here -->
+                <div class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>NewsWorld</h5>
-                    <p>Your trusted source for global news coverage.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/news" class="text-light">News</a></li>
-                        <li><a href="/sources" class="text-light">Sources</a></li>
-                        <li><a href="/status" class="text-light">Status</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Connect</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <h5>NewsWorld</h5>
+            <p>Your trusted source for global news coverage.</p>
+          </div>
+          <div class="col-md-4">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="/news" class="text-light">News</a></li>
+              <li><a href="/sources" class="text-light">Sources</a></li>
+              <li><a href="/status" class="text-light">Status</a></li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h5>Connect</h5>
+            <div class="d-flex gap-3">
+              <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
             </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <small>&copy; 2024 NewsWorld. All rights reserved.</small>
-            </div>
+          </div>
         </div>
+        <hr class="my-4" />
+        <div class="text-center">
+          <small>&copy; 2024 NewsWorld. All rights reserved.</small>
+        </div>
+      </div>
     </footer>
-    
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" id="article-schema">
-        {
-            "@context": "https://schema.org",
-            "@type": "NewsArticle",
-            "headline": "Article Title",
-            "datePublished": "",
-            "dateModified": "",
-            "description": "",
-            "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": ""
-            },
-            "image": "",
-            "author": {
-                "@type": "Person",
-                "name": "Unknown"
-            },
-            "publisher": {
-                "@type": "Organization",
-                "name": "NewsWorld",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
-                    "width": 512,
-                    "height": 512
-                }
-            }
+      {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": "Article Title",
+        "datePublished": "",
+        "dateModified": "",
+        "description": "",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": ""
+        },
+        "image": "",
+        "author": {
+          "@type": "Person",
+          "name": "Unknown"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "NewsWorld",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
+            "width": 512,
+            "height": 512
+          }
         }
+      }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/trending-keywords.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load header
-            fetch('/components/header.html')
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('header').innerHTML = html;
-                });
-                
-            // Fetch trending keywords
-            tryFetchTrendingKeywords();
-                
-            // Get article ID from URL
-            const articleId = window.location.pathname.split('/').pop();
-            if (!articleId) {
-                window.location.href = '/news';
-                return;
-            }
-            
-            // Load article data
-            loadArticle(articleId);
-        });
-        
-        async function loadArticle(articleId) {
-            try {
-                const response = await fetch(`/api/news/${articleId}`);
-                const result = await response.json();
-                
-                if (!result.success || !result.data) {
-                    window.location.href = '/news';
-                    return;
-                }
-                
-                const article = result.data;
-                
-                // Update page title and meta tags
-                document.title = `${article.title} - NewsWorld`;
-                
-                // Update meta description
-                const description = article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
-                document.getElementById('meta-description').setAttribute('content', description);
-                
-                // Update meta keywords
-                const keywords = [
-                    ...article.categories || [],
-                    ...(article.entities?.map(e => e.name) || [])
-                ].join(', ');
-                document.getElementById('meta-keywords').setAttribute('content', `${keywords}, news, global news`);
-                
-                // Update Open Graph tags
-                document.getElementById('og-title').setAttribute('content', article.title);
-                document.getElementById('og-description').setAttribute('content', description);
-                if (article.imageUrl) {
-                    document.getElementById('og-image').setAttribute('content', article.imageUrl);
-                }
-                document.getElementById('og-url').setAttribute('content', `https://newsworld.com/news/${articleId}`);
-                
-                // Update Twitter Card tags
-                document.getElementById('twitter-title').setAttribute('content', article.title);
-                document.getElementById('twitter-description').setAttribute('content', description);
-                if (article.imageUrl) {
-                    document.getElementById('twitter-image').setAttribute('content', article.imageUrl);
-                }
-                
-                // Update article content
-                document.getElementById('article-title').textContent = article.title;
-                document.getElementById('article-date').textContent = new Date(article.publishedAt).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                if (article.author) {
-                    document.getElementById('article-author').textContent = article.author;
-                }
-                
-                document.getElementById('article-source').textContent = article.source.name;
-                
-                // Country and language
-                const countries = {
-                    'us': 'United States', 
-                    'gb': 'United Kingdom',
-                    'ca': 'Canada',
-                    'au': 'Australia'
-                };
-                const languages = {
-                    'en': 'English',
-                    'es': 'Spanish',
-                    'fr': 'French',
-                    'de': 'German'
-                };
-                
-                if (article.countries && article.countries.length > 0) {
-                    document.getElementById('article-country').textContent = countries[article.countries[0]] || article.countries[0];
-                }
-                
-                if (article.language) {
-                    document.getElementById('article-language').textContent = languages[article.language] || article.language;
-                }
-                
-                if (article.viewCount) {
-                    document.getElementById('article-views').textContent = article.viewCount;
-                }
-                
-                // Article image
-                if (article.imageUrl) {
-                    const imgContainer = document.getElementById('article-image-container');
-                    const img = document.createElement('img');
-                    img.src = article.imageUrl;
-                    img.alt = article.title;
-                    img.className = 'article-image img-fluid';
-                    
-                    // Add lazy loading for better performance
-                    img.loading = 'lazy';
-                    imgContainer.appendChild(img);
-                }
-                
-                // Article sentiment
-                const sentimentEl = document.getElementById('article-sentiment');
-                if (article.sentimentAssessment) {
-                    let sentimentClass = 'alert-secondary';
-                    let sentimentIcon = 'bi-emoji-neutral';
-                    let sentimentText = 'This article has a neutral tone';
-                    
-                    if (article.sentimentAssessment === 'positive') {
-                        sentimentClass = 'alert-success';
-                        sentimentIcon = 'bi-emoji-smile';
-                        sentimentText = 'This article has a positive tone';
-                    } else if (article.sentimentAssessment === 'negative') {
-                        sentimentClass = 'alert-danger';
-                        sentimentIcon = 'bi-emoji-frown';
-                        sentimentText = 'This article has a negative tone';
-                    }
-                    
-                    sentimentEl.className = `alert ${sentimentClass}`;
-                    sentimentEl.innerHTML = `<i class="bi ${sentimentIcon}"></i> ${sentimentText}`;
-                } else {
-                    sentimentEl.style.display = 'none';
-                }
-                
-                // Article content
-                const contentEl = document.getElementById('article-content');
-                if (article.content) {
-                    contentEl.innerHTML = article.content;
-                } else if (article.description) {
-                    contentEl.innerHTML = `<p>${article.description}</p>
-                        <p class="alert alert-info">
-                            <i class="bi bi-info-circle"></i>
-                            This is a summary. Read the <a href="${article.url}" target="_blank" rel="noopener">full article at ${article.source.name} <i class="bi bi-box-arrow-up-right"></i></a>
-                        </p>`;
-                } else {
-                    contentEl.innerHTML = `<p class="alert alert-info">
-                        <i class="bi bi-info-circle"></i>
-                        Read the <a href="${article.url}" target="_blank" rel="noopener">full article at ${article.source.name} <i class="bi bi-box-arrow-up-right"></i></a>
-                    </p>`;
-                }
-                
-                // Article tags/categories
-                const tagsEl = document.getElementById('article-tags');
-                let tagsHtml = '<h5>Categories:</h5><div>';
-                
-                if (article.categories && article.categories.length > 0) {
-                    article.categories.forEach(category => {
-                        tagsHtml += `<span class="badge bg-primary tag-badge">${category}</span>`;
-                    });
-                }
-                
-                tagsHtml += '</div>';
-                
-                // Entities as tags
-                if (article.entities && article.entities.length > 0) {
-                    const entityTypes = {
-                        'person': { label: 'People', class: 'bg-danger' },
-                        'organization': { label: 'Organizations', class: 'bg-success' },
-                        'location': { label: 'Locations', class: 'bg-warning text-dark' }
-                    };
-                    
-                    // Group entities by type
-                    const groupedEntities = {};
-                    article.entities.forEach(entity => {
-                        if (!groupedEntities[entity.type]) {
-                            groupedEntities[entity.type] = [];
-                        }
-                        // Only add if not already present
-                        if (!groupedEntities[entity.type].includes(entity.name)) {
-                            groupedEntities[entity.type].push(entity.name);
-                        }
-                    });
-                    
-                    // Add entity sections
-                    Object.entries(groupedEntities).forEach(([type, entities]) => {
-                        if (entityTypes[type] && entities.length > 0) {
-                            tagsHtml += `<h5 class="mt-3">${entityTypes[type].label}:</h5><div>`;
-                            entities.forEach(entity => {
-                                tagsHtml += `<span class="badge ${entityTypes[type].class} tag-badge">${entity}</span>`;
-                            });
-                            tagsHtml += '</div>';
-                        }
-                    });
-                }
-                
-                tagsEl.innerHTML = tagsHtml;
-                
-                // Set up share links
-                const shareTitle = encodeURIComponent(article.title);
-                const shareUrl = encodeURIComponent(`https://newsworld.com/news/${articleId}`);
-                const shareText = encodeURIComponent(article.description || '');
-                
-                document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
-                document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
-                document.getElementById('share-linkedin').href = `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`;
-                document.getElementById('share-email').href = `mailto:?subject=${shareTitle}&body=${shareText}%0A%0A${shareUrl}`;
-                
-                // Update JSON-LD data
-                const schema = {
-                    "@context": "https://schema.org",
-                    "@type": "NewsArticle",
-                    "headline": article.title,
-                    "datePublished": article.publishedAt,
-                    "dateModified": article.publishedAt,
-                    "description": description,
-                    "mainEntityOfPage": {
-                        "@type": "WebPage",
-                        "@id": `https://newsworld.com/news/${articleId}`
-                    },
-                    "image": article.imageUrl || "https://newsworld.com/favicon/android-chrome-512x512.png",
-                    "author": {
-                        "@type": "Person",
-                        "name": article.author || "NewsWorld"
-                    },
-                    "publisher": {
-                        "@type": "Organization",
-                        "name": "NewsWorld",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
-                            "width": 512,
-                            "height": 512
-                        }
-                    },
-                    "articleSection": article.categories?.[0] || "News",
-                    "keywords": keywords
-                };
-                
-                document.getElementById('article-schema').textContent = JSON.stringify(schema);
-                
-                // Load related articles
-                loadRelatedArticles(article);
-                
-                // Load trending topics
-                loadTrendingTopics();
-                
-                // Hide loading spinner
-                document.getElementById('loading').style.display = 'none';
-                
-            } catch (error) {
-                console.error('Error loading article:', error);
-                window.location.href = '/news';
-            }
-        }
-        
-        async function loadRelatedArticles(article) {
-            try {
-                // Use categories and entities to find related content
-                const categories = article.categories || [];
-                const keywords = article.entities?.map(e => e.name).slice(0, 3) || [];
-                
-                // Build query params
-                const params = new URLSearchParams();
-                categories.forEach(category => params.append('categories', category));
-                keywords.forEach(keyword => params.append('keywords', keyword));
-                params.append('limit', '5');
-                params.append('exclude', article._id);
-                
-                const response = await fetch(`/api/news/related?${params.toString()}`);
-                const result = await response.json();
-                
-                const container = document.getElementById('related-articles');
-                
-                if (!result.success || !result.data || result.data.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted py-3">No related articles found</p>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                result.data.forEach(related => {
-                    const date = new Date(related.publishedAt).toLocaleDateString();
-                    const item = document.createElement('a');
-                    item.href = `/news/${related._id}`;
-                    item.className = 'list-group-item list-group-item-action';
-                    item.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">${related.title}</h6>
-                        </div>
-                        <small class="text-muted">${related.source.name} - ${date}</small>
-                    `;
-                    container.appendChild(item);
-                });
-                
-            } catch (error) {
-                console.error('Error loading related articles:', error);
-                document.getElementById('related-articles').innerHTML = 
-                    '<p class="text-center text-muted py-3">Could not load related articles</p>';
-            }
-        }
-        
-        async function loadTrendingTopics() {
-            try {
-                const response = await fetch('/api/trends/keywords?timeframe=daily&limit=10');
-                const result = await response.json();
-                
-                const container = document.getElementById('trending-topics');
-                
-                if (!result.success || !result.data || result.data.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted py-3">No trending topics found</p>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                result.data.forEach(trend => {
-                    const item = document.createElement('div');
-                    item.className = 'mb-2';
-                    item.innerHTML = `
-                        <a href="/news?search=${encodeURIComponent(trend.keyword)}" class="btn btn-sm btn-outline-primary me-2 mb-2">
-                            ${trend.keyword}
-                        </a>
-                        <small class="text-muted">(${trend.count})</small>
-                    `;
-                    container.appendChild(item);
-                });
-                
-            } catch (error) {
-                console.error('Error loading trending topics:', error);
-                document.getElementById('trending-topics').innerHTML = 
-                    '<p class="text-center text-muted py-3">Could not load trending topics</p>';
-            }
-        }
-    </script>
-</body>
-</html> 
+    <script src="/js/article.js"></script>
+  </body>
+</html>

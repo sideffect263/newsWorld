@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <rect width="512" height="512" fill="#0d6efd" rx="100"/>
-    <text x="256" y="300" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="white" text-anchor="middle">N</text>
-</svg> 
+    <defs>
+        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0d6efd" />
+            <stop offset="100%" stop-color="#0143a3" />
+        </linearGradient>
+        <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="15" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+    <rect width="512" height="512" fill="url(#bg-gradient)" rx="100"/>
+    <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8" />
+    <text x="256" y="256" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" filter="url(#soft-glow)">N</text>
+</svg>

@@ -68,15 +68,32 @@ exports.getStories = async (req, res) => {
 // Get a single story by ID
 exports.getStory = async (req, res) => {
   try {
-    const story = await Story.findById(req.params.id)
-      .populate({
-        path: 'chapters.articles',
-        select: 'title description url publishedAt source imageUrl'
-      })
-      .populate({
-        path: 'relatedStories',
-        select: 'title summary'
-      });
+    const id = req.params.id;
+    let story;
+
+    // Check if ID is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      story = await Story.findById(id)
+        .populate({
+          path: 'chapters.articles',
+          select: 'title description url publishedAt source imageUrl'
+        })
+        .populate({
+          path: 'relatedStories',
+          select: 'title summary'
+        });
+    } else {
+      // If not a valid ObjectId, try to find by string ID
+      story = await Story.findOne({ _id: id })
+        .populate({
+          path: 'chapters.articles',
+          select: 'title description url publishedAt source imageUrl'
+        })
+        .populate({
+          path: 'relatedStories',
+          select: 'title summary'
+        });
+    }
     
     if (!story) {
       return res.status(404).json({

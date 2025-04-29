@@ -2,6 +2,33 @@ const sentimentAnalyzer = require('../services/sentimentAnalyzer');
 const Article = require('../models/article.model');
 const ErrorResponse = require('../utils/errorResponse');
 
+// Helper function to generate date filter based on timeframe
+const getDateFilter = (timeframe) => {
+  const now = new Date();
+  const filter = { $lte: now };
+
+  switch (timeframe) {
+    case '24h':
+      filter.$gte = new Date(now - 24 * 60 * 60 * 1000);
+      break;
+    case '7d':
+      filter.$gte = new Date(now - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case '30d':
+      filter.$gte = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case '90d':
+      filter.$gte = new Date(now - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case 'all':
+      return null; // No date filter
+    default:
+      filter.$gte = new Date(now - 7 * 24 * 60 * 60 * 1000); // Default to 7 days
+  }
+
+  return filter;
+};
+
 // @desc    Get sentiment analysis
 // @route   GET /api/sentiment
 // @access  Public

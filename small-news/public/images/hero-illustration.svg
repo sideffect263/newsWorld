@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <style>
+    .news-icon { fill: #0d6efd; }
+    .news-accent { fill: #0dcaf0; }
+    .news-light { fill: #e6f7ff; }
+    .news-dark { fill: #0a58ca; }
+    .news-text { fill: #212529; }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+    #device { animation: float 6s ease-in-out infinite; }
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    .pulse { animation: pulse 3s ease-in-out infinite; }
+  </style>
+  
+  <!-- Background elements -->
+  <circle cx="600" cy="200" r="150" fill="#e9f5ff" class="pulse" />
+  <circle cx="200" cy="450" r="100" fill="#e9f5ff" class="pulse" />
+  
+  <!-- Device with news -->
+  <g id="device">
+    <rect x="200" y="150" width="400" height="300" rx="20" fill="#ffffff" stroke="#0d6efd" stroke-width="10" />
+    <rect x="220" y="170" width="360" height="200" rx="10" fill="#f8f9fa" />
+    
+    <!-- News article elements -->
+    <rect x="240" y="190" width="250" height="20" rx="5" fill="#0d6efd" />
+    <rect x="240" y="220" width="320" height="10" rx="5" fill="#6c757d" opacity="0.5" />
+    <rect x="240" y="240" width="320" height="10" rx="5" fill="#6c757d" opacity="0.5" />
+    <rect x="240" y="260" width="320" height="10" rx="5" fill="#6c757d" opacity="0.5" />
+    
+    <rect x="240" y="290" width="150" height="60" rx="5" fill="#0dcaf0" opacity="0.5" />
+    <rect x="410" y="290" width="150" height="60" rx="5" fill="#0dcaf0" opacity="0.5" />
+    
+    <!-- Bottom navigation -->
+    <rect x="220" y="390" width="360" height="40" rx="10" fill="#0d6efd" />
+    <circle cx="400" cy="410" r="15" fill="#ffffff" />
+    <circle cx="340" cy="410" r="8" fill="#ffffff" opacity="0.6" />
+    <circle cx="460" cy="410" r="8" fill="#ffffff" opacity="0.6" />
+  </g>
+  
+  <!-- News icons -->
+  <g class="news-icon" style="transform: translate(500px, 100px) rotate(15deg)">
+    <rect x="0" y="0" width="80" height="100" rx="10" fill="currentColor" />
+    <rect x="10" y="10" width="60" height="10" rx="5" fill="#ffffff" />
+    <rect x="10" y="30" width="60" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="40" width="60" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="50" width="40" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="70" width="60" height="20" rx="5" fill="#ffffff" />
+  </g>
+  
+  <g class="news-accent" style="transform: translate(150px, 100px) rotate(-10deg)">
+    <rect x="0" y="0" width="80" height="100" rx="10" fill="currentColor" />
+    <rect x="10" y="10" width="60" height="10" rx="5" fill="#ffffff" />
+    <rect x="10" y="30" width="60" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="40" width="60" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="50" width="40" height="5" rx="2" fill="#ffffff" />
+    <rect x="10" y="70" width="60" height="20" rx="5" fill="#ffffff" />
+  </g>
+  
+  <g class="news-light" style="transform: translate(600px, 450px) rotate(5deg)">
+    <rect x="0" y="0" width="80" height="100" rx="10" fill="currentColor" stroke="#0d6efd" stroke-width="2" />
+    <rect x="10" y="10" width="60" height="10" rx="5" fill="#0d6efd" />
+    <rect x="10" y="30" width="60" height="5" rx="2" fill="#0d6efd" opacity="0.7" />
+    <rect x="10" y="40" width="60" height="5" rx="2" fill="#0d6efd" opacity="0.7" />
+    <rect x="10" y="50" width="40" height="5" rx="2" fill="#0d6efd" opacity="0.7" />
+    <rect x="10" y="70" width="60" height="20" rx="5" fill="#0d6efd" opacity="0.5" />
+  </g>
+  
+  <g class="news-dark" style="transform: translate(120px, 450px) rotate(-5deg)">
+    <rect x="0" y="0" width="80" height="100" rx="10" fill="currentColor" />
+    <rect x="10" y="10" width="60" height="10" rx="5" fill="#ffffff" />
+    <rect x="10" y="30" width="60" height="5" rx="2" fill="#ffffff" opacity="0.8" />
+    <rect x="10" y="40" width="60" height="5" rx="2" fill="#ffffff" opacity="0.8" />
+    <rect x="10" y="50" width="40" height="5" rx="2" fill="#ffffff" opacity="0.8" />
+    <rect x="10" y="70" width="60" height="20" rx="5" fill="#ffffff" opacity="0.6" />
+  </g>
+</svg> 

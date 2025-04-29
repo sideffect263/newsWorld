@@ -1,10 +1,10 @@
-const axios = require('axios');
-const RSSParser = require('rss-parser');
-const Source = require('../models/source.model');
-const Article = require('../models/article.model');
-const trendAnalyzer = require('./trendAnalyzer');
-const locationExtractor = require('./locationExtractor');
-const sentimentAnalyzer = require('./sentimentAnalyzer');
+const axios = require("axios");
+const RSSParser = require("rss-parser");
+const Source = require("../models/source.model");
+const Article = require("../models/article.model");
+const trendAnalyzer = require("./trendAnalyzer");
+const locationExtractor = require("./locationExtractor");
+const sentimentAnalyzer = require("./sentimentAnalyzer");
 
 // Initialize RSS parser
 const rssParser = new RSSParser();
@@ -16,18 +16,18 @@ exports.fetchAllNews = async (options = {}) => {
   try {
     const { fetchMethod, forceFetch = false } = options;
     const query = { isActive: true };
-    
+
     if (fetchMethod) {
       query.fetchMethod = fetchMethod;
     }
-    
+
     const sources = await Source.find(query);
     console.log(`Found ${sources.length} active sources`);
-    
+
     let fetchedCount = 0;
     let skippedCount = 0;
     let newArticles = [];
-    
+
     for (const source of sources) {
       // Check if source is due for fetch
       if (!forceFetch && !isSourceDueForFetch(source)) {
@@ -35,7 +35,7 @@ exports.fetchAllNews = async (options = {}) => {
         skippedCount++;
         continue;
       }
-      
+
       try {
         const result = await exports.fetchNewsFromSource(source._id);
         if (result.success) {
@@ -44,7 +44,7 @@ exports.fetchAllNews = async (options = {}) => {
             // Add to new articles count for trend analysis
             newArticles.push({
               source: source.name,
-              count: result.articlesAdded
+              count: result.articlesAdded,
             });
           }
         }
@@ -52,7 +52,7 @@ exports.fetchAllNews = async (options = {}) => {
         console.error(`Error fetching from source ${source.name}:`, error);
       }
     }
-    
+
     // Update trends with new articles if any were added
     if (newArticles.length > 0) {
       try {
@@ -60,17 +60,17 @@ exports.fetchAllNews = async (options = {}) => {
         console.log(`Updating trends with ${totalNewArticles} new articles`);
         await trendAnalyzer.updateTrendsWithNewArticles(newArticles);
       } catch (error) {
-        console.error('Error updating trends:', error);
+        console.error("Error updating trends:", error);
       }
     }
-    
+
     return {
       success: true,
       message: `Completed fetch from ${fetchedCount} sources (${skippedCount} skipped)`,
-      newArticles: newArticles
+      newArticles: newArticles,
     };
   } catch (error) {
-    console.error('Error in fetchAllNews:', error);
+    console.error("Error in fetchAllNews:", error);
     throw error;
   }
 };
@@ -80,11 +80,11 @@ exports.fetchAllNews = async (options = {}) => {
  */
 const isSourceDueForFetch = (source) => {
   if (!source.lastFetchedAt) return true;
-  
+
   const now = new Date();
   const lastFetch = new Date(source.lastFetchedAt);
   const minutesSinceLastFetch = (now - lastFetch) / (1000 * 60);
-  
+
   return minutesSinceLastFetch >= source.fetchFrequency;
 };
 
@@ -95,46 +95,45 @@ exports.fetchNewsFromSource = async (sourceId) => {
   try {
     // Get the source
     const source = await Source.findById(sourceId);
-    
+
     if (!source) {
-      return { success: false, message: 'Source not found' };
+      return { success: false, message: "Source not found" };
     }
-    
+
     if (!source.isActive) {
-      return { success: false, message: 'Source is not active' };
+      return { success: false, message: "Source is not active" };
     }
-    
+
     console.log(`Fetching news from ${source.name} (${source.fetchMethod})`);
-    
+
     let fetchResult;
-    
+
     // Fetch based on method
     switch (source.fetchMethod) {
-      case 'api':
+      case "api":
         fetchResult = await fetchFromAPI(source);
         break;
-      case 'rss':
+      case "rss":
         fetchResult = await fetchFromRSS(source);
         break;
-      case 'scraping':
+      case "scraping":
         fetchResult = await fetchFromScraping(source);
         break;
       default:
-        fetchResult = { success: false, message: 'Unknown fetch method' };
+        fetchResult = { success: false, message: "Unknown fetch method" };
     }
-    
+
     // Update source with fetch status
     await updateSourceFetchStatus(source._id, fetchResult);
-    
+
     return {
       success: fetchResult.success,
       message: fetchResult.message,
       source: source.name,
       articlesAdded: fetchResult.articlesAdded || 0,
     };
-    
   } catch (error) {
-    console.error('Error in fetchNewsFromSource:', error);
+    console.error("Error in fetchNewsFromSource:", error);
     return { success: false, message: error.message };
   }
 };
@@ -145,37 +144,36 @@ exports.fetchNewsFromSource = async (sourceId) => {
 const fetchFromAPI = async (source) => {
   try {
     if (!source.apiDetails || !source.apiDetails.type) {
-      return { success: false, message: 'Invalid API configuration' };
+      return { success: false, message: "Invalid API configuration" };
     }
-    
+
     let articles = [];
-    
+
     // Handle different API types
     switch (source.apiDetails.type) {
-      case 'newsapi':
+      case "newsapi":
         articles = await fetchFromNewsAPI(source);
         break;
-      case 'mediastack':
+      case "mediastack":
         articles = await fetchFromMediastack(source);
         break;
-      case 'custom':
+      case "custom":
         articles = await fetchFromCustomAPI(source);
         break;
       default:
-        return { success: false, message: 'Unsupported API type' };
+        return { success: false, message: "Unsupported API type" };
     }
-    
+
     // Save articles to database
     const savedCount = await saveArticles(articles, source);
-    
+
     return {
       success: true,
       message: `Successfully fetched ${articles.length} articles from ${source.name}`,
       articlesAdded: savedCount,
     };
-    
   } catch (error) {
-    console.error('Error in fetchFromAPI:', error);
+    console.error("Error in fetchFromAPI:", error);
     return { success: false, message: error.message };
   }
 };
@@ -186,15 +184,15 @@ const fetchFromAPI = async (source) => {
 const fetchFromRSS = async (source) => {
   try {
     if (!source.rssDetails || !source.rssDetails.feedUrl) {
-      return { success: false, message: 'Invalid RSS configuration' };
+      return { success: false, message: "Invalid RSS configuration" };
     }
-    
+
     // First fetch the raw content with axios to handle encoding properly
     const response = await axios.get(source.rssDetails.feedUrl, {
-      responseType: 'arraybuffer',
+      responseType: "arraybuffer",
       headers: {
-        'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-      }
+        Accept: "application/rss+xml, application/xml, text/xml, */*",
+      },
     });
 
     // Try different encoding approaches
@@ -203,44 +201,43 @@ const fetchFromRSS = async (source) => {
 
     // Attempt 1: Try UTF-8
     try {
-      xmlContent = response.data.toString('utf8');
+      xmlContent = response.data.toString("utf8");
       xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-8"');
       feed = await rssParser.parseString(xmlContent);
       if (feed && feed.items) return processFeed(feed, source);
     } catch (e) {
-      console.log('UTF-8 parsing failed, trying UTF-16LE');
+      console.log("UTF-8 parsing failed, trying UTF-16LE");
     }
 
     // Attempt 2: Try UTF-16LE
     try {
-      xmlContent = response.data.toString('utf16le');
+      xmlContent = response.data.toString("utf16le");
       xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-16"');
       feed = await rssParser.parseString(xmlContent);
       if (feed && feed.items) return processFeed(feed, source);
     } catch (e) {
-      console.log('UTF-16LE parsing failed, trying with BOM removal');
+      console.log("UTF-16LE parsing failed, trying with BOM removal");
     }
 
     // Attempt 3: Try removing BOM and forcing UTF-8
     try {
       // Remove BOM if present and force UTF-8
       let data = response.data;
-      if (data[0] === 0xEF && data[1] === 0xBB && data[2] === 0xBF) {
+      if (data[0] === 0xef && data[1] === 0xbb && data[2] === 0xbf) {
         data = data.slice(3);
       }
-      xmlContent = data.toString('utf8');
+      xmlContent = data.toString("utf8");
       xmlContent = xmlContent.replace(/encoding="[^"]*"/, 'encoding="utf-8"');
       feed = await rssParser.parseString(xmlContent);
       if (feed && feed.items) return processFeed(feed, source);
     } catch (e) {
-      console.log('BOM removal attempt failed');
-      throw new Error('Failed to parse RSS feed with any encoding method');
+      console.log("BOM removal attempt failed");
+      throw new Error("Failed to parse RSS feed with any encoding method");
     }
 
-    throw new Error('No valid items found in RSS feed');
-    
+    throw new Error("No valid items found in RSS feed");
   } catch (error) {
-    console.error('Error in fetchFromRSS:', error);
+    console.error("Error in fetchFromRSS:", error);
     return { success: false, message: error.message };
   }
 };
@@ -248,52 +245,43 @@ const fetchFromRSS = async (source) => {
 // Helper function to process feed and return result
 const processFeed = async (feed, source) => {
   if (!feed || !feed.items || !feed.items.length) {
-    return { success: false, message: 'No items found in RSS feed' };
+    return { success: false, message: "No items found in RSS feed" };
   }
-  
+
   // Transform RSS items to articles
-  const articles = feed.items.map(item => {
+  const articles = feed.items.map((item) => {
     // Extract locations from feed metadata
     const metadataLocations = locationExtractor.extractLocationsFromFeedMetadata(item);
-    
+
     // Extract locations from content
-    const contentText = [
-      item.title || '',
-      item.contentSnippet || item.content || '',
-      item.content || ''
-    ].join(' ');
-    
+    const contentText = [item.title || "", item.contentSnippet || item.content || "", item.content || ""].join(" ");
+
     const contentLocations = locationExtractor.extractLocations(contentText);
-    
+
     // Combine and normalize locations
     const allLocations = [...metadataLocations, ...contentLocations];
     const normalizedLocations = locationExtractor.normalizeLocations(allLocations);
-    
+
     // Extract top countries using country codes
     const extractedCountries = normalizedLocations
-      .filter(loc => loc.type === 'country' && loc.confidence >= 0.7 && loc.countryCode)
-      .map(loc => loc.countryCode);
-    
+      .filter((loc) => loc.type === "country" && loc.confidence >= 0.7 && loc.countryCode)
+      .map((loc) => loc.countryCode);
+
     // Combine with source country if no countries found
-    const countries = extractedCountries.length > 0 
-      ? extractedCountries 
-      : [source.country];
-    
+    const countries = extractedCountries.length > 0 ? extractedCountries : [source.country];
+
     // Analyze sentiment
-    const sentimentText = [
-      item.title || '',
-      item.contentSnippet || item.content || ''
-    ].join(' ');
-    
+    const sentimentText = [item.title || "", item.contentSnippet || item.content || ""].join(" ");
+
     const sentimentResult = sentimentAnalyzer.analyzeSentiment(sentimentText);
-    let sentimentAssessment = 'neutral';
-    
+    let sentimentAssessment = "neutral";
+
     if (sentimentResult.comparative >= 0.1) {
-      sentimentAssessment = 'positive';
+      sentimentAssessment = "positive";
     } else if (sentimentResult.comparative <= -0.1) {
-      sentimentAssessment = 'negative';
+      sentimentAssessment = "negative";
     }
-    
+
     // Create article object
     return {
       title: item.title,
@@ -312,17 +300,17 @@ const processFeed = async (feed, source) => {
       language: source.language,
       sentiment: sentimentResult.comparative,
       sentimentAssessment: sentimentAssessment,
-      entities: normalizedLocations.map(loc => ({
+      entities: normalizedLocations.map((loc) => ({
         name: loc.name,
-        type: loc.type === 'country' ? 'location' : loc.type,
-        count: loc.count
-      }))
+        type: loc.type === "country" ? "location" : loc.type,
+        count: loc.count,
+      })),
     };
   });
-  
+
   // Save articles to database
   const savedCount = await saveArticles(articles, source);
-  
+
   return {
     success: true,
     message: `Successfully fetched ${articles.length} articles from RSS feed`,
@@ -338,20 +326,20 @@ const processFeed = async (feed, source) => {
 const fetchFromScraping = async (source) => {
   try {
     if (!source.scrapingDetails || !source.scrapingDetails.targetUrl) {
-      return { success: false, message: 'Invalid scraping configuration' };
+      return { success: false, message: "Invalid scraping configuration" };
     }
-    
+
     // In a real application, you would implement web scraping here
     // For now, we'll just return a mock response
-    
+
     console.log(`Mock scraping from ${source.scrapingDetails.targetUrl}`);
-    
+
     // Mock articles
     const articles = [
       {
         title: `Scraped Article from ${source.name} 1`,
-        description: 'This is a mock scraped article description',
-        content: 'This is the full content of the mock scraped article.',
+        description: "This is a mock scraped article description",
+        content: "This is the full content of the mock scraped article.",
         url: `${source.scrapingDetails.targetUrl}/article1`,
         publishedAt: new Date(),
         source: {
@@ -365,8 +353,8 @@ const fetchFromScraping = async (source) => {
       },
       {
         title: `Scraped Article from ${source.name} 2`,
-        description: 'This is another mock scraped article description',
-        content: 'This is the full content of another mock scraped article.',
+        description: "This is another mock scraped article description",
+        content: "This is the full content of another mock scraped article.",
         url: `${source.scrapingDetails.targetUrl}/article2`,
         publishedAt: new Date(),
         source: {
@@ -379,18 +367,17 @@ const fetchFromScraping = async (source) => {
         language: source.language,
       },
     ];
-    
+
     // Save articles to database
     const savedCount = await saveArticles(articles, source);
-    
+
     return {
       success: true,
       message: `Successfully scraped ${articles.length} articles`,
       articlesAdded: savedCount,
     };
-    
   } catch (error) {
-    console.error('Error in fetchFromScraping:', error);
+    console.error("Error in fetchFromScraping:", error);
     return { success: false, message: error.message };
   }
 };
@@ -401,31 +388,31 @@ const fetchFromScraping = async (source) => {
 const fetchFromNewsAPI = async (source) => {
   try {
     const apiKey = source.apiDetails.apiKey || process.env.NEWS_API_KEY;
-    
+
     if (!apiKey) {
-      throw new Error('News API key not found');
+      throw new Error("News API key not found");
     }
-    
+
     // Build request URL
     const params = source.apiDetails.params || {};
-    const url = 'https://newsapi.org/v2/top-headlines';
-    
+    const url = "https://newsapi.org/v2/top-headlines";
+
     const response = await axios.get(url, {
       params: {
         ...params,
         apiKey,
       },
       headers: {
-        'User-Agent': 'NewsWorld/1.0',
+        "User-Agent": "NewsWorld/1.0",
       },
     });
-    
+
     if (!response.data || !response.data.articles) {
-      throw new Error('Invalid response from News API');
+      throw new Error("Invalid response from News API");
     }
-    
+
     // Transform News API articles to our format
-    return response.data.articles.map(article => {
+    return response.data.articles.map((article) => {
       return {
         title: article.title,
         description: article.description,
@@ -444,9 +431,8 @@ const fetchFromNewsAPI = async (source) => {
         language: source.language,
       };
     });
-    
   } catch (error) {
-    console.error('Error in fetchFromNewsAPI:', error);
+    console.error("Error in fetchFromNewsAPI:", error);
     throw error;
   }
 };
@@ -457,28 +443,28 @@ const fetchFromNewsAPI = async (source) => {
 const fetchFromMediastack = async (source) => {
   try {
     const apiKey = source.apiDetails.apiKey || process.env.MEDIASTACK_API_KEY;
-    
+
     if (!apiKey) {
-      throw new Error('Mediastack API key not found');
+      throw new Error("Mediastack API key not found");
     }
-    
+
     // Build request URL
     const params = source.apiDetails.params || {};
-    const url = 'http://api.mediastack.com/v1/news';
-    
+    const url = "http://api.mediastack.com/v1/news";
+
     const response = await axios.get(url, {
       params: {
         ...params,
         access_key: apiKey,
       },
     });
-    
+
     if (!response.data || !response.data.data) {
-      throw new Error('Invalid response from Mediastack API');
+      throw new Error("Invalid response from Mediastack API");
     }
-    
+
     // Transform Mediastack articles to our format
-    return response.data.data.map(article => {
+    return response.data.data.map((article) => {
       return {
         title: article.title,
         description: article.description,
@@ -497,9 +483,8 @@ const fetchFromMediastack = async (source) => {
         language: article.language || source.language,
       };
     });
-    
   } catch (error) {
-    console.error('Error in fetchFromMediastack:', error);
+    console.error("Error in fetchFromMediastack:", error);
     throw error;
   }
 };
@@ -510,31 +495,31 @@ const fetchFromMediastack = async (source) => {
 const fetchFromCustomAPI = async (source) => {
   try {
     if (!source.apiDetails.endpoint) {
-      throw new Error('Custom API endpoint not specified');
+      throw new Error("Custom API endpoint not specified");
     }
-    
+
     // Build request
     const url = source.apiDetails.endpoint;
     const params = source.apiDetails.params || {};
     const headers = {};
-    
+
     if (source.apiDetails.apiKey) {
-      headers['Authorization'] = `Bearer ${source.apiDetails.apiKey}`;
+      headers["Authorization"] = `Bearer ${source.apiDetails.apiKey}`;
     }
-    
+
     const response = await axios.get(url, {
       params,
       headers,
     });
-    
+
     if (!response.data) {
-      throw new Error('Invalid response from custom API');
+      throw new Error("Invalid response from custom API");
     }
-    
+
     // For custom APIs, we need to transform the data based on the specific API
     // This is a simplified example
     const articles = [];
-    
+
     if (Array.isArray(response.data)) {
       // If response is an array of articles
       articles.push(...response.data);
@@ -545,11 +530,11 @@ const fetchFromCustomAPI = async (source) => {
       // If response has an items property
       articles.push(...response.data.items);
     } else {
-      throw new Error('Unsupported custom API response format');
+      throw new Error("Unsupported custom API response format");
     }
-    
+
     // Transform to our article format
-    return articles.map(article => {
+    return articles.map((article) => {
       return {
         title: article.title,
         description: article.description || article.summary,
@@ -568,25 +553,27 @@ const fetchFromCustomAPI = async (source) => {
         language: source.language,
       };
     });
-    
   } catch (error) {
-    console.error('Error in fetchFromCustomAPI:', error);
+    console.error("Error in fetchFromCustomAPI:", error);
     throw error;
   }
 };
 
 /**
- * Save articles to database
+ * Save multiple articles to database
+ * @param {Array} articles - Articles to save
+ * @param {Object} source - Source object
+ * @returns {Promise<Number>} - Number of saved articles
  */
 const saveArticles = async (articles, source) => {
   try {
     let savedCount = 0;
-    
+
     for (const article of articles) {
       try {
         // Check if article already exists by URL
         const existingArticle = await Article.findOne({ url: article.url });
-        
+
         if (existingArticle) {
           // Skip existing articles
           continue;
@@ -594,60 +581,63 @@ const saveArticles = async (articles, source) => {
 
         // Transform NYT categories if they exist
         if (article.categories && Array.isArray(article.categories)) {
-          article.categories = article.categories.map(category => {
-            // If category is an object (could be NYT format or other RSS formats)
-            if (typeof category === 'object') {
-              // Handle NYT format with _ property
-              if (category._) {
-                const nytCategory = category._.toLowerCase();
-                if (nytCategory.includes('business')) return 'business';
-                if (nytCategory.includes('entertainment')) return 'entertainment';
-                if (nytCategory.includes('health')) return 'health';
-                if (nytCategory.includes('science')) return 'science';
-                if (nytCategory.includes('sports')) return 'sports';
-                if (nytCategory.includes('technology')) return 'technology';
-                if (nytCategory.includes('politics')) return 'politics';
-                if (nytCategory.includes('world')) return 'world';
-                if (nytCategory.includes('nation')) return 'nation';
-                if (nytCategory.includes('lifestyle')) return 'lifestyle';
-                return 'general';
-              }
-              // Handle format with $ property (seen in some RSS feeds)
-              else if (category.$) {
-                // Extract domain or other properties if available
-                if (typeof category.$ === 'object') {
-                  // Try to determine category from domain or other properties
-                  // Default to general if no specific mapping found
-                  return 'general';
+          article.categories = article.categories
+            .map((category) => {
+              // If category is an object (could be NYT format or other RSS formats)
+              if (typeof category === "object") {
+                // Handle NYT format with _ property
+                if (category._) {
+                  const nytCategory = category._.toLowerCase();
+                  if (nytCategory.includes("business")) return "business";
+                  if (nytCategory.includes("entertainment")) return "entertainment";
+                  if (nytCategory.includes("health")) return "health";
+                  if (nytCategory.includes("science")) return "science";
+                  if (nytCategory.includes("sports")) return "sports";
+                  if (nytCategory.includes("technology")) return "technology";
+                  if (nytCategory.includes("politics")) return "politics";
+                  if (nytCategory.includes("world")) return "world";
+                  if (nytCategory.includes("nation")) return "nation";
+                  if (nytCategory.includes("lifestyle")) return "lifestyle";
+                  return "general";
                 }
-                return String(category.$);
-              }
-              // Handle any other object format by extracting a string property or returning 'general'
-              else {
-                for (const key of Object.keys(category)) {
-                  if (typeof category[key] === 'string') return category[key];
+                // Handle format with $ property (seen in some RSS feeds)
+                else if (category.$) {
+                  // Extract domain or other properties if available
+                  if (typeof category.$ === "object") {
+                    // Try to determine category from domain or other properties
+                    // Default to general if no specific mapping found
+                    return "general";
+                  }
+                  return String(category.$);
                 }
-                return 'general';
+                // Handle any other object format by extracting a string property or returning 'general'
+                else {
+                  for (const key of Object.keys(category)) {
+                    if (typeof category[key] === "string") return category[key];
+                  }
+                  return "general";
+                }
               }
-            }
-            return category;
-          }).filter(category => category && typeof category === 'string'); // Remove any undefined/null/non-string values
+              return category;
+            })
+            .filter((category) => category && typeof category === "string"); // Remove any undefined/null/non-string values
         }
-        
-        // Create new article
-        await Article.create(article);
+
+        // Process article content to extract and geocode locations
+        const processedArticle = await processArticleContent(article);
+
+        // Create new article with processed data
+        await saveArticle(processedArticle, source._id);
         savedCount++;
-        
       } catch (error) {
         console.error(`Error saving article: ${error.message}`);
         // Continue with next article
       }
     }
-    
+
     return savedCount;
-    
   } catch (error) {
-    console.error('Error in saveArticles:', error);
+    console.error("Error in saveArticles:", error);
     throw error;
   }
 };
@@ -659,21 +649,221 @@ const updateSourceFetchStatus = async (sourceId, fetchResult) => {
   try {
     const updateData = {
       lastFetchedAt: new Date(),
-      'fetchStatus.success': fetchResult.success,
-      'fetchStatus.message': fetchResult.message,
+      "fetchStatus.success": fetchResult.success,
+      "fetchStatus.message": fetchResult.message,
     };
-    
+
     if (!fetchResult.success) {
-      updateData['fetchStatus.lastErrorAt'] = new Date();
-      updateData['$inc'] = { 'fetchStatus.errorCount': 1 };
+      updateData["fetchStatus.lastErrorAt"] = new Date();
+      updateData["$inc"] = { "fetchStatus.errorCount": 1 };
     } else {
       // Reset error count on success
-      updateData['fetchStatus.errorCount'] = 0;
+      updateData["fetchStatus.errorCount"] = 0;
     }
-    
+
     await Source.findByIdAndUpdate(sourceId, updateData);
-    
   } catch (error) {
-    console.error('Error updating source fetch status:', error);
+    console.error("Error updating source fetch status:", error);
+  }
+};
+
+/**
+ * Process article content after fetching
+ * @param {Object} article - The article object
+ * @returns {Promise<Object>} - Processed article
+ */
+const processArticleContent = async (article) => {
+  try {
+    // Skip if no article or missing content
+    if (!article || (!article.title && !article.content && !article.description)) {
+      return article;
+    }
+
+    // Combine text for entity extraction
+    const fullText = [article.title || "", article.description || "", article.content || ""].join(" ").trim();
+
+    // Process locations with geocoding
+    const locationExtractor = require("./locationExtractor");
+    const locationData = await locationExtractor.processArticleLocations(fullText, article);
+
+    // Add location entities to article
+    if (locationData.locations && locationData.locations.length > 0) {
+      if (!article.entities) {
+        article.entities = [];
+      }
+
+      // Add geocoded location entities
+      locationData.locations.forEach((location) => {
+        // Check if location already exists
+        const existingIndex = article.entities.findIndex(
+          (e) => e.name.toLowerCase() === location.name.toLowerCase() && e.type === location.type,
+        );
+
+        if (existingIndex >= 0) {
+          // Update existing entity with coordinates if available
+          if (location.coordinates) {
+            article.entities[existingIndex].coordinates = location.coordinates;
+          }
+          if (location.countryCode) {
+            article.entities[existingIndex].countryCode = location.countryCode;
+          }
+          if (location.formattedAddress) {
+            article.entities[existingIndex].formattedAddress = location.formattedAddress;
+          }
+        } else {
+          // Add new location entity
+          article.entities.push(location);
+        }
+      });
+    }
+
+    // Add country codes from location data
+    if (locationData.countries && locationData.countries.length > 0) {
+      if (!article.countries) {
+        article.countries = [];
+      }
+
+      // Add unique country codes
+      locationData.countries.forEach((countryCode) => {
+        if (!article.countries.includes(countryCode)) {
+          article.countries.push(countryCode);
+        }
+      });
+    }
+
+    // Perform entity extraction for non-location entities if needed
+    // (This would typically be in a separate function)
+    // ...
+
+    return article;
+  } catch (error) {
+    console.error("Error processing article content:", error);
+    return article; // Return original on error
+  }
+};
+
+/**
+ * Save an article to the database
+ * @param {Object} article - The article to save
+ * @param {String} sourceId - ID of the source
+ * @returns {Promise<Object>} - Saved article
+ */
+const saveArticle = async (article, sourceId) => {
+  try {
+    // Validate required fields
+    if (!article.title || !article.url || !article.publishedAt) {
+      return null;
+    }
+
+    // Process the article content to extract entities, locations, etc.
+    const processedArticle = await processArticleContent(article);
+
+    // Check if article already exists by URL
+    const existingArticle = await Article.findOne({ url: processedArticle.url });
+
+    if (existingArticle) {
+      // Update with new information if needed
+      if (processedArticle.content && !existingArticle.content) {
+        existingArticle.content = processedArticle.content;
+        existingArticle.entities = processedArticle.entities || existingArticle.entities;
+        existingArticle.countries = processedArticle.countries || existingArticle.countries;
+
+        // Save updates
+        await existingArticle.save();
+      }
+      return existingArticle;
+    }
+
+    // If no image URL and sentiment is available, try to get a sentiment-based image
+    if (!processedArticle.imageUrl && processedArticle.sentimentAssessment) {
+      try {
+        // Get keywords from entities and categories for better image matching
+        let keywords = [];
+
+        // Extract keywords from entities (prefer people and organizations)
+        if (processedArticle.entities && processedArticle.entities.length > 0) {
+          // First add people and organizations
+          const priorityEntities = processedArticle.entities
+            .filter((e) => ["person", "organization"].includes(e.type))
+            .map((e) => e.name);
+
+          // Then add other entities
+          const otherEntities = processedArticle.entities
+            .filter((e) => !["person", "organization"].includes(e.type))
+            .map((e) => e.name);
+
+          keywords = [...priorityEntities, ...otherEntities];
+        }
+
+        // Add categories as keywords if we don't have enough
+        if (keywords.length < 2 && processedArticle.categories && processedArticle.categories.length > 0) {
+          keywords = [...keywords, ...processedArticle.categories];
+        }
+
+        // If we still don't have keywords, extract some from the title
+        if (keywords.length === 0 && processedArticle.title) {
+          const titleWords = processedArticle.title
+            .split(" ")
+            .filter((word) => word.length > 3) // Only words longer than 3 chars
+            .filter((word) => !["this", "that", "with", "from", "have", "what"].includes(word.toLowerCase()));
+
+          keywords = titleWords.slice(0, 3); // Take up to 3 words from title
+        }
+
+        // Take up to 3 keywords
+        const keywordsParam = keywords.slice(0, 3).join(",");
+
+        // Get sentiment-based image
+        const axios = require("axios");
+        const port = process.env.PORT || 5000;
+        const sentimentImageUrl = `http://localhost:${port}/api/proxy/sentiment-image?sentiment=${
+          processedArticle.sentimentAssessment
+        }&keywords=${encodeURIComponent(keywordsParam)}`;
+
+        const imageResponse = await axios.get(sentimentImageUrl);
+
+        if (imageResponse.data.success && imageResponse.data.data) {
+          // Add the image URL to the article - use the already proxied URL
+          processedArticle.imageUrl = imageResponse.data.data.largeImageUrl || imageResponse.data.data.imageUrl;
+          // Store that this is a sentiment-based image
+          processedArticle.imageSource = "sentiment";
+          processedArticle.imageTags = imageResponse.data.data.tags;
+        }
+      } catch (error) {
+        console.error("Error getting sentiment-based image for article:", error.message);
+        // Continue without image if there's an error
+      }
+    }
+
+    // Create new article
+    const newArticle = new Article({
+      title: processedArticle.title,
+      description: processedArticle.description || "",
+      content: processedArticle.content || "",
+      url: processedArticle.url,
+      imageUrl: processedArticle.imageUrl || processedArticle.urlToImage || "",
+      imageSource: processedArticle.imageSource || "original",
+      imageTags: processedArticle.imageTags || "",
+      publishedAt: new Date(processedArticle.publishedAt),
+      source: {
+        id: processedArticle.source?.id || sourceId,
+        name: processedArticle.source?.name || "Unknown",
+        url: processedArticle.source?.url || "",
+      },
+      author: processedArticle.author || "",
+      categories: processedArticle.categories || [],
+      countries: processedArticle.countries || [],
+      language: processedArticle.language || "en",
+      entities: processedArticle.entities || [],
+      isBreakingNews: processedArticle.isBreakingNews || false,
+    });
+
+    // Save to database
+    await newArticle.save();
+
+    return newArticle;
+  } catch (error) {
+    console.error("Error saving article:", error);
+    return null;
   }
 };

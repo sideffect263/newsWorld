@@ -1,5 +1,10 @@
 const compromise = require('compromise');
 const countries = require('../data/countries.json');
+const opencage = require('opencage-api-client');
+require('dotenv').config();
+
+// Get OpenCage API key from environment variables
+const OPENCAGE_API_KEY = process.env.OPENCAGE_API_KEY;
 
 // Create a map for quick country name to code lookup
 const countryNameToCode = {};
@@ -327,4 +332,110 @@ exports.normalizeLocations = (locations) => {
   // Convert back to array and sort by confidence
   return Object.values(locationMap)
     .sort((a, b) => b.confidence - a.confidence);
+};
+
+/**
+ * Geocode locations using OpenCage
+ * @param {Array} locations - Array of location objects
+ * @returns {Promise<Array>} - Promise resolving to locations with coordinates
+ */
+exports.geocodeLocations = async (locations) => {
+  if (!locations || !locations.length || !OPENCAGE_API_KEY) {
+    return locations;
+  }
+  
+  const geocodedLocations = [...locations];
+  
+  // Only geocode locations with sufficient confidence and without coordinates
+  const locationsToGeocode = geocodedLocations
+    .filter(loc => loc.confidence >= 0.6 && !loc.coordinates)
+    .slice(0, 10); // Limit to 10 locations to prevent rate limiting
+  
+  for (const location of locationsToGeocode) {
+    try {
+      const query = location.name;
+      const result = await opencage.geocode({
+        q: query,
+        key: OPENCAGE_API_KEY,
+        limit: 1,
+        no_annotations: 1
+      });
+      
+      if (result && result.results && result.results.length > 0) {
+        const { geometry, formatted, components } = result.results[0];
+        
+        location.coordinates = {
+          lat: geometry.lat,
+          lng: geometry.lng
+        };
+        
+        location.formattedAddress = formatted;
+        
+        // Add country code if available from OpenCage
+        if (components && components.country_code) {
+          location.countryCode = components.country_code.toUpperCase();
+        }
+        
+        // If it's a city, update the type
+        if (components && (components.city || components.town || components.village)) {
+          location.type = 'city';
+        }
+        
+        // Increase confidence for successfully geocoded locations
+        location.confidence = Math.min(0.95, location.confidence + 0.15);
+        location.geocoded = true;
+      }
+    } catch (error) {
+      console.error(`Error geocoding location "${location.name}":`, error.message);
+      // Don't fail the entire process if one geocoding fails
+    }
+    
+    // Small delay to prevent hitting rate limits
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  
+  return geocodedLocations;
+};
+
+/**
+ * Process locations for an article
+ * @param {String} text - Article text
+ * @param {Object} metadata - Optional article metadata
+ * @returns {Promise<Object>} - Object with locations and country codes
+ */
+exports.processArticleLocations = async (text, metadata = {}) => {
+  // Extract locations from text
+  let locations = exports.extractLocations(text);
+  
+  // Add locations from metadata if available
+  if (metadata) {
+    const metadataLocations = exports.extractLocationsFromFeedMetadata(metadata);
+    locations = [...locations, ...metadataLocations];
+  }
+  
+  // Normalize locations
+  const normalizedLocations = exports.normalizeLocations(locations);
+  
+  // Geocode locations
+  const geocodedLocations = await exports.geocodeLocations(normalizedLocations);
+  
+  // Extract country codes
+  const countryCodes = geocodedLocations
+    .filter(loc => loc.countryCode)
+    .map(loc => loc.countryCode)
+    .filter((code, index, self) => self.indexOf(code) === index); // Deduplicate
+  
+  // Convert to entity format for storing in articles
+  const locationEntities = geocodedLocations.map(loc => ({
+    name: loc.name,
+    type: loc.type,
+    count: loc.count || 1,
+    coordinates: loc.coordinates || null,
+    countryCode: loc.countryCode || null
+  }));
+  
+  return {
+    locations: locationEntities,
+    countries: countryCodes
+  };
 }; 

@@ -90,23 +90,31 @@ exports.getTrends = async (req, res, next) => {
 
     articles.forEach(article => {
       // Process keywords
-      article.keywords.forEach(keyword => {
-        trendsData.keywords[keyword] = (trendsData.keywords[keyword] || 0) + 1;
-      });
+      if (article.keywords && Array.isArray(article.keywords)) {
+        article.keywords.forEach(keyword => {
+          trendsData.keywords[keyword] = (trendsData.keywords[keyword] || 0) + 1;
+        });
+      }
 
       // Process entities
-      article.entities.forEach(entity => {
-        trendsData.entities[entity.name] = (trendsData.entities[entity.name] || 0) + 1;
-      });
+      if (article.entities && Array.isArray(article.entities)) {
+        article.entities.forEach(entity => {
+          trendsData.entities[entity.name] = (trendsData.entities[entity.name] || 0) + 1;
+        });
+      }
 
       // Process categories
-      article.categories.forEach(category => {
-        trendsData.categories[category] = (trendsData.categories[category] || 0) + 1;
-      });
+      if (article.categories && Array.isArray(article.categories)) {
+        article.categories.forEach(category => {
+          trendsData.categories[category] = (trendsData.categories[category] || 0) + 1;
+        });
+      }
 
       // Process sources
-      const sourceName = article.source.name;
-      trendsData.sources[sourceName] = (trendsData.sources[sourceName] || 0) + 1;
+      if (article.source && article.source.name) {
+        const sourceName = article.source.name;
+        trendsData.sources[sourceName] = (trendsData.sources[sourceName] || 0) + 1;
+      }
     });
 
     // Sort and limit results

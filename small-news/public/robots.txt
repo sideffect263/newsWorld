@@ -1,0 +1,8 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://newsworld.com/sitemap.xml
+Sitemap: https://newsworld.com/news-sitemap.xml
+Sitemap: https://newsworld.com/stories-sitemap.xml 
