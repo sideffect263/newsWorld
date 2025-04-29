@@ -1,489 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines."
+    />
     <title>News Stories & Narratives | NewsWorld</title>
-    
+
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://newsworld.com/stories">
-    <meta property="og:title" content="News Stories & Narratives | NewsWorld">
-    <meta property="og:description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
-    <meta property="og:image" content="/favicon/android-chrome-512x512.png">
-    <meta property="og:site_name" content="NewsWorld">
-    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://newsworld.ofektechnology.com/stories" />
+    <meta property="og:title" content="News Stories & Narratives | NewsWorld" />
+    <meta
+      property="og:description"
+      content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines."
+    />
+    <meta property="og:image" content="/favicon/android-chrome-512x512.png" />
+    <meta property="og:site_name" content="NewsWorld" />
+
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="News Stories & Narratives | NewsWorld">
-    <meta name="twitter:description" content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.">
-    <meta name="twitter:image" content="/favicon/android-chrome-512x512.png">
-    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="News Stories & Narratives | NewsWorld" />
+    <meta
+      name="twitter:description"
+      content="Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines."
+    />
+    <meta name="twitter:image" content="/favicon/android-chrome-512x512.png" />
+
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://newsworld.com/stories">
-    
+    <link rel="canonical" href="https://newsworld.ofektechnology.com/stories" />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/styles/common.css">
-    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="/styles/common.css" />
+    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16" />
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": "News Stories & Narratives",
-      "description": "Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.",
-      "url": "https://newsworld.com/stories",
-      "isPartOf": {
-        "@type": "WebSite",
-        "name": "NewsWorld",
-        "url": "https://newsworld.com"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "NewsWorld",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "/favicon/android-chrome-512x512.png"
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "News Stories & Narratives",
+        "description": "Explore AI-generated narrative stories based on trending news. Follow evolving storylines, see how events connect, and understand the bigger picture through our interactive story timelines.",
+        "url": "https://newsworld.ofektechnology.com/stories",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "NewsWorld",
+          "url": "https://newsworld.ofektechnology.com"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "NewsWorld",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "/favicon/android-chrome-512x512.png"
+          }
         }
       }
-    }
     </script>
     <style>
-        .story-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            border-radius: 8px;
-            overflow: hidden;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .story-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
-        
-        .story-card .card-title {
-            font-weight: 600;
-            font-size: 1.25rem;
-            line-height: 1.4;
-        }
-        
-        .story-card .card-text {
-            color: #555;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-        }
-        
-        .timeline-indicator {
-            display: flex;
-            align-items: center;
-            margin-top: 15px;
-        }
-        
-        .timeline-bar {
-            height: 4px;
-            background-color: #e9ecef;
-            flex-grow: 1;
-            border-radius: 2px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .timeline-progress {
-            position: absolute;
-            height: 100%;
-            background-color: #0d6efd;
-            left: 0;
-            border-radius: 2px;
-        }
-        
-        .timeline-status {
-            font-size: 0.8rem;
-            margin-left: 8px;
-            white-space: nowrap;
-        }
-        
-        .story-tag {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-radius: 50px;
-            display: inline-block;
-            background-color: #f0f0f0;
-            color: #555;
-        }
-        
-        .filter-controls {
-            position: sticky;
-            top: 72px;
-            z-index: 100;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(5px);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .category-badge {
-            display: inline-block;
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
-            font-weight: 700;
-            line-height: 1;
-            color: #fff;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 0.25rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .category-badge:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-        }
-        
-        .no-stories {
-            padding: 3rem;
-            text-align: center;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            margin-top: 2rem;
-        }
-        
-        /* Animated placeholder for stories loading */
-        .story-placeholder .placeholder-glow {
-            height: 20px;
-            margin-bottom: 10px;
-        }
+      .story-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .story-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .story-card .card-title {
+        font-weight: 600;
+        font-size: 1.25rem;
+        line-height: 1.4;
+      }
+
+      .story-card .card-text {
+        color: #555;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+
+      .timeline-indicator {
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+      }
+
+      .timeline-bar {
+        height: 4px;
+        background-color: #e9ecef;
+        flex-grow: 1;
+        border-radius: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .timeline-progress {
+        position: absolute;
+        height: 100%;
+        background-color: #0d6efd;
+        left: 0;
+        border-radius: 2px;
+      }
+
+      .timeline-status {
+        font-size: 0.8rem;
+        margin-left: 8px;
+        white-space: nowrap;
+      }
+
+      .story-tag {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 50px;
+        display: inline-block;
+        background-color: #f0f0f0;
+        color: #555;
+      }
+
+      .filter-controls {
+        position: sticky;
+        top: 72px;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .category-badge {
+        display: inline-block;
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .category-badge:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+
+      .no-stories {
+        padding: 3rem;
+        text-align: center;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        margin-top: 2rem;
+      }
+
+      /* Animated placeholder for stories loading */
+      .story-placeholder .placeholder-glow {
+        height: 20px;
+        margin-bottom: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Header with navigation -->
     <header class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">
-                <i class="bi bi-globe me-2"></i>NewsWorld
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/"> <i class="bi bi-globe me-2"></i>NewsWorld </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/news">News</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/stories" aria-current="page">Stories</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/trends">Trends</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/sentiment">Sentiment</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/sources">Sources</a>
+            </li>
+          </ul>
+          <form class="d-flex" id="searchForm">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search stories..."
+              aria-label="Search"
+              id="searchInput"
+            />
+            <button class="btn btn-outline-light" type="submit">
+              <i class="bi bi-search"></i>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/news">News</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/stories" aria-current="page">Stories</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/trends">Trends</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/sentiment">Sentiment</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/sources">Sources</a>
-                    </li>
-                </ul>
-                <form class="d-flex" id="searchForm">
-                    <input class="form-control me-2" type="search" placeholder="Search stories..." aria-label="Search" id="searchInput">
-                    <button class="btn btn-outline-light" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-            </div>
+          </form>
         </div>
+      </div>
     </header>
 
     <main class="container py-4">
-        <!-- Page header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="display-5 fw-bold mb-2">
-                    <i class="bi bi-journal-richtext me-2"></i>News Stories
-                </h1>
-                <p class="text-muted lead">
-                    Explore narrative timelines that evolve with the news. Each story is automatically generated from multiple articles and continuously updated as events unfold.
-                </p>
-            </div>
+      <!-- Page header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h1 class="display-5 fw-bold mb-2"><i class="bi bi-journal-richtext me-2"></i>News Stories</h1>
+          <p class="text-muted lead">
+            Explore narrative timelines that evolve with the news. Each story is automatically generated from multiple
+            articles and continuously updated as events unfold.
+          </p>
         </div>
+      </div>
 
-        <!-- Filters section -->
-        <div class="row">
-            <div class="col-12">
-                <div class="filter-controls">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Filter by Category</h5>
-                        <button class="btn btn-sm btn-outline-secondary" id="clearFilters">
-                            <i class="bi bi-x-circle me-1"></i>Clear Filters
-                        </button>
-                    </div>
-                    
-                    <div id="categoryFilters" class="mb-2">
-                        <span class="category-badge bg-primary" data-category="all">All</span>
-                        <span class="category-badge bg-danger" data-category="politics">Politics</span>
-                        <span class="category-badge bg-success" data-category="technology">Technology</span>
-                        <span class="category-badge bg-info" data-category="business">Business</span>
-                        <span class="category-badge bg-warning" data-category="health">Health</span>
-                        <span class="category-badge bg-dark" data-category="science">Science</span>
-                        <span class="category-badge bg-secondary" data-category="world">World</span>
-                    </div>
-                    
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <select class="form-select" id="sortSelect">
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
-                                <option value="popular">Most Viewed</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <select class="form-select" id="countrySelect">
-                                <option value="">All Countries</option>
-                                <option value="US">United States</option>
-                                <option value="GB">United Kingdom</option>
-                                <option value="CA">Canada</option>
-                                <option value="AU">Australia</option>
-                                <option value="IN">India</option>
-                                <option value="JP">Japan</option>
-                                <option value="DE">Germany</option>
-                                <option value="FR">France</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+      <!-- Filters section -->
+      <div class="row">
+        <div class="col-12">
+          <div class="filter-controls">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Filter by Category</h5>
+              <button class="btn btn-sm btn-outline-secondary" id="clearFilters">
+                <i class="bi bi-x-circle me-1"></i>Clear Filters
+              </button>
             </div>
-        </div>
 
-        <!-- Stories grid -->
-        <div class="row g-4" id="storiesGrid">
-            <!-- Stories will be loaded here -->
-            
-            <!-- Loading placeholders -->
-            <div class="col-md-6 col-lg-4 story-placeholder">
-                <div class="card story-card">
-                    <div class="card-body">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-8"></span>
-                        </div>
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-12"></span>
-                            <span class="placeholder col-10"></span>
-                            <span class="placeholder col-6"></span>
-                        </div>
-                        <div class="d-flex mt-3">
-                            <div class="placeholder-glow flex-grow-1">
-                                <span class="placeholder col-4"></span>
-                            </div>
-                            <div class="placeholder-glow">
-                                <span class="placeholder col-8"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div id="categoryFilters" class="mb-2">
+              <span class="category-badge bg-primary" data-category="all">All</span>
+              <span class="category-badge bg-danger" data-category="politics">Politics</span>
+              <span class="category-badge bg-success" data-category="technology">Technology</span>
+              <span class="category-badge bg-info" data-category="business">Business</span>
+              <span class="category-badge bg-warning" data-category="health">Health</span>
+              <span class="category-badge bg-dark" data-category="science">Science</span>
+              <span class="category-badge bg-secondary" data-category="world">World</span>
             </div>
-            <div class="col-md-6 col-lg-4 story-placeholder">
-                <div class="card story-card">
-                    <div class="card-body">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-8"></span>
-                        </div>
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-12"></span>
-                            <span class="placeholder col-10"></span>
-                            <span class="placeholder col-6"></span>
-                        </div>
-                        <div class="d-flex mt-3">
-                            <div class="placeholder-glow flex-grow-1">
-                                <span class="placeholder col-4"></span>
-                            </div>
-                            <div class="placeholder-glow">
-                                <span class="placeholder col-8"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+            <div class="row g-2">
+              <div class="col-md-6">
+                <select class="form-select" id="sortSelect">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="popular">Most Viewed</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <select class="form-select" id="countrySelect">
+                  <option value="">All Countries</option>
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="IN">India</option>
+                  <option value="JP">Japan</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                </select>
+              </div>
             </div>
-            <div class="col-md-6 col-lg-4 story-placeholder">
-                <div class="card story-card">
-                    <div class="card-body">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-8"></span>
-                        </div>
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-12"></span>
-                            <span class="placeholder col-10"></span>
-                            <span class="placeholder col-6"></span>
-                        </div>
-                        <div class="d-flex mt-3">
-                            <div class="placeholder-glow flex-grow-1">
-                                <span class="placeholder col-4"></span>
-                            </div>
-                            <div class="placeholder-glow">
-                                <span class="placeholder col-8"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-        
-        <!-- No stories message (hidden by default) -->
-        <div class="no-stories d-none" id="noStoriesMessage">
-            <i class="bi bi-journal-x display-1 text-muted"></i>
-            <h3 class="mt-3">No Stories Found</h3>
-            <p class="text-muted">
-                No stories match your current filter criteria.
-                Try changing your filters or check back later for new content.
-            </p>
-            <button class="btn btn-primary mt-2" id="resetFiltersBtn">
-                <i class="bi bi-arrow-repeat me-1"></i>Reset Filters
-            </button>
-        </div>
-        
-        <!-- Pagination -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <nav aria-label="Stories pagination">
-                    <ul class="pagination justify-content-center" id="paginationContainer">
-                        <!-- Pagination will be generated here -->
-                    </ul>
-                </nav>
+      </div>
+
+      <!-- Stories grid -->
+      <div class="row g-4" id="storiesGrid">
+        <!-- Stories will be loaded here -->
+
+        <!-- Loading placeholders -->
+        <div class="col-md-6 col-lg-4 story-placeholder">
+          <div class="card story-card">
+            <div class="card-body">
+              <div class="placeholder-glow">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder-glow">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10"></span>
+                <span class="placeholder col-6"></span>
+              </div>
+              <div class="d-flex mt-3">
+                <div class="placeholder-glow flex-grow-1">
+                  <span class="placeholder col-4"></span>
+                </div>
+                <div class="placeholder-glow">
+                  <span class="placeholder col-8"></span>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+        <div class="col-md-6 col-lg-4 story-placeholder">
+          <div class="card story-card">
+            <div class="card-body">
+              <div class="placeholder-glow">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder-glow">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10"></span>
+                <span class="placeholder col-6"></span>
+              </div>
+              <div class="d-flex mt-3">
+                <div class="placeholder-glow flex-grow-1">
+                  <span class="placeholder col-4"></span>
+                </div>
+                <div class="placeholder-glow">
+                  <span class="placeholder col-8"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 story-placeholder">
+          <div class="card story-card">
+            <div class="card-body">
+              <div class="placeholder-glow">
+                <span class="placeholder col-8"></span>
+              </div>
+              <div class="placeholder-glow">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10"></span>
+                <span class="placeholder col-6"></span>
+              </div>
+              <div class="d-flex mt-3">
+                <div class="placeholder-glow flex-grow-1">
+                  <span class="placeholder col-4"></span>
+                </div>
+                <div class="placeholder-glow">
+                  <span class="placeholder col-8"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No stories message (hidden by default) -->
+      <div class="no-stories d-none" id="noStoriesMessage">
+        <i class="bi bi-journal-x display-1 text-muted"></i>
+        <h3 class="mt-3">No Stories Found</h3>
+        <p class="text-muted">
+          No stories match your current filter criteria. Try changing your filters or check back later for new content.
+        </p>
+        <button class="btn btn-primary mt-2" id="resetFiltersBtn">
+          <i class="bi bi-arrow-repeat me-1"></i>Reset Filters
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="row mt-5">
+        <div class="col-12">
+          <nav aria-label="Stories pagination">
+            <ul class="pagination justify-content-center" id="paginationContainer">
+              <!-- Pagination will be generated here -->
+            </ul>
+          </nav>
+        </div>
+      </div>
     </main>
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="bi bi-globe me-2"></i>NewsWorld</h5>
-                    <p class="text-muted">
-                        Intelligent news aggregation and analysis
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">
-                        &copy; 2023 NewsWorld. All rights reserved.
-                    </p>
-                    <p class="text-muted">
-                        Data is automatically gathered from public RSS feeds.
-                    </p>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="bi bi-globe me-2"></i>NewsWorld</h5>
+            <p class="text-muted">Intelligent news aggregation and analysis</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <p class="mb-0 text-muted">&copy; 2023 NewsWorld. All rights reserved.</p>
+            <p class="text-muted">Data is automatically gathered from public RSS feeds.</p>
+          </div>
         </div>
+      </div>
     </footer>
 
     <!-- JavaScript Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/trending-keywords.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // State variables
-            let currentPage = 1;
-            let currentCategory = 'all';
-            let currentSort = 'newest';
-            let currentCountry = '';
-            let searchTerm = '';
-            let totalPages = 1;
-            
-            // Elements
-            const storiesGrid = document.getElementById('storiesGrid');
-            const noStoriesMessage = document.getElementById('noStoriesMessage');
-            const paginationContainer = document.getElementById('paginationContainer');
-            const categoryFilters = document.getElementById('categoryFilters').querySelectorAll('.category-badge');
-            const sortSelect = document.getElementById('sortSelect');
-            const countrySelect = document.getElementById('countrySelect');
-            const searchForm = document.getElementById('searchForm');
-            const searchInput = document.getElementById('searchInput');
-            const clearFiltersBtn = document.getElementById('clearFilters');
-            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-            
-            // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        // State variables
+        let currentPage = 1;
+        let currentCategory = "all";
+        let currentSort = "newest";
+        let currentCountry = "";
+        let searchTerm = "";
+        let totalPages = 1;
+
+        // Elements
+        const storiesGrid = document.getElementById("storiesGrid");
+        const noStoriesMessage = document.getElementById("noStoriesMessage");
+        const paginationContainer = document.getElementById("paginationContainer");
+        const categoryFilters = document.getElementById("categoryFilters").querySelectorAll(".category-badge");
+        const sortSelect = document.getElementById("sortSelect");
+        const countrySelect = document.getElementById("countrySelect");
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const clearFiltersBtn = document.getElementById("clearFilters");
+        const resetFiltersBtn = document.getElementById("resetFiltersBtn");
+
+        // Initialize
+        loadStories();
+
+        // Event Listeners
+        categoryFilters.forEach((badge) => {
+          badge.addEventListener("click", function () {
+            currentCategory = this.getAttribute("data-category");
+            currentPage = 1;
+
+            // Update UI
+            categoryFilters.forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+
             loadStories();
-            
-            // Event Listeners
-            categoryFilters.forEach(badge => {
-                badge.addEventListener('click', function() {
-                    currentCategory = this.getAttribute('data-category');
-                    currentPage = 1;
-                    
-                    // Update UI
-                    categoryFilters.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    loadStories();
-                });
-            });
-            
-            sortSelect.addEventListener('change', function() {
-                currentSort = this.value;
-                currentPage = 1;
-                loadStories();
-            });
-            
-            countrySelect.addEventListener('change', function() {
-                currentCountry = this.value;
-                currentPage = 1;
-                loadStories();
-            });
-            
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                searchTerm = searchInput.value.trim();
-                currentPage = 1;
-                loadStories();
-            });
-            
-            clearFiltersBtn.addEventListener('click', resetFilters);
-            resetFiltersBtn.addEventListener('click', resetFilters);
-            
-            function resetFilters() {
-                currentCategory = 'all';
-                currentSort = 'newest';
-                currentCountry = '';
-                searchTerm = '';
-                currentPage = 1;
-                
-                // Reset UI
-                categoryFilters.forEach(b => {
-                    b.classList.remove('active');
-                    if (b.getAttribute('data-category') === 'all') {
-                        b.classList.add('active');
-                    }
-                });
-                
-                sortSelect.value = 'newest';
-                countrySelect.value = '';
-                searchInput.value = '';
-                
-                loadStories();
+          });
+        });
+
+        sortSelect.addEventListener("change", function () {
+          currentSort = this.value;
+          currentPage = 1;
+          loadStories();
+        });
+
+        countrySelect.addEventListener("change", function () {
+          currentCountry = this.value;
+          currentPage = 1;
+          loadStories();
+        });
+
+        searchForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          searchTerm = searchInput.value.trim();
+          currentPage = 1;
+          loadStories();
+        });
+
+        clearFiltersBtn.addEventListener("click", resetFilters);
+        resetFiltersBtn.addEventListener("click", resetFilters);
+
+        function resetFilters() {
+          currentCategory = "all";
+          currentSort = "newest";
+          currentCountry = "";
+          searchTerm = "";
+          currentPage = 1;
+
+          // Reset UI
+          categoryFilters.forEach((b) => {
+            b.classList.remove("active");
+            if (b.getAttribute("data-category") === "all") {
+              b.classList.add("active");
             }
-            
-            // Story loading function
-            function loadStories() {
-                // Show loading state
-                storiesGrid.innerHTML = '';
-                for (let i = 0; i < 6; i++) {
-                    storiesGrid.innerHTML += `
+          });
+
+          sortSelect.value = "newest";
+          countrySelect.value = "";
+          searchInput.value = "";
+
+          loadStories();
+        }
+
+        // Story loading function
+        function loadStories() {
+          // Show loading state
+          storiesGrid.innerHTML = "";
+          for (let i = 0; i < 6; i++) {
+            storiesGrid.innerHTML += `
                         <div class="col-md-6 col-lg-4 story-placeholder">
                             <div class="card story-card">
                                 <div class="card-body">
@@ -507,49 +520,49 @@
                             </div>
                         </div>
                     `;
-                }
-                
-                // Build query parameters
-                let queryParams = `page=${currentPage}`;
-                
-                if (currentCategory !== 'all') {
-                    queryParams += `&category=${currentCategory}`;
-                }
-                
-                if (searchTerm) {
-                    queryParams += `&keyword=${encodeURIComponent(searchTerm)}`;
-                }
-                
-                if (currentCountry) {
-                    queryParams += `&country=${currentCountry}`;
-                }
-                
-                // Fetch stories from API
-                fetch(`/api/stories?${queryParams}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        storiesGrid.innerHTML = '';
-                        
-                        if (data.results === 0) {
-                            // Show no stories message
-                            noStoriesMessage.classList.remove('d-none');
-                        } else {
-                            // Hide no stories message
-                            noStoriesMessage.classList.add('d-none');
-                            
-                            // Render stories
-                            data.data.forEach(story => {
-                                storiesGrid.appendChild(createStoryCard(story));
-                            });
-                            
-                            // Update pagination
-                            totalPages = data.pages;
-                            renderPagination();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching stories:', error);
-                        storiesGrid.innerHTML = `
+          }
+
+          // Build query parameters
+          let queryParams = `page=${currentPage}`;
+
+          if (currentCategory !== "all") {
+            queryParams += `&category=${currentCategory}`;
+          }
+
+          if (searchTerm) {
+            queryParams += `&keyword=${encodeURIComponent(searchTerm)}`;
+          }
+
+          if (currentCountry) {
+            queryParams += `&country=${currentCountry}`;
+          }
+
+          // Fetch stories from API
+          fetch(`/api/stories?${queryParams}`)
+            .then((response) => response.json())
+            .then((data) => {
+              storiesGrid.innerHTML = "";
+
+              if (data.results === 0) {
+                // Show no stories message
+                noStoriesMessage.classList.remove("d-none");
+              } else {
+                // Hide no stories message
+                noStoriesMessage.classList.add("d-none");
+
+                // Render stories
+                data.data.forEach((story) => {
+                  storiesGrid.appendChild(createStoryCard(story));
+                });
+
+                // Update pagination
+                totalPages = data.pages;
+                renderPagination();
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching stories:", error);
+              storiesGrid.innerHTML = `
                             <div class="col-12">
                                 <div class="alert alert-danger" role="alert">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -557,79 +570,85 @@
                                 </div>
                             </div>
                         `;
-                    });
+            });
+        }
+
+        // Create a story card element
+        function createStoryCard(story) {
+          const col = document.createElement("div");
+          col.className = "col-md-6 col-lg-4";
+
+          // Calculate time period
+          let timeString = "";
+          if (story.timeline && story.timeline.startDate) {
+            const startDate = new Date(story.timeline.startDate);
+            const endDate = story.timeline.endDate ? new Date(story.timeline.endDate) : new Date();
+
+            const startMonth = startDate.toLocaleString("default", { month: "short" });
+            const endMonth = endDate.toLocaleString("default", { month: "short" });
+
+            if (startMonth === endMonth && startDate.getFullYear() === endDate.getFullYear()) {
+              timeString = `${startMonth} ${startDate.getDate()} - ${endDate.getDate()}, ${startDate.getFullYear()}`;
+            } else {
+              timeString = `${startMonth} ${startDate.getDate()} - ${endMonth} ${endDate.getDate()}, ${endDate.getFullYear()}`;
             }
-            
-            // Create a story card element
-            function createStoryCard(story) {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
-                
-                // Calculate time period
-                let timeString = '';
-                if (story.timeline && story.timeline.startDate) {
-                    const startDate = new Date(story.timeline.startDate);
-                    const endDate = story.timeline.endDate ? new Date(story.timeline.endDate) : new Date();
-                    
-                    const startMonth = startDate.toLocaleString('default', { month: 'short' });
-                    const endMonth = endDate.toLocaleString('default', { month: 'short' });
-                    
-                    if (startMonth === endMonth && startDate.getFullYear() === endDate.getFullYear()) {
-                        timeString = `${startMonth} ${startDate.getDate()} - ${endDate.getDate()}, ${startDate.getFullYear()}`;
-                    } else {
-                        timeString = `${startMonth} ${startDate.getDate()} - ${endMonth} ${endDate.getDate()}, ${endDate.getFullYear()}`;
-                    }
-                }
-                
-                // Create category badges
-                let categoryBadges = '';
-                if (story.categories && story.categories.length > 0) {
-                    const categoryColors = {
-                        politics: 'danger',
-                        technology: 'success',
-                        business: 'info',
-                        health: 'warning',
-                        science: 'dark',
-                        world: 'secondary',
-                        general: 'primary'
-                    };
-                    
-                    story.categories.slice(0, 3).forEach(category => {
-                        const color = categoryColors[category] || 'primary';
-                        categoryBadges += `<span class="badge bg-${color} me-1">${category}</span>`;
-                    });
-                }
-                
-                // Calculate ongoing indicator and progress
-                let timelineStatus = story.timeline && story.timeline.ongoing ? 
-                    '<span class="badge bg-success">Ongoing</span>' : 
-                    '<span class="badge bg-secondary">Completed</span>';
-                
-                let progress = '50%'; // Default to middle if we can't calculate
-                
-                if (story.timeline) {
-                    const start = new Date(story.timeline.startDate).getTime();
-                    const end = story.timeline.endDate ? new Date(story.timeline.endDate).getTime() : new Date().getTime();
-                    const duration = end - start;
-                    
-                    if (duration > 0) {
-                        const now = new Date().getTime();
-                        const elapsed = now - start;
-                        progress = Math.min(100, Math.max(0, Math.floor((elapsed / duration) * 100))) + '%';
-                    }
-                }
-                
-                // Format date for structured data
-                const publishDate = story.timeline && story.timeline.startDate 
-                    ? new Date(story.timeline.startDate).toISOString()
-                    : new Date().toISOString();
-                
-                // Create article with structured data attributes
-                col.innerHTML = `
+          }
+
+          // Create category badges
+          let categoryBadges = "";
+          if (story.categories && story.categories.length > 0) {
+            const categoryColors = {
+              politics: "danger",
+              technology: "success",
+              business: "info",
+              health: "warning",
+              science: "dark",
+              world: "secondary",
+              general: "primary",
+            };
+
+            story.categories.slice(0, 3).forEach((category) => {
+              const color = categoryColors[category] || "primary";
+              categoryBadges += `<span class="badge bg-${color} me-1">${category}</span>`;
+            });
+          }
+
+          // Calculate ongoing indicator and progress
+          let timelineStatus =
+            story.timeline && story.timeline.ongoing
+              ? '<span class="badge bg-success">Ongoing</span>'
+              : '<span class="badge bg-secondary">Completed</span>';
+
+          let progress = "50%"; // Default to middle if we can't calculate
+
+          if (story.timeline) {
+            const start = new Date(story.timeline.startDate).getTime();
+            const end = story.timeline.endDate ? new Date(story.timeline.endDate).getTime() : new Date().getTime();
+            const duration = end - start;
+
+            if (duration > 0) {
+              const now = new Date().getTime();
+              const elapsed = now - start;
+              progress = Math.min(100, Math.max(0, Math.floor((elapsed / duration) * 100))) + "%";
+            }
+          }
+
+          // Format date for structured data
+          const publishDate =
+            story.timeline && story.timeline.startDate
+              ? new Date(story.timeline.startDate).toISOString()
+              : new Date().toISOString();
+
+          // Create article with structured data attributes
+          col.innerHTML = `
                     <article class="card story-card h-100" itemscope itemtype="https://schema.org/Article">
                         <meta itemprop="datePublished" content="${publishDate}">
-                        ${story.keywords ? `<meta itemprop="keywords" content="${story.keywords.join(', ')}">` : ''}
-                        ${story.categories ? `<meta itemprop="articleSection" content="${story.categories.join(', ')}">` : ''}
+                        ${story.keywords ? `<meta itemprop="keywords" content="${story.keywords.join(", ")}">` : ""}
+                        ${
+                          story.categories
+                            ? `<meta itemprop="articleSection" content="${story.categories.join(", ")}">`
+                            : ""
+                        }
                         <div class="card-body d-flex flex-column">
                             <h2 class="card-title h5" itemprop="headline">${story.title}</h2>
                             <p class="card-text flex-grow-1" itemprop="description">${story.summary}</p>
@@ -661,69 +680,69 @@
                         </span>
                     </article>
                 `;
-                
-                return col;
-            }
-            
-            // Render pagination controls
-            function renderPagination() {
-                paginationContainer.innerHTML = '';
-                
-                // Don't show pagination if only one page
-                if (totalPages <= 1) return;
-                
-                // Previous button
-                const prevLi = document.createElement('li');
-                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                prevLi.innerHTML = `
+
+          return col;
+        }
+
+        // Render pagination controls
+        function renderPagination() {
+          paginationContainer.innerHTML = "";
+
+          // Don't show pagination if only one page
+          if (totalPages <= 1) return;
+
+          // Previous button
+          const prevLi = document.createElement("li");
+          prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+          prevLi.innerHTML = `
                     <button class="page-link" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </button>
                 `;
-                if (currentPage > 1) {
-                    prevLi.querySelector('button').addEventListener('click', () => {
-                        currentPage--;
-                        loadStories();
-                    });
-                }
-                paginationContainer.appendChild(prevLi);
-                
-                // Page numbers
-                const startPage = Math.max(1, currentPage - 2);
-                const endPage = Math.min(totalPages, startPage + 4);
-                
-                for (let i = startPage; i <= endPage; i++) {
-                    const pageLi = document.createElement('li');
-                    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                    pageLi.innerHTML = `<button class="page-link">${i}</button>`;
-                    
-                    if (i !== currentPage) {
-                        pageLi.querySelector('button').addEventListener('click', () => {
-                            currentPage = i;
-                            loadStories();
-                        });
-                    }
-                    
-                    paginationContainer.appendChild(pageLi);
-                }
-                
-                // Next button
-                const nextLi = document.createElement('li');
-                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-                nextLi.innerHTML = `
+          if (currentPage > 1) {
+            prevLi.querySelector("button").addEventListener("click", () => {
+              currentPage--;
+              loadStories();
+            });
+          }
+          paginationContainer.appendChild(prevLi);
+
+          // Page numbers
+          const startPage = Math.max(1, currentPage - 2);
+          const endPage = Math.min(totalPages, startPage + 4);
+
+          for (let i = startPage; i <= endPage; i++) {
+            const pageLi = document.createElement("li");
+            pageLi.className = `page-item ${i === currentPage ? "active" : ""}`;
+            pageLi.innerHTML = `<button class="page-link">${i}</button>`;
+
+            if (i !== currentPage) {
+              pageLi.querySelector("button").addEventListener("click", () => {
+                currentPage = i;
+                loadStories();
+              });
+            }
+
+            paginationContainer.appendChild(pageLi);
+          }
+
+          // Next button
+          const nextLi = document.createElement("li");
+          nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+          nextLi.innerHTML = `
                     <button class="page-link" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </button>
                 `;
-                if (currentPage < totalPages) {
-                    nextLi.querySelector('button').addEventListener('click', () => {
-                        currentPage++;
-                        loadStories();
-                    });
-                }
-                paginationContainer.appendChild(nextLi);
-            }
-        });
+          if (currentPage < totalPages) {
+            nextLi.querySelector("button").addEventListener("click", () => {
+              currentPage++;
+              loadStories();
+            });
+          }
+          paginationContainer.appendChild(nextLi);
+        }
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>

@@ -98,8 +98,8 @@ async function loadArticle(articleId) {
 
     // Use slug for canonical URL if available
     const canonicalUrl = article.slug
-      ? `https://newsworld.com/news/${article.slug}`
-      : `https://newsworld.com/news/${articleId}`;
+      ? `https://newsworld.ofektechnology.com/news/${article.slug}`
+      : `https://newsworld.ofektechnology.com/news/${articleId}`;
 
     document.getElementById("og-url").setAttribute("content", canonicalUrl);
 
@@ -413,7 +413,9 @@ async function loadArticle(articleId) {
     // Set up share links
     const shareTitle = encodeURIComponent(article.title);
     const shareUrl = encodeURIComponent(
-      article.slug ? `https://newsworld.com/news/${article.slug}` : `https://newsworld.com/news/${articleId}`,
+      article.slug
+        ? `https://newsworld.ofektechnology.com/news/${article.slug}`
+        : `https://newsworld.ofektechnology.com/news/${articleId}`,
     );
     const shareText = encodeURIComponent(article.description || "");
 
@@ -442,7 +444,7 @@ async function loadArticle(articleId) {
         article.imageUrl ||
         (result.sentimentImage
           ? result.sentimentImage.largeImageUrl
-          : "https://newsworld.com/favicon/android-chrome-512x512.png"),
+          : "https://newsworld.ofektechnology.com/favicon/android-chrome-512x512.png"),
       author: {
         "@type": "Person",
         name: article.author || "NewsWorld",
@@ -452,7 +454,7 @@ async function loadArticle(articleId) {
         name: "NewsWorld",
         logo: {
           "@type": "ImageObject",
-          url: "https://newsworld.com/favicon/android-chrome-512x512.png",
+          url: "https://newsworld.ofektechnology.com/favicon/android-chrome-512x512.png",
           width: 512,
           height: 512,
         },

@@ -111,7 +111,7 @@ app.get("/news-sitemap.xml", async (req, res) => {
     articles.forEach((article) => {
       const pubDate = new Date(article.publishedAt).toISOString();
       xml += "  <url>\n";
-      xml += `    <loc>https://newsworld.com/news/${article._id}</loc>\n`;
+      xml += `    <loc>https://newsworld.ofektechnology.com/news/${article._id}</loc>\n`;
       xml += `    <lastmod>${pubDate}</lastmod>\n`;
       xml += "    <news:news>\n";
       xml += "      <news:publication>\n";
@@ -158,7 +158,7 @@ app.get("/stories-sitemap.xml", async (req, res) => {
       const priority = Math.min(1, Math.max(0.1, (story.relevancyScore || 0) / 1000)).toFixed(1);
 
       xml += "  <url>\n";
-      xml += `    <loc>https://newsworld.com/stories/${story._id}</loc>\n`;
+      xml += `    <loc>https://newsworld.ofektechnology.com/stories/${story._id}</loc>\n`;
       xml += `    <lastmod>${lastMod}</lastmod>\n`;
 
       // Add changefreq based on whether the story is ongoing
@@ -309,15 +309,15 @@ app.get("/sitemaps", (req, res) => {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://newsworld.com/sitemap.xml</loc>
+    <loc>https://newsworld.ofektechnology.com/sitemap.xml</loc>
     <lastmod>${lastMod}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://newsworld.com/news-sitemap.xml</loc>
+    <loc>https://newsworld.ofektechnology.com/news-sitemap.xml</loc>
     <lastmod>${lastMod}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://newsworld.com/stories-sitemap.xml</loc>
+    <loc>https://newsworld.ofektechnology.com/stories-sitemap.xml</loc>
     <lastmod>${lastMod}</lastmod>
   </sitemap>
 </sitemapindex>`;

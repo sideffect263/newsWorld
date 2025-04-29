@@ -8,7 +8,7 @@ Allow: /trends/
 Allow: /sentiment/
 
 # Sitemaps
-Sitemap: https://newsworld.com/sitemaps
-Sitemap: https://newsworld.com/sitemap.xml
-Sitemap: https://newsworld.com/news-sitemap.xml
-Sitemap: https://newsworld.com/stories-sitemap.xml 
+Sitemap: https://newsworld.ofektechnology.com/sitemaps
+Sitemap: https://newsworld.ofektechnology.com/sitemap.xml
+Sitemap: https://newsworld.ofektechnology.com/news-sitemap.xml
+Sitemap: https://newsworld.ofektechnology.com/stories-sitemap.xml 
