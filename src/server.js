@@ -282,17 +282,30 @@ app.get("/news/:id", async (req, res) => {
     }
 
     if (!article) {
+      console.error(`Article not found: ${req.params.id}`);
       return res.redirect("/news");
     }
 
-    // Track view count
-    article.viewCount = (article.viewCount || 0) + 1;
-    await article.save();
+    // Track view count - handle this separately so it doesn't block page delivery
+    try {
+      article.viewCount = (article.viewCount || 0) + 1;
+      await article.save();
+    } catch (saveError) {
+      console.error("Error saving article view count:", saveError);
+      // Continue serving the page even if view count update fails
+    }
 
-    res.sendFile(path.join(__dirname, "public/article.html"));
+    // Serve the article page
+    return res.sendFile(path.join(__dirname, "public/article.html"));
   } catch (error) {
     console.error("Error serving article page:", error);
-    res.redirect("/news");
+    // Log more details to diagnose the issue
+    console.error("Article ID:", req.params.id);
+    console.error("Error details:", error.stack);
+
+    // Still serve the article page instead of redirecting,
+    // the client-side error handling will show appropriate messages
+    return res.sendFile(path.join(__dirname, "public/article.html"));
   }
 });
 
@@ -356,6 +369,11 @@ const startServer = async () => {
   // Start the news fetching and story generation scheduler
   scheduler.startNewsScheduler();
 
+  // Start the LLM worker
+  const llmWorker = require("./services/llmWorker");
+  llmWorker.start();
+  console.log("LLM worker service started");
+
   // Set up environment variables for APIs
   if (!process.env.GEMINI_API) {
     console.log("Using default Gemini API key from configuration");
@@ -363,6 +381,22 @@ const startServer = async () => {
     console.log("Note: For best results, set GEMINI_API in your environment variables");
   } else {
     console.log("Gemini API configured successfully");
+  }
+
+  // Check for Together API (fallback LLM provider)
+  if (!process.env.TOGETHER_API) {
+    console.log("Using default Together API key as fallback LLM provider");
+    console.log("Note: For better fallback LLM services, set TOGETHER_API in your environment variables");
+  } else {
+    console.log("Together API configured successfully as fallback LLM provider");
+  }
+
+  // Check for Mistral API (another fallback LLM provider)
+  if (!process.env.MISTRAL_API) {
+    console.log("Using default Mistral API key as fallback LLM provider");
+    console.log("Note: For additional LLM redundancy, set MISTRAL_API in your environment variables");
+  } else {
+    console.log("Mistral API configured successfully as additional fallback LLM provider");
   }
 
   app.listen(PORT, () => {

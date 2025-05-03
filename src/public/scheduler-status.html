@@ -1,175 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'G-VL0BHL7LPW');
-</script>
+      gtag("config", "G-VL0BHL7LPW");
+    </script>
     <title>NewsWorld Scheduler Status</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="/styles/main.css" />
     <style>
-        .method-card {
-            transition: all 0.3s ease;
-        }
-        .method-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .status-running {
-            background-color: #28a745;
-        }
-        .status-stopped {
-            background-color: #dc3545;
-        }
-        .source-item {
-            border-left: 4px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .source-item:hover {
-            border-left-color: #0d6efd;
-            background-color: #f8f9fa;
-        }
-        .source-status-success {
-            color: #28a745;
-        }
-        .source-status-error {
-            color: #dc3545;
-        }
-        .next-scan {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        .refresh-btn {
-            cursor: pointer;
-        }
+      .method-card {
+        transition: all 0.3s ease;
+      }
+      .method-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+      }
+      .status-running {
+        background-color: #28a745;
+      }
+      .status-stopped {
+        background-color: #dc3545;
+      }
+      .source-item {
+        border-left: 4px solid transparent;
+        transition: all 0.2s ease;
+      }
+      .source-item:hover {
+        border-left-color: #0d6efd;
+        background-color: #f8f9fa;
+      }
+      .source-status-success {
+        color: #28a745;
+      }
+      .source-status-error {
+        color: #dc3545;
+      }
+      .next-scan {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+      .refresh-btn {
+        cursor: pointer;
+      }
+      .provider-available {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .provider-unavailable {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .llm-card {
+        border-left: 4px solid #6f42c1;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Include common header -->
     <div id="header"></div>
 
-    <div class="container " style="padding-top: 150px;">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-clock-history"></i> Scheduler Status</h2>
-            <button id="refreshBtn" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
-        </div>
+    <div class="container" style="padding-top: 150px">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-clock-history"></i> Scheduler Status</h2>
+        <button id="refreshBtn" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
 
-        <!-- Overall Status -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Overall Status</h5>
+      <!-- Overall Status -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Overall Status</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <span id="overallStatusIndicator" class="status-indicator"></span>
+                <span id="overallStatus" class="ms-2">Loading...</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div>Active Sources: <span id="activeSourceCount">-</span></div>
+            </div>
+            <div class="col-md-4">
+              <div>Total Articles: <span id="totalArticleCount">-</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LLM Worker Status -->
+      <div class="card mb-4 llm-card">
+        <div class="card-header bg-purple text-white" style="background-color: #6f42c1">
+          <h5 class="mb-0"><i class="bi bi-cpu"></i> Multi-LLM Worker</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="d-flex align-items-center mb-3">
+                <span id="llmWorkerStatusIndicator" class="status-indicator"></span>
+                <span id="llmWorkerStatus" class="ms-2">Loading...</span>
+              </div>
+              <div>Queue Length: <span id="llmQueueLength">-</span></div>
+              <div>Batch Size: <span id="llmBatchSize">-</span></div>
+              <div>Processing Delay: <span id="llmProcessingDelay">-</span>ms</div>
+            </div>
+            <div class="col-md-4">
+              <h6 class="mb-2">Provider Status</h6>
+              <div>Gemini: <span id="geminiStatus">-</span></div>
+              <div>Together: <span id="togetherStatus">-</span></div>
+              <div>Mistral: <span id="mistralStatus">-</span></div>
+            </div>
+            <div class="col-md-4">
+              <h6 class="mb-2">Rate Limits</h6>
+              <div>Last Rate Limit: <span id="llmLastRateLimit">-</span></div>
+              <div>Cooldown Period: <span id="llmCooldownPeriod">-</span></div>
+              <div id="llmCooldownStatus"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fetch Methods -->
+      <div class="row">
+        <!-- RSS Method -->
+        <div class="col-md-4 mb-4">
+          <div class="card method-card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-rss"></i> RSS Feeds</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <span id="overallStatusIndicator" class="status-indicator"></span>
-                            <span id="overallStatus" class="ms-2">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div>Active Sources: <span id="activeSourceCount">-</span></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div>Total Articles: <span id="totalArticleCount">-</span></div>
-                    </div>
+              <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <span id="rssStatusIndicator" class="status-indicator"></span>
+                  <span id="rssStatus">Loading...</span>
                 </div>
+                <div>Schedule: <code id="rssSchedule">-</code></div>
+                <div class="next-scan">Next Scan: <span id="rssNextScan">-</span></div>
+                <div>Active Sources: <span id="rssSourceCount">-</span></div>
+              </div>
+              <div id="rssSources" class="list-group list-group-flush">
+                <!-- RSS sources will be listed here -->
+              </div>
             </div>
+          </div>
         </div>
 
-        <!-- Fetch Methods -->
-        <div class="row">
-            <!-- RSS Method -->
-            <div class="col-md-4 mb-4">
-                <div class="card method-card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="bi bi-rss"></i> RSS Feeds</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <span id="rssStatusIndicator" class="status-indicator"></span>
-                                <span id="rssStatus">Loading...</span>
-                            </div>
-                            <div>Schedule: <code id="rssSchedule">-</code></div>
-                            <div class="next-scan">Next Scan: <span id="rssNextScan">-</span></div>
-                            <div>Active Sources: <span id="rssSourceCount">-</span></div>
-                        </div>
-                        <div id="rssSources" class="list-group list-group-flush">
-                            <!-- RSS sources will be listed here -->
-                        </div>
-                    </div>
-                </div>
+        <!-- API Method -->
+        <div class="col-md-4 mb-4">
+          <div class="card method-card h-100">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-cloud"></i> API Sources</h5>
             </div>
-
-            <!-- API Method -->
-            <div class="col-md-4 mb-4">
-                <div class="card method-card h-100">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="bi bi-cloud"></i> API Sources</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <span id="apiStatusIndicator" class="status-indicator"></span>
-                                <span id="apiStatus">Loading...</span>
-                            </div>
-                            <div>Schedule: <code id="apiSchedule">-</code></div>
-                            <div class="next-scan">Next Scan: <span id="apiNextScan">-</span></div>
-                            <div>Active Sources: <span id="apiSourceCount">-</span></div>
-                        </div>
-                        <div id="apiSources" class="list-group list-group-flush">
-                            <!-- API sources will be listed here -->
-                        </div>
-                    </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <span id="apiStatusIndicator" class="status-indicator"></span>
+                  <span id="apiStatus">Loading...</span>
                 </div>
+                <div>Schedule: <code id="apiSchedule">-</code></div>
+                <div class="next-scan">Next Scan: <span id="apiNextScan">-</span></div>
+                <div>Active Sources: <span id="apiSourceCount">-</span></div>
+              </div>
+              <div id="apiSources" class="list-group list-group-flush">
+                <!-- API sources will be listed here -->
+              </div>
             </div>
-
-            <!-- Scraping Method -->
-            <div class="col-md-4 mb-4">
-                <div class="card method-card h-100">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="bi bi-globe"></i> Scraping Sources</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <span id="scrapingStatusIndicator" class="status-indicator"></span>
-                                <span id="scrapingStatus">Loading...</span>
-                            </div>
-                            <div>Schedule: <code id="scrapingSchedule">-</code></div>
-                            <div class="next-scan">Next Scan: <span id="scrapingNextScan">-</span></div>
-                            <div>Active Sources: <span id="scrapingSourceCount">-</span></div>
-                        </div>
-                        <div id="scrapingSources" class="list-group list-group-flush">
-                            <!-- Scraping sources will be listed here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <!-- Scraping Method -->
+        <div class="col-md-4 mb-4">
+          <div class="card method-card h-100">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="bi bi-globe"></i> Scraping Sources</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <span id="scrapingStatusIndicator" class="status-indicator"></span>
+                  <span id="scrapingStatus">Loading...</span>
+                </div>
+                <div>Schedule: <code id="scrapingSchedule">-</code></div>
+                <div class="next-scan">Next Scan: <span id="scrapingNextScan">-</span></div>
+                <div>Active Sources: <span id="scrapingSourceCount">-</span></div>
+              </div>
+              <div id="scrapingSources" class="list-group list-group-flush">
+                <!-- Scraping sources will be listed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/scripts/scheduler-status.js"></script>
-</body>
-</html> 
+  </body>
+</html>

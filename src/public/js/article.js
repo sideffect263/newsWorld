@@ -1,4 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Ensure updateTrendingKeywords function is available
+  if (typeof window.updateTrendingKeywords !== "function") {
+    console.log("Defining updateTrendingKeywords function in article.js");
+    window.updateTrendingKeywords = function (keywords) {
+      console.log("Using article.js implementation of updateTrendingKeywords");
+      const container = document.getElementById("trending-topics");
+      if (!container) {
+        console.error("Trending topics container not found");
+        return;
+      }
+
+      // Clear loading indicator
+      container.innerHTML = "";
+
+      if (!keywords || keywords.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted py-3">No trending topics found</p>';
+        return;
+      }
+
+      // Add each keyword as a button link
+      keywords.forEach((item) => {
+        const keywordEl = document.createElement("div");
+        keywordEl.className = "mb-2";
+        keywordEl.innerHTML = `
+          <a href="/news?search=${encodeURIComponent(item.keyword)}" class="btn btn-sm btn-outline-primary me-2 mb-2">
+            ${item.keyword}
+          </a>
+          <small class="text-muted">(${item.count})</small>
+        `;
+        container.appendChild(keywordEl);
+      });
+    };
+  }
+
   // Load header
   fetch("/components/header.html")
     .then((response) => response.text())
@@ -68,11 +102,44 @@ function setupEntityHighlighting(article) {
 
 async function loadArticle(articleId) {
   try {
-    const response = await fetch(`/api/news/${articleId}`);
-    const result = await response.json();
+    // Show loading indicator
+    const loadingElement = document.getElementById("loading");
+    if (loadingElement) {
+      loadingElement.style.display = "block";
+    }
 
-    if (!result.success || !result.data) {
-      window.location.href = "/news";
+    // Add timeout to prevent hanging if API request takes too long
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+    let result;
+
+    try {
+      const response = await fetch(`/api/news/${articleId}`, {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId); // Clear the timeout
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+      }
+
+      result = await response.json();
+
+      if (!result.success || !result.data) {
+        console.error("Article data not found or invalid format:", result);
+        showArticleError("We couldn't find the article you're looking for.");
+        return;
+      }
+    } catch (fetchError) {
+      console.error("Error fetching article data:", fetchError);
+
+      if (fetchError.name === "AbortError") {
+        showArticleError("Request timed out. Please try again later.");
+      } else {
+        showArticleError("There was a problem loading the article. Please try again.");
+      }
       return;
     }
 
@@ -82,18 +149,36 @@ async function loadArticle(articleId) {
     document.title = `${article.title} - NewsWorld`;
 
     // Update meta description
-    const description = article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
-    document.getElementById("meta-description").setAttribute("content", description);
+    const metaDescription = document.getElementById("meta-description");
+    if (metaDescription) {
+      const description =
+        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
+      metaDescription.setAttribute("content", description);
+    }
 
     // Update meta keywords
-    const keywords = [...(article.categories || []), ...(article.entities?.map((e) => e.name) || [])].join(", ");
-    document.getElementById("meta-keywords").setAttribute("content", `${keywords}, news, global news`);
+    const metaKeywords = document.getElementById("meta-keywords");
+    if (metaKeywords) {
+      const keywords = [...(article.categories || []), ...(article.entities?.map((e) => e.name) || [])].join(", ");
+      metaKeywords.setAttribute("content", `${keywords}, news, global news`);
+    }
 
     // Update Open Graph tags
-    document.getElementById("og-title").setAttribute("content", article.title);
-    document.getElementById("og-description").setAttribute("content", description);
-    if (article.imageUrl) {
-      document.getElementById("og-image").setAttribute("content", article.imageUrl);
+    const ogTitle = document.getElementById("og-title");
+    if (ogTitle) {
+      ogTitle.setAttribute("content", article.title);
+    }
+
+    const ogDescription = document.getElementById("og-description");
+    if (ogDescription) {
+      const description =
+        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
+      ogDescription.setAttribute("content", description);
+    }
+
+    const ogImage = document.getElementById("og-image");
+    if (ogImage && article.imageUrl) {
+      ogImage.setAttribute("content", article.imageUrl);
     }
 
     // Use slug for canonical URL if available
@@ -101,33 +186,61 @@ async function loadArticle(articleId) {
       ? `https://newsworld.ofektechnology.com/news/${article.slug}`
       : `https://newsworld.ofektechnology.com/news/${articleId}`;
 
-    document.getElementById("og-url").setAttribute("content", canonicalUrl);
+    const ogUrl = document.getElementById("og-url");
+    if (ogUrl) {
+      ogUrl.setAttribute("content", canonicalUrl);
+    }
 
     // Set canonical URL for SEO
-    document.getElementById("canonical-link").setAttribute("href", canonicalUrl);
+    const canonicalLink = document.getElementById("canonical-link");
+    if (canonicalLink) {
+      canonicalLink.setAttribute("href", canonicalUrl);
+    }
 
     // Update Twitter Card tags
-    document.getElementById("twitter-title").setAttribute("content", article.title);
-    document.getElementById("twitter-description").setAttribute("content", description);
-    if (article.imageUrl) {
-      document.getElementById("twitter-image").setAttribute("content", article.imageUrl);
+    const twitterTitle = document.getElementById("twitter-title");
+    if (twitterTitle) {
+      twitterTitle.setAttribute("content", article.title);
+    }
+
+    const twitterDescription = document.getElementById("twitter-description");
+    if (twitterDescription) {
+      const description =
+        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
+      twitterDescription.setAttribute("content", description);
+    }
+
+    const twitterImage = document.getElementById("twitter-image");
+    if (twitterImage && article.imageUrl) {
+      twitterImage.setAttribute("content", article.imageUrl);
     }
 
     // Update article content
-    document.getElementById("article-title").textContent = article.title;
-    document.getElementById("article-date").textContent = new Date(article.publishedAt).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    if (article.author) {
-      document.getElementById("article-author").textContent = article.author;
+    const articleTitle = document.getElementById("article-title");
+    if (articleTitle) {
+      articleTitle.textContent = article.title;
     }
 
-    document.getElementById("article-source").textContent = article.source.name;
+    const articleDate = document.getElementById("article-date");
+    if (articleDate) {
+      articleDate.textContent = new Date(article.publishedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    const articleAuthor = document.getElementById("article-author");
+    if (articleAuthor && article.author) {
+      articleAuthor.textContent = article.author;
+    }
+
+    const articleSource = document.getElementById("article-source");
+    if (articleSource) {
+      articleSource.textContent = article.source.name;
+    }
 
     // Country and language
     const countries = {
@@ -143,22 +256,29 @@ async function loadArticle(articleId) {
       de: "German",
     };
 
-    if (article.countries && article.countries.length > 0) {
-      document.getElementById("article-country").textContent = countries[article.countries[0]] || article.countries[0];
+    const articleCountry = document.getElementById("article-country");
+    if (articleCountry && article.countries && article.countries.length > 0) {
+      articleCountry.textContent = countries[article.countries[0]] || article.countries[0];
     }
 
-    if (article.language) {
-      document.getElementById("article-language").textContent = languages[article.language] || article.language;
+    const articleLanguage = document.getElementById("article-language");
+    if (articleLanguage && article.language) {
+      articleLanguage.textContent = languages[article.language] || article.language;
     }
 
-    if (article.viewCount) {
-      document.getElementById("article-views").textContent = article.viewCount;
+    // Only update view count if the element exists
+    const viewsElement = document.getElementById("article-views");
+    if (viewsElement && article.viewCount) {
+      viewsElement.textContent = article.viewCount;
     }
+
     console.log(article);
 
     // Article image
-    if (article.imageUrl) {
-      const imgContainer = document.getElementById("article-image-container");
+    const imgContainer = document.getElementById("article-image-container");
+    if (!imgContainer) {
+      console.error("Article image container not found");
+    } else if (article.imageUrl) {
       const imgWrapper = document.createElement("div");
       imgWrapper.className = "position-relative";
 
@@ -198,9 +318,8 @@ async function loadArticle(articleId) {
         caption.innerHTML = `AI-selected image. ${tagsText} Source: <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>`;
         imgContainer.appendChild(caption);
       }
-    } else if (result.sentimentImage) {
+    } else if (result.sentimentImage && imgContainer) {
       // Use sentiment-based image if no image in article (fallback to API call)
-      const imgContainer = document.getElementById("article-image-container");
       const imgWrapper = document.createElement("div");
       imgWrapper.className = "position-relative";
 
@@ -222,16 +341,14 @@ async function loadArticle(articleId) {
       const caption = document.createElement("div");
       caption.className = "image-caption text-muted small mt-2";
       caption.innerHTML = `Image based on article sentiment: ${result.sentimentImage.sentiment}. 
-                           Keywords: ${result.sentimentImage.searchTerm}. 
-                           Source: <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>`;
+                         Keywords: ${result.sentimentImage.searchTerm}. 
+                         Source: <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>`;
 
       imgWrapper.appendChild(img);
       imgContainer.appendChild(imgWrapper);
       imgContainer.appendChild(caption);
-    } else {
+    } else if (imgContainer) {
       // Try to get a fallback image based on article category
-      const imgContainer = document.getElementById("article-image-container");
-
       // Get the first category, or default to 'general'
       const category = article.categories && article.categories.length > 0 ? article.categories[0] : "general";
 
@@ -274,8 +391,8 @@ async function loadArticle(articleId) {
           const caption = document.createElement("div");
           caption.className = "image-caption text-muted small mt-2";
           caption.innerHTML = `Category image: ${fallbackResult.data.category}. 
-                               Keywords: ${fallbackResult.data.searchTerm}. 
-                               Source: <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>`;
+                             Keywords: ${fallbackResult.data.searchTerm}. 
+                             Source: <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>`;
 
           imgWrapper.appendChild(img);
           imgContainer.appendChild(imgWrapper);
@@ -302,30 +419,34 @@ async function loadArticle(articleId) {
 
       // Add reading time to metadata
       const metaContainer = document.querySelector(".article-meta");
-      metaContainer.insertAdjacentHTML("beforeend", readingTimeText);
+      if (metaContainer) {
+        metaContainer.insertAdjacentHTML("beforeend", readingTimeText);
+      }
     }
 
     // Article sentiment
     const sentimentEl = document.getElementById("article-sentiment");
-    if (article.sentimentAssessment) {
-      let sentimentClass = "alert-secondary";
-      let sentimentIcon = "bi-emoji-neutral";
-      let sentimentText = "This article has a neutral tone";
+    if (sentimentEl) {
+      if (article.sentimentAssessment) {
+        let sentimentClass = "alert-secondary";
+        let sentimentIcon = "bi-emoji-neutral";
+        let sentimentText = "This article has a neutral tone";
 
-      if (article.sentimentAssessment === "positive") {
-        sentimentClass = "alert-success";
-        sentimentIcon = "bi-emoji-smile";
-        sentimentText = "This article has a positive tone";
-      } else if (article.sentimentAssessment === "negative") {
-        sentimentClass = "alert-danger";
-        sentimentIcon = "bi-emoji-frown";
-        sentimentText = "This article has a negative tone";
+        if (article.sentimentAssessment === "positive") {
+          sentimentClass = "alert-success";
+          sentimentIcon = "bi-emoji-smile";
+          sentimentText = "This article has a positive tone";
+        } else if (article.sentimentAssessment === "negative") {
+          sentimentClass = "alert-danger";
+          sentimentIcon = "bi-emoji-frown";
+          sentimentText = "This article has a negative tone";
+        }
+
+        sentimentEl.className = `alert ${sentimentClass}`;
+        sentimentEl.innerHTML = `<i class="bi ${sentimentIcon}"></i> ${sentimentText}`;
+      } else {
+        sentimentEl.style.display = "none";
       }
-
-      sentimentEl.className = `alert ${sentimentClass}`;
-      sentimentEl.innerHTML = `<i class="bi ${sentimentIcon}"></i> ${sentimentText}`;
-    } else {
-      sentimentEl.style.display = "none";
     }
 
     // Display AI-generated insights if available
@@ -358,112 +479,118 @@ async function loadArticle(articleId) {
 
     // Article content with entity highlighting
     const contentEl = document.getElementById("article-content");
-    if (article.content) {
-      // Apply entity highlighting if there are entities
-      const processedContent = setupEntityHighlighting(article) || article.content;
-      contentEl.innerHTML = processedContent;
+    if (contentEl) {
+      if (article.content) {
+        // Apply entity highlighting if there are entities
+        const processedContent = setupEntityHighlighting(article) || article.content;
+        contentEl.innerHTML = processedContent;
 
-      // Add click event handlers for entity highlighting
-      document.querySelectorAll("[data-entity]").forEach((el) => {
-        el.addEventListener("click", () => {
-          const entityName = el.getAttribute("data-entity");
-          // Highlight all instances of this entity
-          document.querySelectorAll(`[data-entity="${entityName}"]`).forEach((match) => {
-            match.classList.toggle("entity-highlight");
+        // Add click event handlers for entity highlighting
+        document.querySelectorAll("[data-entity]").forEach((el) => {
+          el.addEventListener("click", () => {
+            const entityName = el.getAttribute("data-entity");
+            // Highlight all instances of this entity
+            document.querySelectorAll(`[data-entity="${entityName}"]`).forEach((match) => {
+              match.classList.toggle("entity-highlight");
+            });
           });
         });
-      });
-    } else if (article.description) {
-      contentEl.innerHTML = `<p>${article.description}</p>
+      } else if (article.description) {
+        contentEl.innerHTML = `<p>${article.description}</p>
                 <p class="alert alert-info">
                     <i class="bi bi-info-circle"></i>
                     Read the <a href="${article.url}" target="_blank" rel="noopener">full article at ${article.source.name} <i class="bi bi-box-arrow-up-right"></i></a>
                 </p>`;
-    } else {
-      contentEl.innerHTML = `<p class="alert alert-info">
+      } else {
+        contentEl.innerHTML = `<p class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
                 Read the <a href="${article.url}" target="_blank" rel="noopener">full article at ${article.source.name} <i class="bi bi-box-arrow-up-right"></i></a>
             </p>`;
+      }
     }
 
     // Add source attribution section
     const attributionEl = document.getElementById("article-attribution");
-    const publishDate = new Date(article.publishedAt).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    if (attributionEl) {
+      const publishDate = new Date(article.publishedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
 
-    attributionEl.innerHTML = `
-      <div class="d-flex align-items-center">
-        <div class="flex-grow-1">
-          <p class="mb-1"><span class="attribution-label">Source:</span> ${article.source.name}</p>
-          <p class="mb-1"><small>This article was originally published on ${publishDate}</small></p>
-          <p class="mb-0">
-            <a href="${article.url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-2">
-              <i class="bi bi-box-arrow-up-right me-1"></i> Read original article at ${article.source.name}
-            </a>
-          </p>
+      attributionEl.innerHTML = `
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <p class="mb-1"><span class="attribution-label">Source:</span> ${article.source.name}</p>
+            <p class="mb-1"><small>This article was originally published on ${publishDate}</small></p>
+            <p class="mb-0">
+              <a href="${article.url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Read original article at ${article.source.name}
+              </a>
+            </p>
+          </div>
+          <div class="ms-auto d-none d-md-block">
+            <i class="bi bi-link-45deg text-primary" style="font-size: 2rem;"></i>
+          </div>
         </div>
-        <div class="ms-auto d-none d-md-block">
-          <i class="bi bi-link-45deg text-primary" style="font-size: 2rem;"></i>
-        </div>
-      </div>
-    `;
+      `;
+    }
 
     // Article tags/categories
     const tagsEl = document.getElementById("article-tags");
-    let tagsHtml = "<h5>Categories:</h5><div>";
+    if (tagsEl) {
+      let tagsHtml = "<h5>Categories:</h5><div>";
 
-    if (article.categories && article.categories.length > 0) {
-      // Remove duplicates by converting to Set and back to Array
-      const uniqueCategories = [...new Set(article.categories)];
-      uniqueCategories.forEach((category) => {
-        tagsHtml += `<span class="badge bg-primary tag-badge">${category}</span>`;
-      });
+      if (article.categories && article.categories.length > 0) {
+        // Remove duplicates by converting to Set and back to Array
+        const uniqueCategories = [...new Set(article.categories)];
+        uniqueCategories.forEach((category) => {
+          tagsHtml += `<span class="badge bg-primary tag-badge">${category}</span>`;
+        });
+      }
+
+      tagsHtml += "</div>";
+
+      // Entities as tags
+      if (article.entities && article.entities.length > 0) {
+        const entityTypes = {
+          person: { label: "People", class: "bg-danger" },
+          organization: { label: "Organizations", class: "bg-success" },
+          location: { label: "Locations", class: "bg-warning text-dark" },
+          city: { label: "Cities", class: "bg-warning text-dark" },
+          country: { label: "Countries", class: "bg-warning text-dark" },
+          event: { label: "Events", class: "bg-info text-dark" },
+        };
+
+        // Group entities by type and remove duplicates
+        const groupedEntities = {};
+        article.entities.forEach((entity) => {
+          if (!entity.name) return;
+
+          const entityType = entity.type || "other";
+          if (!groupedEntities[entityType]) {
+            groupedEntities[entityType] = new Set();
+          }
+          // Add to set to ensure uniqueness
+          groupedEntities[entityType].add(entity.name);
+        });
+
+        // Add entity sections
+        Object.entries(groupedEntities).forEach(([type, entitiesSet]) => {
+          if (entityTypes[type] && entitiesSet.size > 0) {
+            tagsHtml += `<h5 class="mt-3">${entityTypes[type].label}:</h5><div>`;
+            // Convert set back to array for iteration
+            [...entitiesSet].forEach((entity) => {
+              tagsHtml += `<span class="badge ${entityTypes[type].class} tag-badge" 
+                              onclick="highlightEntity('${entity.replace(/'/g, "\\'")}')">${entity}</span>`;
+            });
+            tagsHtml += "</div>";
+          }
+        });
+      }
+
+      tagsEl.innerHTML = tagsHtml;
     }
-
-    tagsHtml += "</div>";
-
-    // Entities as tags
-    if (article.entities && article.entities.length > 0) {
-      const entityTypes = {
-        person: { label: "People", class: "bg-danger" },
-        organization: { label: "Organizations", class: "bg-success" },
-        location: { label: "Locations", class: "bg-warning text-dark" },
-        city: { label: "Cities", class: "bg-warning text-dark" },
-        country: { label: "Countries", class: "bg-warning text-dark" },
-        event: { label: "Events", class: "bg-info text-dark" },
-      };
-
-      // Group entities by type and remove duplicates
-      const groupedEntities = {};
-      article.entities.forEach((entity) => {
-        if (!entity.name) return;
-
-        const entityType = entity.type || "other";
-        if (!groupedEntities[entityType]) {
-          groupedEntities[entityType] = new Set();
-        }
-        // Add to set to ensure uniqueness
-        groupedEntities[entityType].add(entity.name);
-      });
-
-      // Add entity sections
-      Object.entries(groupedEntities).forEach(([type, entitiesSet]) => {
-        if (entityTypes[type] && entitiesSet.size > 0) {
-          tagsHtml += `<h5 class="mt-3">${entityTypes[type].label}:</h5><div>`;
-          // Convert set back to array for iteration
-          [...entitiesSet].forEach((entity) => {
-            tagsHtml += `<span class="badge ${entityTypes[type].class} tag-badge" 
-                            onclick="highlightEntity('${entity.replace(/'/g, "\\'")}')">${entity}</span>`;
-          });
-          tagsHtml += "</div>";
-        }
-      });
-    }
-
-    tagsEl.innerHTML = tagsHtml;
 
     // Set up share links
     const shareTitle = encodeURIComponent(article.title);
@@ -474,14 +601,25 @@ async function loadArticle(articleId) {
     );
     const shareText = encodeURIComponent(article.description || "");
 
-    document.getElementById(
-      "share-twitter",
-    ).href = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
-    document.getElementById("share-facebook").href = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
-    document.getElementById(
-      "share-linkedin",
-    ).href = `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`;
-    document.getElementById("share-email").href = `mailto:?subject=${shareTitle}&body=${shareText}%0A%0A${shareUrl}`;
+    const twitterShare = document.getElementById("share-twitter");
+    if (twitterShare) {
+      twitterShare.href = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
+    }
+
+    const facebookShare = document.getElementById("share-facebook");
+    if (facebookShare) {
+      facebookShare.href = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+    }
+
+    const linkedinShare = document.getElementById("share-linkedin");
+    if (linkedinShare) {
+      linkedinShare.href = `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`;
+    }
+
+    const emailShare = document.getElementById("share-email");
+    if (emailShare) {
+      emailShare.href = `mailto:?subject=${shareTitle}&body=${shareText}%0A%0A${shareUrl}`;
+    }
 
     // Update JSON-LD data
     const schema = {
@@ -490,7 +628,7 @@ async function loadArticle(articleId) {
       headline: article.title,
       datePublished: article.publishedAt,
       dateModified: article.updatedAt || article.publishedAt,
-      description: description,
+      description: article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`,
       mainEntityOfPage: {
         "@type": "WebPage",
         "@id": canonicalUrl,
@@ -515,7 +653,7 @@ async function loadArticle(articleId) {
         },
       },
       articleSection: article.categories?.[0] || "News",
-      keywords: keywords,
+      keywords: [...(article.categories || []), ...(article.entities?.map((e) => e.name) || [])].join(", "),
       wordCount: article.content ? article.content.trim().split(/\s+/).length : 0,
       timeRequired: `PT${estimateReadingTime(article.content || "")}M`,
     };
@@ -587,7 +725,10 @@ async function loadArticle(articleId) {
       }));
     }
 
-    document.getElementById("article-schema").textContent = JSON.stringify(schema);
+    const schemaElement = document.getElementById("article-schema");
+    if (schemaElement) {
+      schemaElement.textContent = JSON.stringify(schema);
+    }
 
     // Load related articles
     loadRelatedArticles(article);
@@ -596,10 +737,13 @@ async function loadArticle(articleId) {
     loadTrendingTopics();
 
     // Hide loading spinner
-    document.getElementById("loading").style.display = "none";
+    if (loadingElement) {
+      loadingElement.style.display = "none";
+    }
   } catch (error) {
     console.error("Error loading article:", error);
-    window.location.href = "/news";
+    // Instead of redirecting, show an error message
+    showArticleError("We encountered an error while preparing the article for display.");
   }
 }
 
@@ -924,4 +1068,52 @@ function showPlaceholderImage(container, alt) {
 
   imgWrapper.appendChild(img);
   container.appendChild(imgWrapper);
+}
+
+// Show a user-friendly error message instead of redirecting
+function showArticleError(message) {
+  // Hide loading spinner
+  document.getElementById("loading").style.display = "none";
+
+  // Set a generic title
+  document.title = "Article Not Found - NewsWorld";
+
+  // Update the article content area with an error message
+  const contentContainer = document.getElementById("article-content");
+  if (contentContainer) {
+    contentContainer.innerHTML = `
+      <div class="alert alert-warning">
+        <h4><i class="bi bi-exclamation-triangle me-2"></i>Oops!</h4>
+        <p>${message || "Something went wrong when loading this article."}</p>
+        <div class="mt-3">
+          <a href="/news" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-2"></i>Return to News
+          </a>
+          <button onclick="location.reload()" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Hide other containers that would be empty
+  const elementsToHide = [
+    "article-image-container",
+    "article-sentiment",
+    "article-insights",
+    "article-tags",
+    "article-attribution",
+  ];
+
+  elementsToHide.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.style.display = "none";
+  });
+
+  // Update article title with error
+  const titleElement = document.getElementById("article-title");
+  if (titleElement) {
+    titleElement.textContent = "Article Not Found";
+  }
 }

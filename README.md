@@ -9,6 +9,8 @@ A Node.js backend API for a global news and data aggregation platform. This serv
 - **RESTful API**: Serve news content through a well-structured API
 - **User Management**: Authentication, preferences, and personalization
 - **Scheduled Updates**: Automatically fetch news at configurable intervals
+- **AI-Generated Insights**: Generate predictions and insights for news articles using LLM integration
+- **Multi-LLM Support**: Fallback mechanisms between different LLM providers (Gemini, Together AI, Mistral AI) for improved reliability
 
 ## Tech Stack
 
@@ -19,6 +21,9 @@ A Node.js backend API for a global news and data aggregation platform. This serv
 - **Axios**: HTTP client for API requests
 - **RSS Parser**: For processing RSS feeds
 - **Node-cron**: For scheduling tasks
+- **Gemini API**: Primary AI model for content insights
+- **Together AI API**: Secondary fallback AI model
+- **Mistral AI API**: Tertiary fallback AI model for maximum reliability
 
 ## Prerequisites
 
@@ -26,21 +31,28 @@ A Node.js backend API for a global news and data aggregation platform. This serv
 - MongoDB
 - Redis (optional, for caching)
 - API keys for news services (NewsAPI, Mediastack, etc.)
+- API keys for AI services:
+  - Google Gemini API (primary)
+  - Together AI API (secondary fallback)
+  - Mistral AI API (tertiary fallback)
 
 ## Installation
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/yourusername/newsworld.git
    cd newsworld
    ```
 
 2. Install dependencies:
+
    ```
    npm install
    ```
 
 3. Create a `.env` file in the root directory with the following variables:
+
    ```
    NODE_ENV=development
    PORT=5000
@@ -51,6 +63,9 @@ A Node.js backend API for a global news and data aggregation platform. This serv
    NEWS_API_KEY=your_newsapi_key
    MEDIASTACK_API_KEY=your_mediastack_key
    REDIS_URL=redis://localhost:6379
+   GEMINI_API=your_gemini_api_key
+   TOGETHER_API=your_together_api_key
+   MISTRAL_API=your_mistral_api_key
    ```
 
 4. Start the server:
@@ -163,4 +178,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Mediastack](https://mediastack.com/) - News data API
 - [MongoDB](https://www.mongodb.com/) - Database
 - [Express](https://expressjs.com/) - Web framework
-- [Node.js](https://nodejs.org/) - JavaScript runtime 
+- [Node.js](https://nodejs.org/) - JavaScript runtime
+- [Google Gemini](https://ai.google.dev/) - AI API for content insights
+- [Together AI](https://www.together.ai/) - Fallback LLM provider
+- [Mistral AI](https://mistral.ai/) - Additional fallback LLM provider

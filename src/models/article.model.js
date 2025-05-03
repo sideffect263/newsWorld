@@ -131,6 +131,11 @@ const articleSchema = new mongoose.Schema(
             "social_impact",
             "technology_impact",
             "legal_consequence",
+            "economic_impact",
+            "financial_impact",
+            "environmental_impact",
+            "health_impact",
+            "regulatory_impact",
             "other",
           ],
         },
@@ -226,6 +231,89 @@ articleSchema.pre("save", function (next) {
       }
 
       return entity;
+    });
+  }
+
+  // Map unknown insight types to valid values
+  if (this.insights && this.insights.length > 0) {
+    const validTypes = [
+      "stock_prediction",
+      "market_trend",
+      "political_impact",
+      "social_impact",
+      "technology_impact",
+      "legal_consequence",
+      "economic_impact",
+      "financial_impact",
+      "environmental_impact",
+      "health_impact",
+      "regulatory_impact",
+      "other",
+    ];
+
+    // Mapping of common unknown types to our supported types
+    const typeMapping = {
+      economic: "economic_impact",
+      economy: "economic_impact",
+      financial: "financial_impact",
+      finance: "financial_impact",
+      money: "financial_impact",
+      investment: "financial_impact",
+      market: "market_trend",
+      stock: "stock_prediction",
+      shares: "stock_prediction",
+      political: "political_impact",
+      policy: "political_impact",
+      government: "political_impact",
+      social: "social_impact",
+      society: "social_impact",
+      community: "social_impact",
+      technology: "technology_impact",
+      tech: "technology_impact",
+      innovation: "technology_impact",
+      legal: "legal_consequence",
+      law: "legal_consequence",
+      regulation: "legal_consequence",
+      environment: "environmental_impact",
+      environmental: "environmental_impact",
+      climate: "environmental_impact",
+      health: "health_impact",
+      healthcare: "health_impact",
+      medical: "health_impact",
+      regulatory: "regulatory_impact",
+      regulation: "regulatory_impact",
+      compliance: "regulatory_impact",
+    };
+
+    this.insights.forEach((insight) => {
+      if (insight.type && !validTypes.includes(insight.type)) {
+        console.log(`Mapping unknown insight type: ${insight.type}`);
+
+        // Try to map based on our mapping table
+        const lowerType = insight.type.toLowerCase();
+
+        // Check for exact matches in our mapping
+        if (typeMapping[lowerType]) {
+          insight.type = typeMapping[lowerType];
+        }
+        // Check for partial matches by searching within the type string
+        else {
+          let mapped = false;
+          for (const [key, value] of Object.entries(typeMapping)) {
+            if (lowerType.includes(key)) {
+              insight.type = value;
+              mapped = true;
+              break;
+            }
+          }
+
+          // Default to "other" if no mapping found
+          if (!mapped) {
+            console.log(`No mapping found for insight type: ${insight.type}, defaulting to "other"`);
+            insight.type = "other";
+          }
+        }
+      }
     });
   }
 

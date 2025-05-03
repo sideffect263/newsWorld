@@ -264,3 +264,24 @@ body {
   color: #0a58ca;
   text-decoration: underline;
 }
+@keyframes colorCycle {
+  0% {
+    color: #0d6efd;
+  }
+  25% {
+    color: #6610f2;
+  }
+  50% {
+    color: #6f42c1;
+  }
+  75% {
+    color: #0dcaf0;
+  }
+  100% {
+    color: #0d6efd;
+  }
+}
+
+.fire-icon {
+  animation: colorCycle 3s ease-in-out infinite;
+}

@@ -1,76 +1,58 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary main-header fixed-top" style="padding: 10px;">
-    <div class="container">
-        <a class="navbar-brand" href="/">
-            <i class="bi bi-newspaper"></i> NewsWorld
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/news" id="nav-news">
-                        <i class="bi bi-journal-text"></i> News
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/stories" id="nav-stories">
-                        <i class="bi bi-journal-richtext"></i> Stories
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/trends" id="nav-trends">
-                        <i class="bi bi-graph-up"></i> Trends
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/sentiment" id="nav-sentiment">
-                        <i class="bi bi-emoji-smile"></i> Sentiment
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/sources" id="nav-sources">
-                        <i class="bi bi-collection"></i> Sources
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/status" id="nav-status">
-                        <i class="bi bi-speedometer2"></i> Status
-                    </a>
-                </li>
-            </ul>
-            
-          
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary main-header fixed-top" style="padding: 10px">
+  <div class="container">
+    <a class="navbar-brand" href="/"> <i class="bi bi-newspaper"></i> NewsWorld </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/news" id="nav-news"> <i class="bi bi-journal-text"></i> News </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/stories" id="nav-stories"> <i class="bi bi-journal-richtext"></i> Stories </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/trends" id="nav-trends"> <i class="bi bi-graph-up"></i> Trends </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/sentiment" id="nav-sentiment"> <i class="bi bi-emoji-smile"></i> Sentiment </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/sources" id="nav-sources"> <i class="bi bi-collection"></i> Sources </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/status" id="nav-status"> <i class="bi bi-speedometer2"></i> Status </a>
+        </li>
+      </ul>
     </div>
+  </div>
 </nav>
 
 <!-- Trending Keywords Ticker -->
 <div class="trending-ticker-container">
-    <div class="container">
-        <div class="ticker-wrapper">
-            <div class="d-flex align-items-center">
-                <div class="ticker-heading">
-                    <i class="bi bi-fire"></i> Trending:
-                </div>
-                <div class="ticker-content">
-                    <!-- Swiper container -->
-                    <div class="swiper trending-swiper">
-                        <div class="swiper-wrapper" id="trending-keywords">
-                            <div class="swiper-slide"><a href="/news?search=Technology">Technology (24)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Politics">Politics (18)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Health">Health (15)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Economy">Economy (12)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Climate">Climate (10)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Sports">Sports (9)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Entertainment">Entertainment (8)</a></div>
-                            <div class="swiper-slide"><a href="/news?search=Science">Science (7)</a></div>
-                        </div>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="ticker-wrapper">
+      <div class="d-flex align-items-center">
+        <div class="ticker-heading"><i class="bi bi-fire fire-icon"></i> Trending:</div>
+        <div class="ticker-content">
+          <!-- Swiper container -->
+          <div class="swiper trending-swiper">
+            <div class="swiper-wrapper" id="trending-keywords">
+              <div class="swiper-slide"><a href="/news?search=Technology">Technology (24)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Politics">Politics (18)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Health">Health (15)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Economy">Economy (12)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Climate">Climate (10)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Sports">Sports (9)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Entertainment">Entertainment (8)</a></div>
+              <div class="swiper-slide"><a href="/news?search=Science">Science (7)</a></div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Swiper CSS -->
@@ -84,17 +66,17 @@
 
 <!-- Debug info - load time -->
 <script>
-    console.log('Header component loaded: ' + new Date().toISOString());
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('Header DOM Content Loaded: ' + new Date().toISOString());
-        
-        // Add window load event to make sure Swiper is available
-        window.addEventListener('load', () => {
-            console.log('Window fully loaded: ' + new Date().toISOString());
-            console.log('Swiper globally available:', typeof Swiper !== 'undefined');
-            if (typeof window.updateTrendingKeywords === 'function') {
-                console.log('updateTrendingKeywords is globally available');
-            }
-        });
+  console.log("Header component loaded: " + new Date().toISOString());
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("Header DOM Content Loaded: " + new Date().toISOString());
+
+    // Add window load event to make sure Swiper is available
+    window.addEventListener("load", () => {
+      console.log("Window fully loaded: " + new Date().toISOString());
+      console.log("Swiper globally available:", typeof Swiper !== "undefined");
+      if (typeof window.updateTrendingKeywords === "function") {
+        console.log("updateTrendingKeywords is globally available");
+      }
     });
+  });
 </script>

@@ -22,12 +22,22 @@ function tryFetchTrendingKeywords() {
       let processedData = [];
 
       if (data.success && data.data) {
+        // Debug log the first item to understand its structure
+        if (Array.isArray(data.data) && data.data.length > 0) {
+          console.log("First keyword item structure:", JSON.stringify(data.data[0]));
+        }
+
         // Handle different potential response formats
         if (Array.isArray(data.data)) {
           processedData = data.data.map((item) => {
+            // For the specific API response format we're seeing
+            if (item.keyword && item.count) {
+              return { keyword: item.keyword, count: item.count };
+            }
+
             // Check if already in the right format
             if (item.keyword && typeof item.count !== "undefined") {
-              return item;
+              return { keyword: item.keyword, count: item.count };
             }
 
             // Handle format from the trends API
@@ -57,10 +67,14 @@ function tryFetchTrendingKeywords() {
 
       if (processedData.length > 0) {
         console.log("Processed trending keywords from server:", processedData.length);
-        // Use the updateTrendingKeywords function
+        console.log("First few processed keywords:", processedData.slice(0, 3));
+
+        // Check if updateTrendingKeywords function exists before calling
         if (typeof updateTrendingKeywords === "function") {
+          console.log("Calling updateTrendingKeywords function");
           updateTrendingKeywords(processedData);
         } else if (typeof window.updateTrendingKeywords === "function") {
+          console.log("Calling window.updateTrendingKeywords function");
           window.updateTrendingKeywords(processedData);
         } else {
           console.error("updateTrendingKeywords function not found!");

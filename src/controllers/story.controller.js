@@ -2,6 +2,7 @@ const Story = require("../models/story.model");
 const Article = require("../models/article.model");
 const mongoose = require("mongoose");
 const geminiService = require("../services/geminiService");
+const multiLLMService = require("../services/multiLLMService");
 
 // Get all stories with pagination
 exports.getStories = async (req, res) => {
@@ -249,9 +250,16 @@ async function createOrUpdateStories() {
   // Track created/updated stories to establish relationships
   const storyRegistry = {};
 
-  // Initialize Gemini service
-  const geminiAvailable = geminiService.initialize();
+  // Initialize LLM services
+  const geminiAvailable = geminiService.initialize(); // Keep for backward compatibility
   console.log(`Gemini API ${geminiAvailable ? "is" : "is not"} available for story generation`);
+
+  // Use the multiLLMService which provides fallback mechanisms across multiple LLM providers
+  console.log("Using MultiLLM Service for story generation with fallback mechanisms");
+
+  // Note: For article insights, we have a multi-LLM fallback mechanism implemented in insightGenerator.js
+  // This provides redundancy across Gemini API, Together AI, and Mistral AI
+  // A similar approach could be implemented here for story generation if needed
 
   // For each significant cluster, create or update a story
   for (const cluster of significantClusters) {
@@ -278,7 +286,7 @@ async function createOrUpdateStories() {
     let storyTitle;
     if (geminiAvailable) {
       try {
-        storyTitle = await geminiService.generateStoryTitle({
+        storyTitle = await multiLLMService.generateStoryTitle({
           entityName,
           entityType,
           categories: Array.from(cluster.categories),
@@ -286,7 +294,7 @@ async function createOrUpdateStories() {
           articleCount: cluster.articles.length,
         });
       } catch (error) {
-        console.error("Error generating title with Gemini:", error);
+        console.error("Error generating title with MultiLLM Service:", error);
         storyTitle = generateStoryTitle(
           entityName,
           entityType,
@@ -403,36 +411,42 @@ async function createOrUpdateStories() {
         let chapterTitle;
         let chapterSummary;
 
-        // Use Gemini for chapter generation if available
-        if (geminiAvailable) {
-          try {
-            // Generate chapter title with more context
-            const formattedDate = new Date(dateKey).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            });
+        // Format date for chapter generation
+        const formattedDate = new Date(dateKey).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
 
-            chapterTitle =
-              (await geminiService.generateChapterTitle({
-                entityName,
-                date: formattedDate,
-                articles: articles.slice(0, 5), // Use a sample of articles for context
-              })) || generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+        // Use multiLLM service with fallback for chapter generation
+        try {
+          // Generate chapter title with multiLLM
+          chapterTitle = await multiLLMService.generateChapterTitle({
+            entityName,
+            date: formattedDate,
+            articles: articles.slice(0, 5), // Use a sample of articles for context
+          });
 
-            // Generate chapter summary
-            chapterSummary =
-              (await geminiService.generateChapterSummary({
-                entityName,
-                date: formattedDate,
-                articles,
-              })) || generateChapterSummary(articles);
-          } catch (error) {
-            console.error("Error generating chapter content with Gemini:", error);
+          // Fall back to template if necessary
+          if (!chapterTitle) {
+            console.log("MultiLLM service didn't return a chapter title, using template fallback");
             chapterTitle = generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+          }
+
+          // Generate chapter summary with multiLLM
+          chapterSummary = await multiLLMService.generateChapterSummary({
+            entityName,
+            date: formattedDate,
+            articles,
+          });
+
+          // Fall back to template if necessary
+          if (!chapterSummary) {
+            console.log("MultiLLM service didn't return a chapter summary, using template fallback");
             chapterSummary = generateChapterSummary(articles);
           }
-        } else {
+        } catch (error) {
+          console.error("Error generating chapter content with MultiLLM service:", error);
           chapterTitle = generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
           chapterSummary = generateChapterSummary(articles);
         }
@@ -461,64 +475,63 @@ async function createOrUpdateStories() {
       // Get unique source count
       const sourceCount = new Set(cluster.articles.map((a) => a.source?.name).filter(Boolean)).size;
 
-      // Generate story summary - use Gemini if available
+      // Generate story summary - use multiLLM service with fallback
       let storySummary;
-      if (geminiAvailable) {
-        try {
-          storySummary = await geminiService.generateStorySummary({
-            entityName,
-            articles: cluster.articles,
-            timeRange,
-            sourceCount,
-            sentiment: sentimentTrend,
-          });
-        } catch (error) {
-          console.error("Error generating summary with Gemini:", error);
+      try {
+        storySummary = await multiLLMService.generateStorySummary({
+          entityName,
+          articles: cluster.articles,
+          timeRange,
+          sourceCount,
+          sentiment: sentimentTrend,
+        });
+
+        if (!storySummary) {
+          console.log("MultiLLM service didn't return a summary, using template fallback");
           storySummary = generateStorySummary(cluster.articles, entityName, sentimentTrend);
         }
-      } else {
+      } catch (error) {
+        console.error("Error generating summary with MultiLLM service:", error);
         storySummary = generateStorySummary(cluster.articles, entityName, sentimentTrend);
       }
 
-      // Generate narrative - use Gemini if available
+      // Generate narrative - use multiLLM service with fallback
       let narrative;
-      if (geminiAvailable) {
-        try {
-          narrative = await geminiService.generateNarrative({
-            entityName,
-            entityType,
-            chapters,
-            sentiment: sentimentTrend,
-          });
-        } catch (error) {
-          console.error("Error generating narrative with Gemini:", error);
-          narrative = null;
-        }
+      try {
+        narrative = await multiLLMService.generateNarrative({
+          entityName,
+          entityType,
+          chapters,
+          sentiment: sentimentTrend,
+        });
+      } catch (error) {
+        console.error("Error generating narrative with MultiLLM service:", error);
+        narrative = null;
       }
 
-      // Fall back to template narrative if Gemini fails or isn't available
+      // Fall back to template narrative if all LLM providers fail
       if (!narrative) {
+        console.log("Using template fallback for narrative generation");
         narrative = generateNarrative(chapters, sentimentTrend);
       }
 
-      // Generate predictions - use Gemini if available
+      // Generate predictions - use multiLLM service with fallback
       let predictions;
-      if (geminiAvailable) {
-        try {
-          predictions = await geminiService.generatePredictions({
-            entityName,
-            categories: Array.from(cluster.categories),
-            sentiment: sentimentTrend,
-            chapters,
-          });
-        } catch (error) {
-          console.error("Error generating predictions with Gemini:", error);
-          predictions = null;
-        }
+      try {
+        predictions = await multiLLMService.generatePredictions({
+          entityName,
+          categories: Array.from(cluster.categories),
+          sentiment: sentimentTrend,
+          chapters,
+        });
+      } catch (error) {
+        console.error("Error generating predictions with MultiLLM service:", error);
+        predictions = null;
       }
 
-      // Fall back to template predictions if Gemini fails or isn't available
+      // Fall back to template predictions if all LLM providers fail
       if (!predictions) {
+        console.log("Using template fallback for predictions generation");
         predictions = generatePredictions(chapters, Array.from(cluster.categories), sentimentTrend);
       }
 

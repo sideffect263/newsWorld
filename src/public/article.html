@@ -52,8 +52,8 @@
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="/styles/main.css" />
     <link rel="stylesheet" href="/styles/article.css" />
+    <link rel="stylesheet" href="/styles/main.css" />
   </head>
   <body>
     <div id="loading" class="loading">
@@ -88,10 +88,6 @@
           <div class="me-4 mb-2">
             <i class="bi bi-translate"></i>
             <span id="article-language"></span>
-          </div>
-          <div class="me-4 mb-2">
-            <i class="bi bi-eye"></i>
-            <span id="article-views">0</span> views
           </div>
         </div>
       </div>
@@ -242,7 +238,75 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/header.js"></script>
     <script src="/js/trending-keywords.js"></script>
     <script src="/js/article.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <!-- Add the missing updateTrendingKeywords function -->
+    <script>
+      // Function to update trending keywords in the UI
+      function updateTrendingKeywords(keywords) {
+        console.log("Updating trending keywords with:", keywords);
+
+        // Try to put keywords in trending ticker
+        const swiperContainer = document.getElementById("trending-keywords");
+        if (swiperContainer) {
+          // Clear existing content
+          swiperContainer.innerHTML = "";
+
+          // Add new slides for the swiper
+          keywords.forEach((item) => {
+            const keyword = item.keyword || item.word || "Unknown";
+            const count = item.count || 0;
+
+            const slide = document.createElement("div");
+            slide.className = "swiper-slide";
+
+            const link = document.createElement("a");
+            link.href = `/news?search=${encodeURIComponent(keyword)}`;
+            link.textContent = `${keyword} (${count})`;
+
+            slide.appendChild(link);
+            swiperContainer.appendChild(slide);
+          });
+
+          // Try to initialize or update the swiper
+          if (typeof initTrendingSwiper === "function") {
+            setTimeout(initTrendingSwiper, 100);
+          }
+        }
+
+        // Also update trending topics sidebar if it exists
+        const container = document.getElementById("trending-topics");
+        if (!container) {
+          console.log("Trending topics sidebar not found, only updated ticker");
+          return;
+        }
+
+        // Clear loading indicator
+        container.innerHTML = "";
+
+        if (!keywords || keywords.length === 0) {
+          container.innerHTML = '<p class="text-center text-muted py-3">No trending topics found</p>';
+          return;
+        }
+
+        // Add each keyword as a button link in the sidebar
+        keywords.forEach((item) => {
+          const keywordEl = document.createElement("div");
+          keywordEl.className = "mb-2";
+          keywordEl.innerHTML = `
+            <a href="/news?search=${encodeURIComponent(
+              item.keyword || item.word,
+            )}" class="btn btn-sm btn-outline-primary me-2 mb-2">
+              ${item.keyword || item.word}
+            </a>
+            <small class="text-muted">(${item.count})</small>
+          `;
+          container.appendChild(keywordEl);
+        });
+      }
+    </script>
   </body>
 </html>

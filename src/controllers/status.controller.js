@@ -6,6 +6,7 @@ const Source = require("../models/source.model");
 const scheduler = require("../services/scheduler");
 const newsFetcher = require("../services/newsFetcher");
 const ErrorResponse = require("../utils/errorResponse");
+const llmWorker = require("../services/llmWorker");
 
 // @desc    Serve the status page HTML
 // @route   GET /status
@@ -53,6 +54,17 @@ exports.getStatusData = async (req, res, next) => {
       detailedInfo: await scheduler.getDetailedScheduleInfo(),
     };
 
+    // Get LLM worker status
+    const llmWorkerStatus = {
+      isRunning: llmWorker.isRunning,
+      queueLength: llmWorker.taskQueue.length,
+      processingDelay: llmWorker.processingDelay,
+      batchSize: llmWorker.batchSize,
+      cooldownPeriod: llmWorker.cooldownPeriod,
+      lastRateLimitTime: llmWorker.lastRateLimitTime,
+      providers: llmWorker.providerStatus,
+    };
+
     // Get counts
     const articleCount = await Article.countDocuments();
     const sourceCount = await Source.countDocuments();
@@ -80,6 +92,7 @@ exports.getStatusData = async (req, res, next) => {
         system: systemInfo,
         database: dbStatus,
         scheduler: schedulerStatus,
+        llmWorker: llmWorkerStatus,
         counts: {
           articles: articleCount,
           sources: sourceCount,
