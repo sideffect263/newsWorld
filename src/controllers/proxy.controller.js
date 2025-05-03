@@ -5,7 +5,7 @@ const axios = require("axios");
 // @access  Public
 exports.proxyPixabayRequest = async (req, res, next) => {
   try {
-    const apiKey = process.env.PIXABAY_API || "43459658-a5c0d8a272f63d40c750bcdb0";
+    const apiKey = process.env.PIXABAY_API;
 
     // Build the query params from the request
     const params = new URLSearchParams();
@@ -45,7 +45,7 @@ exports.proxyPixabayRequest = async (req, res, next) => {
 // @access  Public
 exports.getSentimentImage = async (req, res, next) => {
   try {
-    const { sentiment, keywords } = req.query;
+    const { sentiment, keywords, articleId } = req.query;
 
     if (!sentiment) {
       return res.status(400).json({
@@ -67,37 +67,71 @@ exports.getSentimentImage = async (req, res, next) => {
     switch (sentiment) {
       case "positive":
         if (searchTerms.length === 0) {
-          searchTerms.push("happy", "success", "celebration");
+          searchTerms.push("happy", "success", "celebration", "achievement", "growth", "joy");
         }
-        colors = ["yellow", "green", "blue"];
+        colors = ["yellow", "green", "blue", "orange", "teal"];
         break;
       case "negative":
         if (searchTerms.length === 0) {
-          searchTerms.push("sad", "problem", "challenge");
+          searchTerms.push("sad", "problem", "challenge", "difficulty", "concern", "issue");
         }
-        colors = ["blue", "gray", "black"];
+        colors = ["blue", "gray", "black", "brown", "purple"];
         break;
       case "neutral":
       default:
         if (searchTerms.length === 0) {
-          searchTerms.push("abstract", "neutral", "balance");
+          searchTerms.push("abstract", "neutral", "balance", "perspective", "overview", "analysis");
         }
-        colors = ["white", "gray", "blue"];
+        colors = ["white", "gray", "blue", "beige", "silver"];
         break;
     }
 
     // Pick a random search term and color
-    const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
-    const color = colors[Math.floor(Math.random() * colors.length)];
+    // Use articleId (if provided) to create consistent but unique selection for each article
+    let searchTermIndex = 0;
+    let colorIndex = 0;
+
+    if (articleId) {
+      // Use the article ID to derive a consistent but unique index for this article
+      const hashCode = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = (hash << 5) - hash + char;
+          hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
+      };
+
+      const idHash = hashCode(articleId);
+      searchTermIndex = idHash % searchTerms.length;
+      colorIndex = (idHash + 1) % colors.length; // +1 to ensure different from searchTermIndex
+    } else {
+      // Fallback to random if no article ID
+      searchTermIndex = Math.floor(Math.random() * searchTerms.length);
+      colorIndex = Math.floor(Math.random() * colors.length);
+    }
+
+    const searchTerm = searchTerms[searchTermIndex];
+    const color = colors[colorIndex];
+
+    // Add order parameter to get different results each time
+    const orderOptions = ["popular", "latest"];
+    const order = orderOptions[Math.floor(Math.random() * orderOptions.length)];
 
     // Build the query params
-    const apiKey = process.env.PIXABAY_API || "43459658-a5c0d8a272f63d40c750bcdb0";
+    const apiKey = process.env.PIXABAY_API;
     const params = new URLSearchParams();
     params.append("key", apiKey);
     params.append("q", searchTerm);
     params.append("safesearch", "true");
     params.append("colors", color);
-    params.append("per_page", "3"); // Limit to 3 to reduce API usage
+    params.append("per_page", "5"); // Increased from 3 to 5 for more variety
+    params.append("order", order);
+
+    // Add a page parameter to increase variety (0-5)
+    const page = Math.floor(Math.random() * 5) + 1;
+    params.append("page", page.toString());
 
     const url = `https://pixabay.com/api/?${params.toString()}`;
 
@@ -210,7 +244,7 @@ exports.getFallbackImage = async (req, res, next) => {
     const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
     // Build the query params
-    const apiKey = process.env.PIXABAY_API || "43459658-a5c0d8a272f63d40c750bcdb0";
+    const apiKey = process.env.PIXABAY_API;
     const params = new URLSearchParams();
     params.append("key", apiKey);
     params.append("q", searchTerm);
@@ -278,20 +312,59 @@ exports.proxyImage = async (req, res, next) => {
       });
     }
 
-    // Fetch the image
-    const response = await axios({
-      method: "get",
-      url: url,
-      responseType: "arraybuffer",
-    });
+    try {
+      // Fetch the image
+      const response = await axios({
+        method: "get",
+        url: url,
+        responseType: "arraybuffer",
+        timeout: 5000, // Add timeout to prevent long hanging requests
+      });
 
-    // Set appropriate headers
-    const contentType = response.headers["content-type"];
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for one day
+      // Set appropriate headers
+      const contentType = response.headers["content-type"];
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for one day
 
-    // Send the image data
-    res.send(response.data);
+      // Send the image data
+      return res.send(response.data);
+    } catch (imageError) {
+      console.error("Failed to fetch original image:", imageError.message);
+
+      // Try to get a fallback image instead
+      try {
+        // Use general news category as fallback
+        const category = "general";
+        const terms = ["news", "newspaper", "headlines", "information"];
+        const searchTerm = terms[Math.floor(Math.random() * terms.length)];
+
+        // Build the query params for a fallback image
+        const apiKey = process.env.PIXABAY_API;
+        const params = new URLSearchParams();
+        params.append("key", apiKey);
+        params.append("q", searchTerm);
+        params.append("safesearch", "true");
+        params.append("per_page", "3");
+
+        const fallbackUrl = `https://pixabay.com/api/?${params.toString()}`;
+        const fallbackResponse = await axios.get(fallbackUrl);
+
+        // If we got results, redirect to one of them
+        if (fallbackResponse.data.hits && fallbackResponse.data.hits.length > 0) {
+          const randomImage = fallbackResponse.data.hits[Math.floor(Math.random() * fallbackResponse.data.hits.length)];
+          // Redirect to the new image
+          return res.redirect(`/api/proxy/image?url=${encodeURIComponent(randomImage.webformatURL)}`);
+        }
+      } catch (fallbackError) {
+        console.error("Failed to get fallback image:", fallbackError.message);
+      }
+
+      // If all fails, return a 404 with a JSON error
+      return res.status(404).json({
+        success: false,
+        message: "Image not found and fallback failed",
+      });
+    }
   } catch (error) {
     console.error("Image proxy error:", error.message);
     res.status(500).json({

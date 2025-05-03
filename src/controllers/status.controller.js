@@ -1,24 +1,24 @@
-const path = require('path');
-const os = require('os');
-const mongoose = require('mongoose');
-const Article = require('../models/article.model');
-const Source = require('../models/source.model');
-const scheduler = require('../services/scheduler');
-const newsFetcher = require('../services/newsFetcher');
-const ErrorResponse = require('../utils/errorResponse');
+const path = require("path");
+const os = require("os");
+const mongoose = require("mongoose");
+const Article = require("../models/article.model");
+const Source = require("../models/source.model");
+const scheduler = require("../services/scheduler");
+const newsFetcher = require("../services/newsFetcher");
+const ErrorResponse = require("../utils/errorResponse");
 
 // @desc    Serve the status page HTML
 // @route   GET /status
 // @access  Public
 exports.getStatusPage = (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/status.html'));
+  res.sendFile(path.join(__dirname, "../public/status.html"));
 };
 
 // @desc    Serve the scheduler status page HTML
 // @route   GET /status/scheduler
 // @access  Public
 exports.getSchedulerStatusPage = (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/scheduler-status.html'));
+  res.sendFile(path.join(__dirname, "../public/scheduler-status.html"));
 };
 
 // @desc    Get server status data
@@ -50,7 +50,7 @@ exports.getStatusData = async (req, res, next) => {
     const schedulerStatus = {
       running: scheduler.isSchedulerRunning(),
       schedules: scheduler.getCurrentSchedules(),
-      detailedInfo: await scheduler.getDetailedScheduleInfo()
+      detailedInfo: await scheduler.getDetailedScheduleInfo(),
     };
 
     // Get counts
@@ -62,13 +62,17 @@ exports.getStatusData = async (req, res, next) => {
     const latestArticles = await Article.find()
       .sort({ publishedAt: -1 })
       .limit(5)
-      .select('title source.name publishedAt viewCount');
+      .select("title source.name publishedAt viewCount");
 
     // Get top articles
-    const topArticles = await Article.find()
+    const topArticles = await Article.find({
+      publishedAt: {
+        $gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+      },
+    })
       .sort({ viewCount: -1 })
       .limit(5)
-      .select('title source.name publishedAt viewCount');
+      .select("title source.name publishedAt viewCount");
 
     res.status(200).json({
       success: true,
@@ -97,16 +101,16 @@ exports.getStatusData = async (req, res, next) => {
 exports.getSourcesStatus = async (req, res, next) => {
   try {
     const sources = await Source.find()
-      .select('name url category country language isActive fetchMethod fetchFrequency lastFetchedAt fetchStatus')
+      .select("name url category country language isActive fetchMethod fetchFrequency lastFetchedAt fetchStatus")
       .sort({ name: 1 });
 
     // Get article counts per source
     const sourceCounts = await Article.aggregate([
       {
         $group: {
-          _id: '$source.name',
+          _id: "$source.name",
           count: { $sum: 1 },
-          latestArticle: { $max: '$publishedAt' },
+          latestArticle: { $max: "$publishedAt" },
         },
       },
     ]);
@@ -124,7 +128,7 @@ exports.getSourcesStatus = async (req, res, next) => {
     const sourcesWithCounts = sources.map((source) => {
       const sourceData = source.toObject();
       const countData = sourceCountMap[source.name] || { count: 0, latestArticle: null };
-      
+
       return {
         ...sourceData,
         articleCount: countData.count,
@@ -149,10 +153,10 @@ exports.getArticlesStats = async (req, res, next) => {
   try {
     // Articles by category
     const categoryCounts = await Article.aggregate([
-      { $unwind: '$categories' },
+      { $unwind: "$categories" },
       {
         $group: {
-          _id: '$categories',
+          _id: "$categories",
           count: { $sum: 1 },
         },
       },
@@ -161,10 +165,10 @@ exports.getArticlesStats = async (req, res, next) => {
 
     // Articles by country
     const countryCounts = await Article.aggregate([
-      { $unwind: '$countries' },
+      { $unwind: "$countries" },
       {
         $group: {
-          _id: '$countries',
+          _id: "$countries",
           count: { $sum: 1 },
         },
       },
@@ -175,7 +179,7 @@ exports.getArticlesStats = async (req, res, next) => {
     const sourceCounts = await Article.aggregate([
       {
         $group: {
-          _id: '$source.name',
+          _id: "$source.name",
           count: { $sum: 1 },
         },
       },
@@ -196,21 +200,21 @@ exports.getArticlesStats = async (req, res, next) => {
       {
         $group: {
           _id: {
-            year: { $year: '$publishedAt' },
-            month: { $month: '$publishedAt' },
-            day: { $dayOfMonth: '$publishedAt' },
+            year: { $year: "$publishedAt" },
+            month: { $month: "$publishedAt" },
+            day: { $dayOfMonth: "$publishedAt" },
           },
           count: { $sum: 1 },
         },
       },
-      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } },
+      { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
     ]);
 
     // Format daily counts for chart
     const formattedDailyCounts = dailyCounts.map((item) => {
       const date = new Date(item._id.year, item._id.month - 1, item._id.day);
       return {
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         count: item.count,
       };
     });
@@ -235,7 +239,7 @@ exports.getArticlesStats = async (req, res, next) => {
 exports.triggerManualFetch = async (req, res, next) => {
   try {
     const sourceId = req.body.sourceId; // Optional: fetch from specific source
-    
+
     let result;
     if (sourceId) {
       result = await newsFetcher.fetchNewsFromSource(sourceId);
@@ -258,20 +262,20 @@ exports.triggerManualFetch = async (req, res, next) => {
 exports.updateSchedule = async (req, res, next) => {
   try {
     const { schedule } = req.body;
-    
+
     if (!schedule) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide a schedule',
+        message: "Please provide a schedule",
       });
     }
 
     const result = scheduler.updateSchedule(schedule);
-    
+
     if (!result) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid schedule format',
+        message: "Invalid schedule format",
       });
     }
 

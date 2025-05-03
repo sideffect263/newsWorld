@@ -5,6 +5,7 @@ const Article = require("../models/article.model");
 const trendAnalyzer = require("./trendAnalyzer");
 const locationExtractor = require("./locationExtractor");
 const sentimentAnalyzer = require("./sentimentAnalyzer");
+const insightGenerator = require("./insightGenerator");
 
 // Initialize RSS parser
 const rssParser = new RSSParser();
@@ -692,8 +693,22 @@ const processArticleContent = async (article) => {
         article.entities = [];
       }
 
+      // Validate all locations before adding them
+      const validatedLocations = locationData.locations.filter((location) => {
+        // Skip entities with invalid coordinates
+        if (location.coordinates) {
+          return (
+            location.coordinates.type === "Point" &&
+            location.coordinates.coordinates &&
+            Array.isArray(location.coordinates.coordinates) &&
+            location.coordinates.coordinates.length === 2
+          );
+        }
+        return true; // Locations without coordinates are valid
+      });
+
       // Add geocoded location entities
-      locationData.locations.forEach((location) => {
+      validatedLocations.forEach((location) => {
         // Check if location already exists
         const existingIndex = article.entities.findIndex(
           (e) => e.name.toLowerCase() === location.name.toLowerCase() && e.type === location.type,
@@ -703,6 +718,9 @@ const processArticleContent = async (article) => {
           // Update existing entity with coordinates if available
           if (location.coordinates) {
             article.entities[existingIndex].coordinates = location.coordinates;
+          }
+          if (location.geo) {
+            article.entities[existingIndex].geo = location.geo;
           }
           if (location.countryCode) {
             article.entities[existingIndex].countryCode = location.countryCode;
@@ -740,6 +758,188 @@ const processArticleContent = async (article) => {
     console.error("Error processing article content:", error);
     return article; // Return original on error
   }
+};
+
+/**
+ * Normalize article categories to match allowed enum values
+ * @param {Array} categories - Original categories from source
+ * @returns {Array} - Normalized categories that match allowed enum values
+ */
+const normalizeCategories = (categories) => {
+  if (!categories || !Array.isArray(categories)) {
+    return ["general"];
+  }
+
+  // Allowed categories in the article schema
+  const allowedCategories = [
+    "general",
+    "business",
+    "entertainment",
+    "health",
+    "science",
+    "sports",
+    "technology",
+    "politics",
+    "world",
+    "nation",
+    "lifestyle",
+    "other",
+  ];
+
+  // Category mapping for common specific categories
+  const categoryMapping = {
+    // Technology related
+    cybersecurity: "technology",
+    "cyber security": "technology",
+    "cyber attack": "technology",
+    security: "technology",
+    software: "technology",
+    ai: "technology",
+    "artificial intelligence": "technology",
+    tech: "technology",
+    computing: "technology",
+    internet: "technology",
+    digital: "technology",
+    programming: "technology",
+    data: "technology",
+    cloud: "technology",
+
+    // Business related
+    finance: "business",
+    economy: "business",
+    markets: "business",
+    stocks: "business",
+    investing: "business",
+    banking: "business",
+    "press release": "business",
+    "product launch": "business",
+    corporate: "business",
+    industry: "business",
+    retail: "business",
+    management: "business",
+    startups: "business",
+
+    // Politics related
+    government: "politics",
+    election: "politics",
+    democracy: "politics",
+    policy: "politics",
+    law: "politics",
+    legislation: "politics",
+    congress: "politics",
+    senate: "politics",
+    parliament: "politics",
+
+    // World related
+    international: "world",
+    global: "world",
+    europe: "world",
+    asia: "world",
+    africa: "world",
+    "middle east": "world",
+    americas: "world",
+    foreign: "world",
+
+    // Entertainment related
+    movies: "entertainment",
+    film: "entertainment",
+    music: "entertainment",
+    celebrities: "entertainment",
+    arts: "entertainment",
+    culture: "entertainment",
+    tv: "entertainment",
+    television: "entertainment",
+    gaming: "entertainment",
+    games: "entertainment",
+
+    // Health related
+    medical: "health",
+    medicine: "health",
+    covid: "health",
+    pandemic: "health",
+    wellness: "health",
+    fitness: "health",
+    disease: "health",
+    healthcare: "health",
+
+    // Science related
+    physics: "science",
+    chemistry: "science",
+    biology: "science",
+    space: "science",
+    nasa: "science",
+    astronomy: "science",
+    research: "science",
+    climate: "science",
+    environment: "science",
+
+    // Sports related
+    football: "sports",
+    soccer: "sports",
+    basketball: "sports",
+    baseball: "sports",
+    tennis: "sports",
+    olympics: "sports",
+    racing: "sports",
+    athletics: "sports",
+
+    // Lifestyle related
+    fashion: "lifestyle",
+    food: "lifestyle",
+    travel: "lifestyle",
+    home: "lifestyle",
+    design: "lifestyle",
+    beauty: "lifestyle",
+    family: "lifestyle",
+    parenting: "lifestyle",
+  };
+
+  // Normalize categories
+  const normalizedCategories = categories
+    .map((category) => {
+      if (!category || typeof category !== "string") return null;
+
+      // Clean the category string
+      const cleanCategory = category.trim().toLowerCase();
+
+      // Check if it's already an allowed category
+      if (allowedCategories.includes(cleanCategory)) {
+        return cleanCategory;
+      }
+
+      // Check if we have a mapping for this category
+      if (categoryMapping[cleanCategory]) {
+        return categoryMapping[cleanCategory];
+      }
+
+      // For company or entity names (often not real categories), map to appropriate category
+      if (cleanCategory.includes("security") || cleanCategory.includes("cyber") || cleanCategory.includes("tech")) {
+        return "technology";
+      }
+
+      if (
+        cleanCategory.includes("bank") ||
+        cleanCategory.includes("financial") ||
+        cleanCategory.includes("company") ||
+        cleanCategory.includes("inc") ||
+        cleanCategory.includes("corp") ||
+        cleanCategory.includes("ltd")
+      ) {
+        return "business";
+      }
+
+      // Default to "other" for unknown categories
+      return "other";
+    })
+    .filter(Boolean); // Remove null/undefined values
+
+  // If no valid categories found, use "general"
+  if (normalizedCategories.length === 0) {
+    return ["general"];
+  }
+
+  // Remove duplicates
+  return [...new Set(normalizedCategories)];
 };
 
 /**
@@ -835,6 +1035,27 @@ const saveArticle = async (article, sourceId) => {
       }
     }
 
+    // Normalize categories to match allowed enum values
+    const normalizedCategories = normalizeCategories(processedArticle.categories);
+
+    // Validate and clean entity coordinates before saving to prevent MongoDB errors
+    if (processedArticle.entities && processedArticle.entities.length > 0) {
+      processedArticle.entities = processedArticle.entities.map((entity) => {
+        // Check for invalid coordinates and remove them
+        if (entity.coordinates) {
+          if (
+            entity.coordinates.type !== "Point" ||
+            !entity.coordinates.coordinates ||
+            !Array.isArray(entity.coordinates.coordinates) ||
+            entity.coordinates.coordinates.length !== 2
+          ) {
+            delete entity.coordinates;
+          }
+        }
+        return entity;
+      });
+    }
+
     // Create new article
     const newArticle = new Article({
       title: processedArticle.title,
@@ -851,15 +1072,46 @@ const saveArticle = async (article, sourceId) => {
         url: processedArticle.source?.url || "",
       },
       author: processedArticle.author || "",
-      categories: processedArticle.categories || [],
+      categories: normalizedCategories,
       countries: processedArticle.countries || [],
       language: processedArticle.language || "en",
       entities: processedArticle.entities || [],
       isBreakingNews: processedArticle.isBreakingNews || false,
     });
 
+    // One final check before saving
+    if (newArticle.entities && newArticle.entities.length > 0) {
+      newArticle.entities = newArticle.entities.filter((entity) => {
+        if (entity.coordinates) {
+          return (
+            entity.coordinates.type === "Point" &&
+            entity.coordinates.coordinates &&
+            Array.isArray(entity.coordinates.coordinates) &&
+            entity.coordinates.coordinates.length === 2
+          );
+        }
+        return true;
+      });
+    }
+
     // Save to database
     await newArticle.save();
+
+    // Generate insights for the new article (if it has sufficient content)
+    try {
+      if (newArticle.content || newArticle.description) {
+        const insights = await insightGenerator.generateArticleInsights(newArticle);
+
+        if (insights && insights.length > 0) {
+          newArticle.insights = insights;
+          await newArticle.save();
+          console.log(`Generated ${insights.length} insights for article: ${newArticle.title}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error generating insights for article:", error.message);
+      // Continue without insights if there's an error
+    }
 
     return newArticle;
   } catch (error) {

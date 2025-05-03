@@ -32,7 +32,7 @@
     "rss-parser": "^3.13.0",
     "sentiment": "^5.0.2",
     "stopword": "^2.0.8",
-    "winston": "^3.11.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",

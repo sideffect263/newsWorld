@@ -108,11 +108,44 @@ const articleSchema = new mongoose.Schema(
         },
         count: Number,
         coordinates: {
+          type: { type: String, enum: ["Point"], default: "Point" },
+          coordinates: { type: [Number], index: "2dsphere" },
+        },
+        geo: {
           lat: Number,
           lng: Number,
         },
         countryCode: String,
         formattedAddress: String,
+      },
+    ],
+    // New field for AI-generated insights
+    insights: [
+      {
+        type: {
+          type: String,
+          enum: [
+            "stock_prediction",
+            "market_trend",
+            "political_impact",
+            "social_impact",
+            "technology_impact",
+            "legal_consequence",
+            "other",
+          ],
+        },
+        entity: String,
+        prediction: String,
+        confidence: {
+          type: Number,
+          min: 0,
+          max: 1,
+        },
+        reasoning: String,
+        generatedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     viewCount: {
@@ -150,7 +183,7 @@ articleSchema.index({ categories: 1 });
 articleSchema.index({ countries: 1 });
 articleSchema.index({ "source.name": 1 });
 articleSchema.index({ "entities.name": 1, "entities.type": 1 });
-articleSchema.index({ "entities.coordinates": "2dsphere" }); // Geospatial index for location queries
+articleSchema.index({ "entities.coordinates.coordinates": "2dsphere" }); // Updated geospatial index for GeoJSON format
 articleSchema.index({ relatedArticles: 1 });
 articleSchema.index({ storyReferences: 1 });
 
@@ -178,6 +211,20 @@ articleSchema.pre("save", function (next) {
       ) {
         entity.type = "other";
       }
+
+      // Validate GeoJSON format - ensure coordinates are valid for Point type
+      if (entity.coordinates) {
+        if (
+          entity.coordinates.type === "Point" &&
+          (!entity.coordinates.coordinates ||
+            !Array.isArray(entity.coordinates.coordinates) ||
+            entity.coordinates.coordinates.length !== 2)
+        ) {
+          // Remove invalid coordinates to prevent MongoDB errors
+          delete entity.coordinates;
+        }
+      }
+
       return entity;
     });
   }

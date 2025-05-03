@@ -1,6 +1,7 @@
 const Article = require("../models/article.model");
 const ErrorResponse = require("../utils/errorResponse");
 const mongoose = require("mongoose");
+const insightGenerator = require("../services/insightGenerator");
 
 // @desc    Get all articles with pagination
 // @route   GET /api/news
@@ -102,7 +103,7 @@ exports.getArticleById = async (req, res, next) => {
     // Check if the ID is a valid MongoDB ObjectId or a slug
     const isObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
 
-    // Find article by ID or slug
+    // Get article by ID or slug
     let article;
 
     if (isObjectId) {
@@ -115,6 +116,25 @@ exports.getArticleById = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: "Article not found",
+      });
+    }
+
+    // For client compatibility, convert GeoJSON coordinates to lat/lng format if needed
+    if (article.entities && article.entities.length > 0) {
+      article.entities = article.entities.map((entity) => {
+        // If the entity has GeoJSON coordinates but no geo object, create a geo object
+        if (
+          entity.coordinates &&
+          entity.coordinates.type === "Point" &&
+          entity.coordinates.coordinates &&
+          !entity.geo
+        ) {
+          entity.geo = {
+            lng: entity.coordinates.coordinates[0],
+            lat: entity.coordinates.coordinates[1],
+          };
+        }
+        return entity;
       });
     }
 
@@ -485,4 +505,108 @@ exports.updateNews = (req, res) => {
 
 exports.deleteNews = (req, res) => {
   res.status(200).json({ success: true, data: `Delete news by ID ${req.params.id}` });
+};
+
+// @desc    Get insights for an article
+// @route   GET /api/news/:id/insights
+// @access  Public
+exports.getArticleInsights = async (req, res, next) => {
+  try {
+    // Check if the ID is a valid MongoDB ObjectId or a slug
+    const isObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
+
+    // Find article by ID or slug
+    let article;
+
+    if (isObjectId) {
+      article = await Article.findById(req.params.id);
+    } else {
+      article = await Article.findOne({ slug: req.params.id });
+    }
+
+    if (!article) {
+      return res.status(404).json({
+        success: false,
+        message: "Article not found",
+      });
+    }
+
+    // If article has insights, return them
+    if (article.insights && article.insights.length > 0) {
+      return res.status(200).json({
+        success: true,
+        data: article.insights,
+      });
+    }
+
+    // Otherwise, generate insights in real-time
+    const insights = await insightGenerator.generateArticleInsights(article);
+
+    // Save insights to article if any were generated
+    if (insights && insights.length > 0) {
+      article.insights = insights;
+      await article.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      data: insights || [],
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Batch generate insights for articles
+// @route   POST /api/news/batch-insights
+// @access  Admin
+exports.generateInsights = async (req, res, next) => {
+  try {
+    const { limit = 10, skip = 0 } = req.body;
+
+    // Validate input
+    if (limit > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum batch size is 50 articles",
+      });
+    }
+
+    // Process batch
+    const result = await insightGenerator.batchProcessArticles({
+      limit: parseInt(limit, 10),
+      skip: parseInt(skip, 10),
+    });
+
+    res.status(200).json({
+      success: result.success,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Track viewed related articles
+// @route   POST /api/news/:id/viewed-related
+// @access  Public
+exports.trackViewedRelatedArticles = async (req, res, next) => {
+  try {
+    const { articleId } = req.body;
+    const shownArticles = req.body.shown || [];
+
+    // Don't need to actually store this information now, but leaving
+    // this endpoint to prevent 404 errors and for future enhancements
+
+    res.status(200).json({
+      success: true,
+      message: "Viewed related articles tracked",
+    });
+  } catch (err) {
+    console.error("Error tracking viewed related articles:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };

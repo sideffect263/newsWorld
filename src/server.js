@@ -353,8 +353,17 @@ const connectDB = async () => {
 const startServer = async () => {
   await connectDB();
 
-  // Start the news fetching scheduler
+  // Start the news fetching and story generation scheduler
   scheduler.startNewsScheduler();
+
+  // Set up environment variables for APIs
+  if (!process.env.GEMINI_API) {
+    console.log("Using default Gemini API key from configuration");
+    // We need the Gemini API for generating better story content
+    console.log("Note: For best results, set GEMINI_API in your environment variables");
+  } else {
+    console.log("Gemini API configured successfully");
+  }
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

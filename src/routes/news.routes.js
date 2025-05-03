@@ -13,6 +13,9 @@ const {
   searchArticles,
   incrementViewCount,
   getRelatedArticles,
+  getArticleInsights,
+  generateInsights,
+  trackViewedRelatedArticles,
 } = require("../controllers/news.controller");
 
 // Public routes
@@ -25,7 +28,17 @@ router.get("/source/:sourceId", getArticlesBySource);
 router.get("/search", searchArticles);
 router.get("/related", getRelatedArticles);
 
+// Insights routes
+router.get("/:id/insights", getArticleInsights);
+router.post("/batch-insights", generateInsights); // Admin route for batch processing
+
 router.get("/:id", getArticleById);
-router.put("/:id/view", incrementViewCount);
+router.post("/:id/view", incrementViewCount);
+
+// Add route for tracking viewed related articles
+router.post("/:id/viewed-related", trackViewedRelatedArticles);
+
+// Admin routes for generating insights
+router.post("/insights/:id/generate", generateInsights);
 
 module.exports = router;

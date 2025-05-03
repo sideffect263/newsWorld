@@ -175,6 +175,13 @@ async function loadArticle(articleId) {
       // Add lazy loading for better performance
       img.loading = "lazy";
 
+      // Handle image load errors gracefully
+      img.onerror = function () {
+        // If image failed to load, set to placeholder and remove onerror handler to prevent loops
+        img.src = "/images/placeholder-news.jpg";
+        img.onerror = null;
+      };
+
       imgWrapper.appendChild(img);
       imgContainer.appendChild(imgWrapper);
 
@@ -204,6 +211,13 @@ async function loadArticle(articleId) {
       img.className = `article-image img-fluid sentiment-${result.sentimentImage.sentiment}`;
       img.loading = "lazy";
 
+      // Handle image load errors gracefully
+      img.onerror = function () {
+        // If image failed to load, set to placeholder and remove onerror handler to prevent loops
+        img.src = "/images/placeholder-news.jpg";
+        img.onerror = null;
+      };
+
       // Add caption with attribution
       const caption = document.createElement("div");
       caption.className = "image-caption text-muted small mt-2";
@@ -227,6 +241,12 @@ async function loadArticle(articleId) {
 
       try {
         const fallbackResponse = await fetch(`/api/proxy/fallback-image?category=${encodeURIComponent(category)}`);
+
+        // Add additional error checking for the response
+        if (!fallbackResponse.ok) {
+          throw new Error(`Failed to load fallback image: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
+        }
+
         const fallbackResult = await fallbackResponse.json();
 
         if (fallbackResult.success && fallbackResult.data) {
@@ -243,6 +263,13 @@ async function loadArticle(articleId) {
           img.className = "article-image img-fluid";
           img.loading = "lazy";
 
+          // Handle image load errors gracefully
+          img.onerror = function () {
+            // If image failed to load, set to placeholder and remove onerror handler to prevent loops
+            img.src = "/images/placeholder-news.jpg";
+            img.onerror = null;
+          };
+
           // Add caption with attribution
           const caption = document.createElement("div");
           caption.className = "image-caption text-muted small mt-2";
@@ -254,13 +281,13 @@ async function loadArticle(articleId) {
           imgContainer.appendChild(imgWrapper);
           imgContainer.appendChild(caption);
         } else {
-          // No fallback image found, remove the container
-          imgContainer.style.display = "none";
+          // No fallback image found, use placeholder image
+          showPlaceholderImage(imgContainer, article.title);
         }
       } catch (error) {
         console.error("Error loading fallback image:", error);
-        // No fallback image found, remove the container
-        imgContainer.style.display = "none";
+        // Use placeholder image if fallback image loading failed
+        showPlaceholderImage(imgContainer, article.title);
       }
     }
 
@@ -299,6 +326,34 @@ async function loadArticle(articleId) {
       sentimentEl.innerHTML = `<i class="bi ${sentimentIcon}"></i> ${sentimentText}`;
     } else {
       sentimentEl.style.display = "none";
+    }
+
+    // Display AI-generated insights if available
+    if (article.insights && article.insights.length > 0) {
+      displayArticleInsights(article.insights);
+    } else {
+      // Try to fetch insights if not included in the article response
+      try {
+        const insightsResponse = await fetch(`/api/news/${articleId}/insights`);
+        const insightsResult = await insightsResponse.json();
+
+        if (insightsResult.success && insightsResult.data && insightsResult.data.length > 0) {
+          displayArticleInsights(insightsResult.data);
+        } else {
+          // Hide insights container if no insights available
+          const insightsEl = document.getElementById("article-insights");
+          if (insightsEl) {
+            insightsEl.style.display = "none";
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching article insights:", error);
+        // Hide insights container on error
+        const insightsEl = document.getElementById("article-insights");
+        if (insightsEl) {
+          insightsEl.style.display = "none";
+        }
+      }
     }
 
     // Article content with entity highlighting
@@ -518,6 +573,20 @@ async function loadArticle(articleId) {
       schema.image = imageObject;
     }
 
+    // Add insights data if available
+    if (article.insights && article.insights.length > 0) {
+      schema.insights = article.insights.map((insight) => ({
+        "@type": "Claim",
+        name: insight.prediction,
+        description: insight.reasoning,
+        confidence: insight.confidence,
+        about: {
+          "@type": "Thing",
+          name: insight.entity,
+        },
+      }));
+    }
+
     document.getElementById("article-schema").textContent = JSON.stringify(schema);
 
     // Load related articles
@@ -644,6 +713,10 @@ async function loadRelatedArticles(article) {
         sentimentClass = `sentiment-${related.sentimentAssessment}-badge`;
       }
 
+      // Check if image URL is valid, otherwise use placeholder directly
+      const imageUrl =
+        related.imageUrl && related.imageUrl.trim() !== "" ? related.imageUrl : "/images/placeholder-news.jpg";
+
       // HTML structure for the related article item
       item.innerHTML = `
         <div class="related-article-img-container">
@@ -652,9 +725,7 @@ async function loadRelatedArticles(article) {
               ? `<div class="sentiment-badge ${sentimentClass}" title="${related.sentimentAssessment} sentiment"></div>`
               : ""
           }
-          <img src="${related.imageUrl || "/images/placeholder-news.jpg"}" alt="${
-        related.title
-      }" class="related-article-img" onerror="this.src='/images/placeholder-news.jpg'">
+          <img src="${imageUrl}" alt="${related.title}" class="related-article-img">
         </div>
         <div class="related-article-content">
           <h6 class="related-article-title">${related.title}</h6>
@@ -676,16 +747,21 @@ async function loadRelatedArticles(article) {
       cacheUpdate.append("articleId", article._id);
       relatedArticles.forEach((a) => cacheUpdate.append("shown", a._id));
 
-      // Non-blocking fetch to update shown articles in cache
-      fetch(`/api/news/${article._id}/viewed-related`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: cacheUpdate,
-      }).catch(() => {
+      // Non-blocking fetch to update shown articles in cache - use a try/catch to handle missing endpoint
+      try {
+        fetch(`/api/news/${article._id}/viewed-related`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: cacheUpdate,
+        }).catch((err) => {
+          console.info("Viewed related endpoint not implemented:", err.message);
+        });
+      } catch (e) {
         // Silently fail if this endpoint doesn't exist
-      });
+        console.info("Viewed related endpoint error:", e.message);
+      }
     } catch (e) {
       // Ignore errors for this enhancement
     }
@@ -727,4 +803,125 @@ async function loadTrendingTopics() {
     document.getElementById("trending-topics").innerHTML =
       '<p class="text-center text-muted py-3">Could not load trending topics</p>';
   }
+}
+
+/**
+ * Display AI-generated insights for the article
+ * @param {Array} insights - Array of insight objects
+ */
+function displayArticleInsights(insights) {
+  if (!insights || insights.length === 0) {
+    return;
+  }
+
+  const insightsEl = document.getElementById("article-insights");
+  if (!insightsEl) return;
+
+  // Clear previous content
+  insightsEl.innerHTML = "";
+  insightsEl.style.display = "block";
+
+  // Style map for different insight types
+  const typeStyles = {
+    stock_prediction: {
+      icon: "bi-graph-up",
+      class: "alert-info",
+    },
+    market_trend: {
+      icon: "bi-currency-dollar",
+      class: "alert-primary",
+    },
+    political_impact: {
+      icon: "bi-flag",
+      class: "alert-secondary",
+    },
+    social_impact: {
+      icon: "bi-people",
+      class: "alert-success",
+    },
+    technology_impact: {
+      icon: "bi-cpu",
+      class: "alert-light",
+    },
+    legal_consequence: {
+      icon: "bi-journal-text",
+      class: "alert-warning",
+    },
+    other: {
+      icon: "bi-lightbulb",
+      class: "alert-secondary",
+    },
+  };
+
+  // Create header
+  const header = document.createElement("h4");
+  header.className = "insight-header mb-3";
+  header.innerHTML = '<i class="bi bi-graph-up me-2"></i>AI-Generated Insights';
+  insightsEl.appendChild(header);
+
+  // Create container for insights
+  const insightsContainer = document.createElement("div");
+  insightsContainer.className = "insights-container";
+
+  // Add each insight
+  insights.forEach((insight) => {
+    const style = typeStyles[insight.type] || typeStyles.other;
+
+    const insightEl = document.createElement("div");
+    insightEl.className = `alert ${style.class} insight-card`;
+
+    // Format confidence as percentage
+    const confidence = Math.round(insight.confidence * 100);
+
+    insightEl.innerHTML = `
+      <div class="d-flex">
+        <div class="insight-icon me-3">
+          <i class="bi ${style.icon} fs-3"></i>
+        </div>
+        <div class="insight-content">
+          <h5 class="mb-1"><strong>${insight.entity}:</strong> ${insight.prediction}</h5>
+          <p class="mb-1">${insight.reasoning}</p>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1" style="height: 6px;">
+              <div class="progress-bar" role="progressbar" style="width: ${confidence}%;" 
+                aria-valuenow="${confidence}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="ms-2 confidence-text">
+              <small>${confidence}% confidence</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    insightsContainer.appendChild(insightEl);
+  });
+
+  // Add disclaimer
+  const disclaimer = document.createElement("div");
+  disclaimer.className = "insight-disclaimer text-muted small mt-2";
+  disclaimer.innerHTML = `
+    <i class="bi bi-info-circle-fill me-1"></i>
+    These AI-generated insights are predictions based on article content and historical patterns. 
+    They should not be considered financial or legal advice.
+  `;
+
+  insightsEl.appendChild(insightsContainer);
+  insightsEl.appendChild(disclaimer);
+}
+
+// Helper function to show placeholder image
+function showPlaceholderImage(container, alt) {
+  container.innerHTML = "";
+
+  const imgWrapper = document.createElement("div");
+  imgWrapper.className = "position-relative";
+
+  const img = document.createElement("img");
+  img.src = "/images/placeholder-news.jpg";
+  img.alt = alt || "News placeholder";
+  img.className = "article-image img-fluid";
+
+  imgWrapper.appendChild(img);
+  container.appendChild(imgWrapper);
 }

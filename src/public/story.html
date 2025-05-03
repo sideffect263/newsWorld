@@ -66,29 +66,34 @@
       .story-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         height: 100%;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
         border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        position: relative;
       }
 
       .story-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
       }
 
       .story-card .card-title {
-        font-weight: 600;
-        font-size: 1.25rem;
+        font-weight: 700;
+        font-size: 1.35rem;
         line-height: 1.4;
+        margin-bottom: 0.75rem;
+        color: #212529;
       }
 
       .story-card .card-text {
-        color: #555;
+        color: #495057;
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
+        font-size: 1rem;
+        line-height: 1.5;
       }
 
       .timeline-indicator {
@@ -98,10 +103,10 @@
       }
 
       .timeline-bar {
-        height: 4px;
+        height: 6px;
         background-color: #e9ecef;
         flex-grow: 1;
-        border-radius: 2px;
+        border-radius: 3px;
         position: relative;
         overflow: hidden;
       }
@@ -109,26 +114,34 @@
       .timeline-progress {
         position: absolute;
         height: 100%;
-        background-color: #0d6efd;
+        background: linear-gradient(90deg, #0d6efd, #6610f2);
         left: 0;
-        border-radius: 2px;
+        border-radius: 3px;
       }
 
       .timeline-status {
         font-size: 0.8rem;
-        margin-left: 8px;
+        margin-left: 10px;
         white-space: nowrap;
+        font-weight: 600;
       }
 
       .story-tag {
         font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
+        padding: 0.35rem 0.75rem;
         margin-right: 0.5rem;
         margin-bottom: 0.5rem;
         border-radius: 50px;
         display: inline-block;
         background-color: #f0f0f0;
-        color: #555;
+        color: #495057;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .story-tag:hover {
+        background-color: #e9ecef;
+        transform: scale(1.05);
       }
 
       .filter-controls {
@@ -136,47 +149,116 @@
         top: 72px;
         z-index: 100;
         background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
       }
 
       .category-badge {
         display: inline-block;
-        padding: 0.35em 0.65em;
-        font-size: 0.75em;
+        padding: 0.5em 1em;
+        font-size: 0.8em;
         font-weight: 700;
         line-height: 1;
         color: #fff;
         text-align: center;
         white-space: nowrap;
         vertical-align: baseline;
-        border-radius: 0.25rem;
+        border-radius: 50px;
         margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
 
       .category-badge:hover {
-        opacity: 0.9;
-        transform: scale(1.05);
+        opacity: 1;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+      }
+
+      .category-badge.active {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
       }
 
       .no-stories {
-        padding: 3rem;
+        padding: 4rem 2rem;
         text-align: center;
         background-color: #f9f9f9;
-        border-radius: 8px;
+        border-radius: 12px;
         margin-top: 2rem;
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03);
       }
 
-      /* Animated placeholder for stories loading */
+      /* Add card decorative elements */
+      .story-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #0d6efd, #6610f2);
+      }
+
+      /* Style for the article count badge */
+      .article-count {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      /* Improved status badges */
+      .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .status-badge.ongoing {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.2);
+      }
+
+      .status-badge.completed {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+      }
+
+      /* Improved placeholder styling */
       .story-placeholder .placeholder-glow {
         height: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+      }
+
+      .story-placeholder .card {
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .story-placeholder .placeholder {
+        border-radius: 4px;
       }
     </style>
   </head>
@@ -573,10 +655,10 @@
             });
         }
 
-        // Create a story card element
+        // Create a story card element with improved design
         function createStoryCard(story) {
           const col = document.createElement("div");
-          col.className = "col-md-6 col-lg-4";
+          col.className = "col-md-6 col-lg-4 mb-4";
 
           // Calculate time period
           let timeString = "";
@@ -616,8 +698,8 @@
           // Calculate ongoing indicator and progress
           let timelineStatus =
             story.timeline && story.timeline.ongoing
-              ? '<span class="badge bg-success">Ongoing</span>'
-              : '<span class="badge bg-secondary">Completed</span>';
+              ? '<span class="status-badge ongoing"><i class="bi bi-broadcast"></i>Ongoing</span>'
+              : '<span class="status-badge completed"><i class="bi bi-check-circle"></i>Completed</span>';
 
           let progress = "50%"; // Default to middle if we can't calculate
 
@@ -639,47 +721,53 @@
               ? new Date(story.timeline.startDate).toISOString()
               : new Date().toISOString();
 
+          // Get article count for display
+          const articleCount =
+            story.articleCount ||
+            (story.chapters ? story.chapters.reduce((sum, ch) => sum + (ch.articles ? ch.articles.length : 0), 0) : 0);
+
           // Create article with structured data attributes
           col.innerHTML = `
-                    <article class="card story-card h-100" itemscope itemtype="https://schema.org/Article">
-                        <meta itemprop="datePublished" content="${publishDate}">
-                        ${story.keywords ? `<meta itemprop="keywords" content="${story.keywords.join(", ")}">` : ""}
-                        ${
-                          story.categories
-                            ? `<meta itemprop="articleSection" content="${story.categories.join(", ")}">`
-                            : ""
-                        }
-                        <div class="card-body d-flex flex-column">
-                            <h2 class="card-title h5" itemprop="headline">${story.title}</h2>
-                            <p class="card-text flex-grow-1" itemprop="description">${story.summary}</p>
-                            
-                            <div class="d-flex justify-content-between align-items-start mt-3">
-                                <div>
-                                    ${categoryBadges}
-                                </div>
-                                <small class="text-muted" itemprop="dateCreated">${timeString}</small>
-                            </div>
-                            
-                            <div class="timeline-indicator">
-                                <div class="timeline-bar">
-                                    <div class="timeline-progress" style="width: ${progress}"></div>
-                                </div>
-                                <div class="timeline-status">
-                                    ${timelineStatus}
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3 text-end">
-                                <a href="/stories/${story._id}" class="btn btn-primary btn-sm" itemprop="url">
-                                    Read Full Story <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
-                            <meta itemprop="name" content="NewsWorld">
-                        </span>
-                    </article>
-                `;
+            <article class="card story-card h-100" itemscope itemtype="https://schema.org/Article">
+              <meta itemprop="datePublished" content="${publishDate}">
+              ${story.keywords ? `<meta itemprop="keywords" content="${story.keywords.join(", ")}">` : ""}
+              ${story.categories ? `<meta itemprop="articleSection" content="${story.categories.join(", ")}">` : ""}
+              
+              <div class="article-count">
+                <i class="bi bi-newspaper"></i> ${articleCount}
+              </div>
+              
+              <div class="card-body d-flex flex-column">
+                <h2 class="card-title" itemprop="headline">${story.title}</h2>
+                <p class="card-text flex-grow-1" itemprop="description">${story.summary}</p>
+                
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-3">
+                  <div>
+                    ${categoryBadges}
+                  </div>
+                  <small class="text-muted" itemprop="dateCreated">${timeString}</small>
+                </div>
+                
+                <div class="timeline-indicator mt-3">
+                  <div class="timeline-bar">
+                    <div class="timeline-progress" style="width: ${progress}"></div>
+                  </div>
+                  <div class="timeline-status">
+                    ${timelineStatus}
+                  </div>
+                </div>
+                
+                <div class="mt-3 d-grid">
+                  <a href="/stories/${story._id}" class="btn btn-primary" itemprop="url">
+                    Read Full Story <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                </div>
+              </div>
+              <span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+                <meta itemprop="name" content="NewsWorld">
+              </span>
+            </article>
+          `;
 
           return col;
         }

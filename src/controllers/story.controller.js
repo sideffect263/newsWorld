@@ -1,6 +1,7 @@
 const Story = require("../models/story.model");
 const Article = require("../models/article.model");
 const mongoose = require("mongoose");
+const geminiService = require("../services/geminiService");
 
 // Get all stories with pagination
 exports.getStories = async (req, res) => {
@@ -248,6 +249,10 @@ async function createOrUpdateStories() {
   // Track created/updated stories to establish relationships
   const storyRegistry = {};
 
+  // Initialize Gemini service
+  const geminiAvailable = geminiService.initialize();
+  console.log(`Gemini API ${geminiAvailable ? "is" : "is not"} available for story generation`);
+
   // For each significant cluster, create or update a story
   for (const cluster of significantClusters) {
     // Sort articles by date
@@ -269,14 +274,36 @@ async function createOrUpdateStories() {
 
     const sentimentTrend = calculateSentimentTrend(cluster.articles);
 
-    // Generate story title based on entity
-    const storyTitle = generateStoryTitle(
-      entityName,
-      entityType,
-      Array.from(cluster.categories),
-      cluster.articles,
-      sentimentTrend,
-    );
+    // Generate story title - use Gemini if available or fallback to template
+    let storyTitle;
+    if (geminiAvailable) {
+      try {
+        storyTitle = await geminiService.generateStoryTitle({
+          entityName,
+          entityType,
+          categories: Array.from(cluster.categories),
+          sentiment: sentimentTrend,
+          articleCount: cluster.articles.length,
+        });
+      } catch (error) {
+        console.error("Error generating title with Gemini:", error);
+        storyTitle = generateStoryTitle(
+          entityName,
+          entityType,
+          Array.from(cluster.categories),
+          cluster.articles,
+          sentimentTrend,
+        );
+      }
+    } else {
+      storyTitle = generateStoryTitle(
+        entityName,
+        entityType,
+        Array.from(cluster.categories),
+        cluster.articles,
+        sentimentTrend,
+      );
+    }
 
     // Get all article IDs to update story references later
     const allArticleIds = cluster.articles.map((article) => article._id);
@@ -373,11 +400,46 @@ async function createOrUpdateStories() {
       const chapters = [];
 
       for (const [dateKey, articles] of Object.entries(dateGroups)) {
-        const chapterTitle = generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+        let chapterTitle;
+        let chapterSummary;
+
+        // Use Gemini for chapter generation if available
+        if (geminiAvailable) {
+          try {
+            // Generate chapter title with more context
+            const formattedDate = new Date(dateKey).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            });
+
+            chapterTitle =
+              (await geminiService.generateChapterTitle({
+                entityName,
+                date: formattedDate,
+                articles: articles.slice(0, 5), // Use a sample of articles for context
+              })) || generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+
+            // Generate chapter summary
+            chapterSummary =
+              (await geminiService.generateChapterSummary({
+                entityName,
+                date: formattedDate,
+                articles,
+              })) || generateChapterSummary(articles);
+          } catch (error) {
+            console.error("Error generating chapter content with Gemini:", error);
+            chapterTitle = generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+            chapterSummary = generateChapterSummary(articles);
+          }
+        } else {
+          chapterTitle = generateChapterTitle(dateKey, articles, entityName, sentimentTrend);
+          chapterSummary = generateChapterSummary(articles);
+        }
 
         chapters.push({
           title: chapterTitle,
-          summary: generateChapterSummary(articles),
+          summary: chapterSummary,
           content: generateChapterContent(articles),
           articles: articles.map((a) => a._id),
           publishedAt: validateDate(articles[0].publishedAt),
@@ -385,23 +447,104 @@ async function createOrUpdateStories() {
         });
       }
 
+      // Format time range for summary generation
+      const timeRange = `${earliestArticleDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })} to ${latestArticleDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })}`;
+
+      // Get unique source count
+      const sourceCount = new Set(cluster.articles.map((a) => a.source?.name).filter(Boolean)).size;
+
+      // Generate story summary - use Gemini if available
+      let storySummary;
+      if (geminiAvailable) {
+        try {
+          storySummary = await geminiService.generateStorySummary({
+            entityName,
+            articles: cluster.articles,
+            timeRange,
+            sourceCount,
+            sentiment: sentimentTrend,
+          });
+        } catch (error) {
+          console.error("Error generating summary with Gemini:", error);
+          storySummary = generateStorySummary(cluster.articles, entityName, sentimentTrend);
+        }
+      } else {
+        storySummary = generateStorySummary(cluster.articles, entityName, sentimentTrend);
+      }
+
+      // Generate narrative - use Gemini if available
+      let narrative;
+      if (geminiAvailable) {
+        try {
+          narrative = await geminiService.generateNarrative({
+            entityName,
+            entityType,
+            chapters,
+            sentiment: sentimentTrend,
+          });
+        } catch (error) {
+          console.error("Error generating narrative with Gemini:", error);
+          narrative = null;
+        }
+      }
+
+      // Fall back to template narrative if Gemini fails or isn't available
+      if (!narrative) {
+        narrative = generateNarrative(chapters, sentimentTrend);
+      }
+
+      // Generate predictions - use Gemini if available
+      let predictions;
+      if (geminiAvailable) {
+        try {
+          predictions = await geminiService.generatePredictions({
+            entityName,
+            categories: Array.from(cluster.categories),
+            sentiment: sentimentTrend,
+            chapters,
+          });
+        } catch (error) {
+          console.error("Error generating predictions with Gemini:", error);
+          predictions = null;
+        }
+      }
+
+      // Fall back to template predictions if Gemini fails or isn't available
+      if (!predictions) {
+        predictions = generatePredictions(chapters, Array.from(cluster.categories), sentimentTrend);
+      }
+
+      // Process entity types to match allowed enum values
+      const processedEntities = [
+        {
+          name: entityName,
+          type: entityType === "country" ? "location" : entityType, // Fix for country validation error
+          importance: 10,
+        },
+        ...extractSecondaryEntities(cluster.articles, entityName).map((entity) => ({
+          ...entity,
+          type: entity.type === "country" ? "location" : entity.type, // Fix for country validation error
+        })),
+      ];
+
       // Create the new story
       story = new Story({
         title: storyTitle,
-        summary: generateStorySummary(cluster.articles, entityName, sentimentTrend),
-        narrative: generateNarrative(chapters, sentimentTrend),
+        summary: storySummary,
+        narrative: narrative,
         chapters: chapters,
         keywords: extractKeywordsFromArticles(cluster.articles),
-        entities: [
-          {
-            name: entityName,
-            type: entityType,
-            importance: 10,
-          },
-          ...extractSecondaryEntities(cluster.articles, entityName),
-        ],
+        entities: processedEntities,
         categories: Array.from(cluster.categories),
-        predictions: generatePredictions(chapters, cluster.categories, sentimentTrend),
+        predictions: predictions,
         timeline: {
           startDate: earliestArticleDate,
           endDate: latestArticleDate,
