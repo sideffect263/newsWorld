@@ -20,7 +20,7 @@ const scheduler = require("./services/scheduler");
 
 // Initialize express app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4001;
 
 // Apply middleware
 // app.use(helmet()); // Remove default security headers since we're customizing below
@@ -36,7 +36,7 @@ app.use((req, res, next) => {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; " +
       "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net https://cdn.jsdelivr.net; " +
       "img-src 'self' data: https://picsum.photos https://images.unsplash.com cdn.jsdelivr.net https://cdn.jsdelivr.net *.openstreetmap.org *.tile.openstreetmap.org https://www.google-analytics.com https://pixabay.com https://cdn.pixabay.com *.pixabay.com; " +
-      "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 nominatim.openstreetmap.org https://nominatim.openstreetmap.org https://www.google-analytics.com https://www.googletagmanager.com https://pixabay.com https://api.pixabay.com; " +
+      "connect-src 'self' http://localhost:5000 http://localhost:4001 http://127.0.0.1:5000 http://127.0.0.1:4001 nominatim.openstreetmap.org https://nominatim.openstreetmap.org https://www.google-analytics.com https://www.googletagmanager.com https://pixabay.com https://api.pixabay.com; " +
       "font-src 'self' cdn.jsdelivr.net https://cdn.jsdelivr.net; " +
       "object-src 'none'; " +
       "media-src 'none'; " +

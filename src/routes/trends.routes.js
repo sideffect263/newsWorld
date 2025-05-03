@@ -1,16 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const trendsController = require('../controllers/trends.controller');
+const trendsController = require("../controllers/trends.controller");
 
 // Public routes
-router.get('/', trendsController.getTrends);
-router.get('/keywords', trendsController.getTrendingKeywords);
-router.get('/entities/:type', trendsController.getTrendingEntities);
-router.get('/categories', trendsController.getTrendingCategories);
-router.get('/locations', trendsController.getTrendingLocations);
-router.get('/:id/articles', trendsController.getTrendArticles);
+router.get("/", trendsController.getTrends);
+router.get("/summary", trendsController.getTrendsSummary);
+router.get("/keywords", trendsController.getTrendingKeywords);
+router.get("/entities/:type", trendsController.getTrendingEntities);
+router.get("/categories", trendsController.getTrendingCategories);
+router.get("/locations", trendsController.getTrendingLocations);
+router.get("/:id/articles", trendsController.getTrendArticles);
 
 // API route for trend analysis
-router.post('/analyze',trendsController.triggerTrendAnalysis);
+router.post("/analyze", trendsController.triggerTrendAnalysis);
 
-module.exports = router; 
+module.exports = router;

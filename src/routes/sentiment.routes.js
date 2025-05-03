@@ -1,13 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const sentimentController = require('../controllers/sentiment.controller');
+const sentimentController = require("../controllers/sentiment.controller");
 
 // Public routes
-router.get('/', sentimentController.getSentimentAnalysis);
-router.get('/stats', sentimentController.getSentimentStats);
-router.get('/categories', sentimentController.getSentimentByCategory);
+router.get("/", sentimentController.getSentimentAnalysis);
+router.get("/summary", sentimentController.getSentimentSummary);
+router.get("/stats", sentimentController.getSentimentStats);
+router.get("/categories", sentimentController.getSentimentByCategory);
 
 // API route for sentiment updates
-router.post('/update', sentimentController.updateSentiment);
+router.post("/update", sentimentController.updateSentiment);
 
-module.exports = router; 
+module.exports = router;

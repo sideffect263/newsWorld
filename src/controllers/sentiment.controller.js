@@ -1,6 +1,6 @@
-const sentimentAnalyzer = require('../services/sentimentAnalyzer');
-const Article = require('../models/article.model');
-const ErrorResponse = require('../utils/errorResponse');
+const sentimentAnalyzer = require("../services/sentimentAnalyzer");
+const Article = require("../models/article.model");
+const ErrorResponse = require("../utils/errorResponse");
 
 // Helper function to generate date filter based on timeframe
 const getDateFilter = (timeframe) => {
@@ -8,19 +8,19 @@ const getDateFilter = (timeframe) => {
   const filter = { $lte: now };
 
   switch (timeframe) {
-    case '24h':
+    case "24h":
       filter.$gte = new Date(now - 24 * 60 * 60 * 1000);
       break;
-    case '7d':
+    case "7d":
       filter.$gte = new Date(now - 7 * 24 * 60 * 60 * 1000);
       break;
-    case '30d':
+    case "30d":
       filter.$gte = new Date(now - 30 * 24 * 60 * 60 * 1000);
       break;
-    case '90d':
+    case "90d":
       filter.$gte = new Date(now - 90 * 24 * 60 * 60 * 1000);
       break;
-    case 'all':
+    case "all":
       return null; // No date filter
     default:
       filter.$gte = new Date(now - 7 * 24 * 60 * 60 * 1000); // Default to 7 days
@@ -29,41 +29,163 @@ const getDateFilter = (timeframe) => {
   return filter;
 };
 
+// @desc    Get sentiment summary for homepage
+// @route   GET /api/sentiment/summary
+// @access  Public
+exports.getSentimentSummary = async (req, res, next) => {
+  try {
+    // Default to 7-day timeframe for homepage
+    const timeframe = req.query.timeframe || "7d";
+
+    // Base query
+    const query = {};
+
+    // Apply date filter based on timeframe
+    const dateFilter = getDateFilter(timeframe);
+    if (dateFilter) {
+      query.publishedAt = dateFilter;
+    }
+
+    // Get articles with sentiment data
+    const articles = await Article.find({
+      ...query,
+      sentiment: { $exists: true },
+    }).select("sentiment sentimentAssessment categories publishedAt");
+
+    if (articles.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          averageScore: 0,
+          distribution: { positive: 0, neutral: 0, negative: 0 },
+          categories: { politics: 0, business: 0, technology: 0 },
+        },
+      });
+    }
+
+    // Calculate sentiment distribution
+    const distribution = {
+      positive: 0,
+      neutral: 0,
+      negative: 0,
+    };
+
+    let totalSentiment = 0;
+
+    articles.forEach((article) => {
+      if (article.sentimentAssessment) {
+        distribution[article.sentimentAssessment]++;
+      }
+
+      if (typeof article.sentiment === "number") {
+        totalSentiment += article.sentiment;
+      }
+    });
+
+    // Group articles by category
+    const politicsArticles = [];
+    const businessArticles = [];
+    const technologyArticles = [];
+
+    // Categorize articles
+    articles.forEach((article) => {
+      if (!article.categories || article.categories.length === 0) return;
+
+      article.categories.forEach((category) => {
+        const normalizedCategory = category.toLowerCase();
+
+        if (normalizedCategory === "politics" || normalizedCategory === "world" || normalizedCategory === "nation") {
+          politicsArticles.push(article);
+        } else if (normalizedCategory === "business" || normalizedCategory === "economy") {
+          businessArticles.push(article);
+        } else if (normalizedCategory === "technology" || normalizedCategory === "science") {
+          technologyArticles.push(article);
+        }
+      });
+    });
+
+    // Helper function to calculate average sentiment for a category
+    function calculateCategorySentiment(categoryArticles) {
+      if (categoryArticles.length === 0) return 0;
+
+      const total = categoryArticles.reduce((sum, article) => {
+        return sum + (typeof article.sentiment === "number" ? article.sentiment : 0);
+      }, 0);
+
+      return total / categoryArticles.length;
+    }
+
+    // Calculate sentiment for each category (raw values)
+    const rawCategories = {
+      politics: calculateCategorySentiment(politicsArticles),
+      business: calculateCategorySentiment(businessArticles),
+      technology: calculateCategorySentiment(technologyArticles),
+    };
+
+    // Scale up the sentiment values by multiplying by 10 to make them more meaningful visually
+    const categories = {
+      politics: rawCategories.politics * 100,
+      business: rawCategories.business * 100,
+      technology: rawCategories.technology * 100,
+    };
+
+    // Raw average score
+    const rawAverageScore = articles.length > 0 ? totalSentiment / articles.length : 0;
+
+    // Scaled up average score (multiply by 10)
+    const averageScore = rawAverageScore * 10;
+
+    console.log(`Sentiment summary: Raw avg=${rawAverageScore.toFixed(3)}, Scaled avg=${averageScore.toFixed(3)}`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        averageScore,
+        distribution,
+        categories,
+      },
+    });
+  } catch (err) {
+    console.error("Error in getSentimentSummary:", err);
+    next(err);
+  }
+};
+
 // @desc    Get sentiment analysis
 // @route   GET /api/sentiment
 // @access  Public
 exports.getSentimentAnalysis = async (req, res, next) => {
   try {
     // Get sentiment analysis without user filtering
-    const timeframe = req.query.timeframe || '7d';
+    const timeframe = req.query.timeframe || "7d";
     const limit = parseInt(req.query.limit) || 20;
-    
+
     // Base query
     const query = {};
-    
+
     // Apply date filter based on timeframe
     const dateFilter = getDateFilter(timeframe);
     if (dateFilter) {
       query.publishedAt = dateFilter;
     }
-    
+
     // Apply category filter if provided
     if (req.query.category) {
       query.categories = req.query.category;
     }
-    
+
     // Get articles with sentiment data
     const articles = await Article.find({
       ...query,
-      sentiment: { $exists: true }
+      sentiment: { $exists: true },
     })
-    .sort({ publishedAt: -1 })
-    .limit(limit);
-    
+      .sort({ publishedAt: -1 })
+      .limit(limit);
+
     res.status(200).json({
       success: true,
       count: articles.length,
-      data: articles
+      data: articles,
     });
   } catch (err) {
     next(err);
@@ -75,71 +197,65 @@ exports.getSentimentAnalysis = async (req, res, next) => {
 // @access  Public
 exports.getSentimentStats = async (req, res, next) => {
   try {
-    const { 
-      startDate,
-      endDate,
-      category,
-      source,
-      country
-    } = req.query;
-    
+    const { startDate, endDate, category, source, country } = req.query;
+
     // Convert dates if provided
     const startDateObj = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const endDateObj = endDate ? new Date(endDate) : new Date();
-    
+
     // Build query
     const query = {
-      publishedAt: { $gte: startDateObj, $lte: endDateObj }
+      publishedAt: { $gte: startDateObj, $lte: endDateObj },
     };
-    
+
     if (category) {
       query.categories = category;
     }
-    
+
     if (source) {
-      query['source.name'] = source;
+      query["source.name"] = source;
     }
-    
+
     if (country) {
       query.countries = country;
     }
-    
+
     // Get sentiment stats
-    const articles = await Article.find(query).select('sentiment sentimentAssessment publishedAt');
-    
+    const articles = await Article.find(query).select("sentiment sentimentAssessment publishedAt");
+
     if (articles.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No articles found for sentiment analysis'
+        message: "No articles found for sentiment analysis",
       });
     }
-    
+
     // Calculate overall stats
     const assessmentCount = {
       positive: 0,
       neutral: 0,
-      negative: 0
+      negative: 0,
     };
-    
+
     let totalSentiment = 0;
-    
-    articles.forEach(article => {
+
+    articles.forEach((article) => {
       if (article.sentimentAssessment) {
         assessmentCount[article.sentimentAssessment] += 1;
       }
-      
-      if (typeof article.sentiment === 'number') {
+
+      if (typeof article.sentiment === "number") {
         totalSentiment += article.sentiment;
       }
     });
-    
+
     // Group by day
     const dateGroups = {};
-    
-    articles.forEach(article => {
+
+    articles.forEach((article) => {
       const date = new Date(article.publishedAt);
-      const dateString = date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      
+      const dateString = date.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
       if (!dateGroups[dateString]) {
         dateGroups[dateString] = {
           date: dateString,
@@ -148,38 +264,38 @@ exports.getSentimentStats = async (req, res, next) => {
           assessmentCount: {
             positive: 0,
             neutral: 0,
-            negative: 0
-          }
+            negative: 0,
+          },
         };
       }
-      
+
       const group = dateGroups[dateString];
-      
+
       group.count += 1;
-      
+
       if (article.sentimentAssessment) {
         group.assessmentCount[article.sentimentAssessment] += 1;
       }
-      
-      if (typeof article.sentiment === 'number') {
+
+      if (typeof article.sentiment === "number") {
         group.totalSentiment += article.sentiment;
       }
     });
-    
+
     // Calculate averages for each day
     const timeSeries = Object.values(dateGroups)
       .sort((a, b) => a.date.localeCompare(b.date))
-      .map(group => ({
+      .map((group) => ({
         date: group.date,
         count: group.count,
         averageSentiment: group.count > 0 ? group.totalSentiment / group.count : 0,
         distribution: {
           positive: group.count > 0 ? (group.assessmentCount.positive / group.count) * 100 : 0,
           neutral: group.count > 0 ? (group.assessmentCount.neutral / group.count) * 100 : 0,
-          negative: group.count > 0 ? (group.assessmentCount.negative / group.count) * 100 : 0
-        }
+          negative: group.count > 0 ? (group.assessmentCount.negative / group.count) * 100 : 0,
+        },
       }));
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -188,11 +304,11 @@ exports.getSentimentStats = async (req, res, next) => {
         distribution: {
           positive: articles.length > 0 ? (assessmentCount.positive / articles.length) * 100 : 0,
           neutral: articles.length > 0 ? (assessmentCount.neutral / articles.length) * 100 : 0,
-          negative: articles.length > 0 ? (assessmentCount.negative / articles.length) * 100 : 0
+          negative: articles.length > 0 ? (assessmentCount.negative / articles.length) * 100 : 0,
         },
         assessmentCount,
-        timeSeries
-      }
+        timeSeries,
+      },
     });
   } catch (err) {
     next(err);
@@ -204,39 +320,32 @@ exports.getSentimentStats = async (req, res, next) => {
 // @access  Private (admin only)
 exports.updateSentiment = async (req, res, next) => {
   try {
-    const { 
-      startDate,
-      endDate,
-      limit = 1000
-    } = req.body;
-    
+    const { startDate, endDate, limit = 1000 } = req.body;
+
     // Convert dates if provided
     const startDateObj = startDate ? new Date(startDate) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const endDateObj = endDate ? new Date(endDate) : new Date();
-    
+
     // Get articles to update
     const articles = await Article.find({
       publishedAt: { $gte: startDateObj, $lte: endDateObj },
-      $or: [
-        { sentiment: { $exists: false } },
-        { sentimentAssessment: { $exists: false } }
-      ]
+      $or: [{ sentiment: { $exists: false } }, { sentimentAssessment: { $exists: false } }],
     }).limit(limit);
-    
+
     if (articles.length === 0) {
       return res.status(200).json({
         success: true,
-        message: 'No articles found needing sentiment updates'
+        message: "No articles found needing sentiment updates",
       });
     }
-    
+
     // Update sentiment
     const result = await sentimentAnalyzer.updateSentimentForNewArticles(articles);
-    
+
     res.status(200).json({
       success: true,
       message: `Updated sentiment for ${result.count} articles`,
-      data: { count: result.count }
+      data: { count: result.count },
     });
   } catch (err) {
     next(err);
@@ -248,43 +357,39 @@ exports.updateSentiment = async (req, res, next) => {
 // @access  Public
 exports.getSentimentByCategory = async (req, res, next) => {
   try {
-    const { 
-      startDate,
-      endDate,
-      country
-    } = req.query;
-    
+    const { startDate, endDate, country } = req.query;
+
     // Convert dates if provided
     const startDateObj = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const endDateObj = endDate ? new Date(endDate) : new Date();
-    
+
     // Base query
     const query = {
       publishedAt: { $gte: startDateObj, $lte: endDateObj },
-      sentiment: { $exists: true }
+      sentiment: { $exists: true },
     };
-    
+
     if (country) {
       query.countries = country;
     }
-    
+
     // Get all articles with categories
-    const articles = await Article.find(query).select('categories sentiment sentimentAssessment');
-    
+    const articles = await Article.find(query).select("categories sentiment sentimentAssessment");
+
     if (articles.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No articles found for sentiment analysis'
+        message: "No articles found for sentiment analysis",
       });
     }
-    
+
     // Group by category
     const categoryStats = {};
-    
-    articles.forEach(article => {
+
+    articles.forEach((article) => {
       if (!article.categories || article.categories.length === 0) return;
-      
-      article.categories.forEach(category => {
+
+      article.categories.forEach((category) => {
         if (!categoryStats[category]) {
           categoryStats[category] = {
             count: 0,
@@ -292,25 +397,25 @@ exports.getSentimentByCategory = async (req, res, next) => {
             assessmentCount: {
               positive: 0,
               neutral: 0,
-              negative: 0
-            }
+              negative: 0,
+            },
           };
         }
-        
+
         const stats = categoryStats[category];
-        
+
         stats.count += 1;
-        
-        if (typeof article.sentiment === 'number') {
+
+        if (typeof article.sentiment === "number") {
           stats.totalSentiment += article.sentiment;
         }
-        
+
         if (article.sentimentAssessment) {
           stats.assessmentCount[article.sentimentAssessment] += 1;
         }
       });
     });
-    
+
     // Calculate averages for each category
     const categorySentiment = Object.entries(categoryStats)
       .map(([category, stats]) => ({
@@ -320,16 +425,16 @@ exports.getSentimentByCategory = async (req, res, next) => {
         distribution: {
           positive: stats.count > 0 ? (stats.assessmentCount.positive / stats.count) * 100 : 0,
           neutral: stats.count > 0 ? (stats.assessmentCount.neutral / stats.count) * 100 : 0,
-          negative: stats.count > 0 ? (stats.assessmentCount.negative / stats.count) * 100 : 0
-        }
+          negative: stats.count > 0 ? (stats.assessmentCount.negative / stats.count) * 100 : 0,
+        },
       }))
       .sort((a, b) => b.count - a.count);
-    
+
     res.status(200).json({
       success: true,
-      data: categorySentiment
+      data: categorySentiment,
     });
   } catch (err) {
     next(err);
   }
-}; 
+};

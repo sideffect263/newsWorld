@@ -63,346 +63,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="/styles/main.css" />
-    <style>
-      .hero-section {
-        background: linear-gradient(-45deg, #0d6efd, #0dcaf0, #0ea5e9, #0284c7);
-        background-size: 400% 400%;
-        animation: gradient-animation 15s ease infinite;
-        color: white;
-        padding: 120px 0 160px;
-        margin-bottom: 50px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      @keyframes gradient-animation {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
-      }
-
-      .hero-section::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100px;
-        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
-        background-size: cover;
-        background-repeat: no-repeat;
-      }
-
-      .hero-content {
-        position: relative;
-        z-index: 1;
-      }
-
-      .hero-section h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .feature-card {
-        border: none;
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        height: 100%;
-        background: #ffffff;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-      }
-
-      .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-      }
-
-      .feature-icon {
-        font-size: 2.5rem;
-        color: #0d6efd;
-        margin-bottom: 1.5rem;
-        transition: transform 0.3s ease;
-      }
-
-      .feature-card:hover .feature-icon {
-        transform: scale(1.1);
-      }
-
-      .news-preview {
-        border-radius: 15px;
-        overflow: hidden;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-      }
-
-      .news-preview:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-      }
-
-      .news-preview img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
-
-      .news-preview:hover img {
-        transform: scale(1.05);
-      }
-
-      .sentiment-indicator {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.8rem;
-      }
-
-      .sentiment-indicator.sentiment-positive {
-        background-color: rgba(40, 167, 69, 0.1);
-        color: #28a745;
-      }
-
-      .sentiment-indicator.sentiment-negative {
-        background-color: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-      }
-
-      .sentiment-indicator.sentiment-neutral {
-        background-color: rgba(108, 117, 125, 0.1);
-        color: #6c757d;
-      }
-
-      .category-badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: rgba(13, 110, 253, 0.9);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 25px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      .navbar {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 0;
-      }
-
-      .btn {
-        padding: 0.8rem 1.5rem;
-        font-weight: 500;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-      }
-
-      .btn-lg {
-        padding: 1rem 2rem;
-      }
-
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      section {
-        padding: 80px 0;
-      }
-
-      section h2 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 3rem;
-        position: relative;
-        display: inline-block;
-      }
-
-      section h2::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -10px;
-        width: 60px;
-        height: 4px;
-        background: #0d6efd;
-        border-radius: 2px;
-      }
-
-      .text-center h2::after {
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      footer {
-        background: #1a1a1a;
-        color: #ffffff;
-        padding: 60px 0 30px;
-      }
-
-      footer h5 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        position: relative;
-        display: inline-block;
-      }
-
-      footer h5::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -8px;
-        width: 30px;
-        height: 2px;
-        background: #0d6efd;
-      }
-
-      footer a {
-        color: #ffffff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-
-      footer a:hover {
-        color: #0d6efd;
-      }
-
-      .social-links a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-      }
-
-      .social-links a:hover {
-        background: #0d6efd;
-        transform: translateY(-3px);
-      }
-
-      /* Additional footer styles */
-      .footer-links li {
-        margin-bottom: 0.75rem;
-      }
-
-      .footer-links a {
-        display: inline-block;
-        color: rgba(255, 255, 255, 0.7);
-        transition: all 0.3s ease;
-      }
-
-      .footer-links a:hover {
-        color: #fff;
-        transform: translateX(5px);
-      }
-
-      .footer-links i {
-        font-size: 0.75rem;
-        margin-right: 0.5rem;
-        opacity: 0.5;
-      }
-
-      .footer-contact li {
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .footer-contact a {
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .footer-contact a:hover {
-        color: #fff;
-      }
-
-      .list-inline-item:not(:last-child) {
-        margin-right: 1.5rem;
-      }
-
-      .text-light-50 {
-        color: rgba(255, 255, 255, 0.5);
-      }
-
-      /* Sentiment and Trend Analysis Styles */
-      .card-header {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      }
-
-      #sentimentDonut {
-        position: relative;
-      }
-
-      #sentimentAverage {
-        font-size: 1.2rem;
-      }
-
-      #avgSentimentScore {
-        font-size: 1.8rem;
-        font-weight: 700;
-      }
-
-      .badge.rounded-pill {
-        padding: 6px 12px;
-        margin: 3px;
-        font-weight: 500;
-        transition: transform 0.2s ease;
-      }
-
-      .badge.rounded-pill:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      #keywordCloud {
-        padding: 10px 0;
-      }
-
-      #risingEntities li {
-        transition: transform 0.2s ease;
-      }
-
-      #risingEntities li:hover {
-        transform: translateX(3px);
-      }
-
-      .progress {
-        height: 8px;
-        border-radius: 4px;
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-
-      .progress-bar {
-        border-radius: 4px;
-        transition: width 0.5s ease;
-      }
-
-      #categoryDistribution div {
-        padding: 4px 0;
-        border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
-      }
-
-      #categoryDistribution div:last-child {
-        border-bottom: none;
-      }
-    </style>
+    <link rel="stylesheet" href="/styles/index.css" />
   </head>
   <body>
     <!-- Include common header -->
@@ -578,7 +239,7 @@
               </div>
 
               <div class="mb-3">
-                <h4 class="h6 mb-3">Topic Momentum</h4>
+                <h4 class="h6 mb-3">Trending Entities & Locations</h4>
                 <div style="height: 150px">
                   <canvas id="trendMomentumChart"></canvas>
                 </div>
@@ -597,7 +258,7 @@
                   </ul>
                 </div>
                 <div class="col-6">
-                  <h4 class="h6 mb-2">Top Categories</h4>
+                  <h4 class="h6 mb-2">Top Locations</h4>
                   <div id="categoryDistribution">
                     <div class="d-flex justify-content-between mb-1">
                       <span class="text-truncate">Loading...</span>
@@ -780,7 +441,7 @@
             console.error("Error loading header:", err);
           });
 
-        // Load latest news preview with lazy loading
+        // Load latest news preview - this will use the function from index.js
         loadLatestNews();
 
         // Load sentiment analysis data
@@ -830,6 +491,7 @@
 
       // Function to attempt to fetch trending keywords
       function tryFetchTrendingKeywords() {
+        console.log("Attempting to fetch trending keywords...");
         fetch("/api/trends/keywords?timeframe=daily")
           .then((response) => {
             if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
@@ -864,156 +526,10 @@
           });
       }
 
-      // Load latest news preview
-      async function loadLatestNews() {
-        try {
-          const response = await fetch("/api/news/latest?limit=3");
-
-          // Check if response is not OK or not JSON
-          if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
-            throw new Error("API endpoint not available");
-          }
-
-          const result = await response.json();
-
-          if (result.success) {
-            const newsContainer = document.getElementById("latestNewsPreview");
-            newsContainer.innerHTML = result.data
-              .map(
-                (article) => `
-                    <div class="col-md-4">
-                        <div class="card news-preview">
-                            <div class="category-badge">${article.categories[0]}</div>
-                            <div class="card-body" style="padding-top: 50px;">
-                                <h5 class="card-title">${article.title}</h5>
-                                <div class="sentiment-indicator sentiment-${
-                                  article.sentimentAssessment || "neutral"
-                                } mb-2">
-                                    <i class="bi bi-emoji-${
-                                      article.sentimentAssessment === "positive"
-                                        ? "smile"
-                                        : article.sentimentAssessment === "negative"
-                                        ? "frown"
-                                        : "neutral"
-                                    }"></i>
-                                    ${
-                                      article.sentimentAssessment
-                                        ? article.sentimentAssessment.charAt(0).toUpperCase() +
-                                          article.sentimentAssessment.slice(1)
-                                        : "Neutral"
-                                    } Sentiment
-                                </div>
-                                <p class="card-text">${article.description || ""}</p>
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-                                    <small class="text-muted">${new Date(
-                                      article.publishedAt,
-                                    ).toLocaleDateString()}</small>
-                                    <div class="d-flex gap-2">
-                                        <a href="/news/${article._id}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-newspaper me-1"></i> Read on NewsWorld
-                                        </a>
-                                        <a href="${
-                                          article.url
-                                        }" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i> Source
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `,
-              )
-              .join("");
-          }
-        } catch (error) {
-          console.error("Error loading latest news:", error);
-
-          // Provide fallback news data
-          const fallbackNews = [
-            {
-              _id: "news1",
-              title: "Global Climate Summit Reaches Historic Agreement",
-              description:
-                "After intense negotiations, world leaders have agreed to ambitious climate goals including significant carbon reduction targets by 2030.",
-              categories: ["Politics"],
-              sentimentAssessment: "positive",
-              publishedAt: new Date(),
-              url: "#",
-              imageUrl: "https://via.placeholder.com/800x450?text=Climate+Summit",
-            },
-            {
-              _id: "news2",
-              title: "Technology Giants Face New Antitrust Regulations",
-              description:
-                "Major tech companies are preparing for stricter oversight as legislators introduce comprehensive antitrust legislation.",
-              categories: ["Technology"],
-              sentimentAssessment: "neutral",
-              publishedAt: new Date(),
-              url: "#",
-              imageUrl: "https://via.placeholder.com/800x450?text=Tech+Regulation",
-            },
-            {
-              _id: "news3",
-              title: "Economic Downturn Feared as Markets Show Volatility",
-              description:
-                "Financial analysts warn of potential recession as global markets experience significant fluctuations amid geopolitical tensions.",
-              categories: ["Business"],
-              sentimentAssessment: "negative",
-              publishedAt: new Date(),
-              url: "#",
-              imageUrl: "https://via.placeholder.com/800x450?text=Market+Volatility",
-            },
-          ];
-
-          const newsContainer = document.getElementById("latestNewsPreview");
-          newsContainer.innerHTML = fallbackNews
-            .map(
-              (article) => `
-                <div class="col-md-4">
-                    <div class="card news-preview">
-                        <div class="category-badge">${article.categories[0]}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">${article.title}</h5>
-                            <div class="sentiment-indicator sentiment-${article.sentimentAssessment || "neutral"} mb-2">
-                                <i class="bi bi-emoji-${
-                                  article.sentimentAssessment === "positive"
-                                    ? "smile"
-                                    : article.sentimentAssessment === "negative"
-                                    ? "frown"
-                                    : "neutral"
-                                }"></i>
-                                ${
-                                  article.sentimentAssessment
-                                    ? article.sentimentAssessment.charAt(0).toUpperCase() +
-                                      article.sentimentAssessment.slice(1)
-                                    : "Neutral"
-                                } Sentiment
-                            </div>
-                            <p class="card-text">${article.description || ""}</p>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-                                <small class="text-muted">${new Date(article.publishedAt).toLocaleDateString()}</small>
-                                <div class="d-flex gap-2">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-newspaper me-1"></i> Read on NewsWorld
-                                    </a>
-                                    <a href="#" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-box-arrow-up-right me-1"></i> Source
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `,
-            )
-            .join("");
-        }
-      }
-
       // Load sentiment analysis data for the homepage
       async function loadSentimentData() {
         try {
+          console.log("Attempting to fetch sentiment summary data...");
           const response = await fetch("/api/sentiment/summary");
 
           // Check if response is not OK or not JSON
@@ -1177,6 +693,7 @@
       // Load trend analysis data for the homepage
       async function loadTrendData() {
         try {
+          console.log("Attempting to fetch trends summary data...");
           const response = await fetch("/api/trends/summary");
 
           // Check if response is not OK or not JSON
