@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main newspaper -->
+  <path d="M15,30 L185,30 L185,170 C185,170 150,145 120,170 C90,195 50,170 50,170 L15,170 Z" fill="#f0f9ff" stroke="#0369a1" stroke-width="4"/>
+  
+  <!-- Left side content (static) -->
+  <rect x="25" y="45" width="65" height="18" rx="2" ry="2" fill="#0c4a6e"/>
+  <rect x="25" y="70" width="55" height="10" rx="2" ry="2" fill="#075985"/>
+  <rect x="25" y="90" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="105" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="120" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="135" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="150" width="50" height="8" rx="1" ry="1" fill="#0284c7"/>
+  
+  <!-- NEWSWORLD title -->
+  <text x="100" y="25" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#0c4a6e" text-anchor="middle">NEWSWORLD</text>
+  
+  <!-- Page almost fully turned - showing back -->
+  <path d="M100,30 
+           C60,30 40,60 50,90
+           L80,170
+           C80,170 90,160 100,170
+           C110,180 120,170 120,170
+           L140,90
+           C150,60 130,30 100,30 Z" 
+        fill="#e6f4ff" stroke="#0369a1" stroke-width="2"/>
+  
+  <!-- Fold/spine indication -->
+  <path d="M100,30 L100,170" 
+        fill="none" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="3"/>
+  
+  <!-- Content on back of page (mostly hidden/different) -->
+  <rect x="60" y="70" width="30" height="6" rx="1" ry="1" fill="#0284c7" opacity="0.7"/>
+  <rect x="60" y="85" width="30" height="6" rx="1" ry="1" fill="#0284c7" opacity="0.7"/>
+  <rect x="60" y="100" width="30" height="6" rx="1" ry="1" fill="#0284c7" opacity="0.7"/>
+  
+  <!-- Shadow effect -->
+  <ellipse cx="110" cy="100" rx="20" ry="70" fill="#000000" fill-opacity="0.1"/>
+  
+  <!-- Hint of next page -->
+  <rect x="120" y="60" width="45" height="40" rx="1" ry="1" fill="#bae6fd" opacity="0.3"/>
+  <rect x="120" y="110" width="50" height="6" rx="1" ry="1" fill="#0284c7" opacity="0.3"/>
+  <rect x="120" y="125" width="50" height="6" rx="1" ry="1" fill="#0284c7" opacity="0.3"/>
+</svg>

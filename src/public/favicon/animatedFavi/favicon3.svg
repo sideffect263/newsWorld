@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main newspaper -->
+  <path d="M15,30 L185,30 L185,170 C185,170 150,145 120,170 C90,195 50,170 50,170 L15,170 Z" fill="#f0f9ff" stroke="#0369a1" stroke-width="4"/>
+  
+  <!-- Left side content (static) -->
+  <rect x="25" y="45" width="65" height="18" rx="2" ry="2" fill="#0c4a6e"/>
+  <rect x="25" y="70" width="55" height="10" rx="2" ry="2" fill="#075985"/>
+  <rect x="25" y="90" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="105" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="120" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="135" width="65" height="8" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="25" y="150" width="50" height="8" rx="1" ry="1" fill="#0284c7"/>
+  
+  <!-- NEWSWORLD title -->
+  <text x="100" y="25" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#0c4a6e" text-anchor="middle">NEWSWORLD</text>
+  
+  <!-- More page curl - halfway turned -->
+  <path d="M100,30 
+           C140,30 160,60 150,90
+           L120,170
+           C120,170 110,160 100,170
+           C90,180 80,170 80,170
+           L70,90
+           C60,60 80,30 100,30 Z" 
+        fill="#f0f9ff" stroke="#0369a1" stroke-width="2"/>
+  
+  <!-- Hint of the back side of the page -->
+  <path d="M100,30 
+           C130,30 150,70 130,100
+           L110,170" 
+        fill="none" stroke="#0c4a6e" stroke-width="1.5"/>
+  
+  <!-- Content on turning page (more distorted) -->
+  <path d="M85,60 L95,55 L115,65 L105,70 Z" fill="#bae6fd" stroke="#0369a1" stroke-width="1"/>
+  <path d="M80,120 L90,115 L110,125 L100,130 Z" fill="#0284c7"/>
+  <path d="M85,140 L95,135 L115,145 L105,150 Z" fill="#0284c7"/>
+  
+  <!-- Shadow effect -->
+  <ellipse cx="90" cy="100" rx="20" ry="70" fill="#000000" fill-opacity="0.1"/>
+</svg>

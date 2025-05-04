@@ -1,762 +1,790 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NewsWorld - News</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Browse the latest global news articles from various sources on NewsWorld. Filter by categories, countries, and topics to find the news that matters to you.">
-    <meta name="keywords" content="news, global news, breaking news, world news, news by category, international news, latest headlines">
-    <meta name="author" content="NewsWorld">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph Tags for Social Media -->
-    <meta property="og:title" content="NewsWorld - Latest News Articles">
-    <meta property="og:description" content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you.">
-    <meta property="og:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
-    <meta property="og:url" content="https://newsworld.com/news">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="NewsWorld">
-    
-    <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="NewsWorld - Latest News Articles">
-    <meta name="twitter:description" content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you.">
-    <meta name="twitter:image" content="https://newsworld.com/favicon/android-chrome-512x512.png">
-    
-    <!-- Canonical Link -->
-    <link rel="canonical" href="https://newsworld.com/news">
-    
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <meta name="application-name" content="NewsWorld" />
 
-  gtag('config', 'G-VL0BHL7LPW');
-</script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/styles/main.css">
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Browse the latest global news articles from various sources on NewsWorld. Filter by categories, countries, and topics to find the news that matters to you."
+    />
+    <meta
+      name="keywords"
+      content="news, global news, breaking news, world news, news by category, international news, latest headlines"
+    />
+    <meta name="author" content="NewsWorld" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="NewsWorld - Latest News Articles" />
+    <meta
+      property="og:description"
+      content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you."
+    />
+    <meta property="og:image" content="https://newsworld.com/favicon/android-chrome-512x512.png" />
+    <meta property="og:url" content="https://newsworld.com/news" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NewsWorld" />
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NewsWorld - Latest News Articles" />
+    <meta
+      name="twitter:description"
+      content="Browse the latest global news articles from various sources. Filter by categories, countries, and topics to find the news that matters to you."
+    />
+    <meta name="twitter:image" content="https://newsworld.com/favicon/android-chrome-512x512.png" />
+
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://newsworld.com/news" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-VL0BHL7LPW");
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="/styles/main.css" />
     <style>
-        :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --light-bg: #f8f9fa;
-            --dark-bg: #212529;
-            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
-            --hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-            --transition-speed: 0.3s;
-            --border-radius: 12px;
+      :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #6c757d;
+        --light-bg: #f8f9fa;
+        --dark-bg: #212529;
+        --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+        --hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        --transition-speed: 0.3s;
+        --border-radius: 12px;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+          url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e9ecef' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background-attachment: fixed;
+      }
+
+      .main-container {
+        padding-top: 150px;
+        min-height: calc(100vh - 300px);
+      }
+
+      .hero-section {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-section::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(30deg);
+      }
+
+      .hero-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .filter-bar {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        transition: all var(--transition-speed);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-bar:hover {
+        box-shadow: var(--hover-shadow);
+      }
+
+      .form-control,
+      .form-select {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: none;
+        transition: all 0.2s;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all var(--transition-speed);
+        font-weight: 500;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        border: none;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
+      }
+
+      .btn-outline-secondary {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: var(--secondary-color);
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+      }
+
+      .news-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: all var(--transition-speed);
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        border: none;
+        background-color: white;
+        position: relative;
+      }
+
+      .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+      }
+
+      .news-card .card-img-top {
+        height: 220px;
+        object-fit: cover;
+        transition: all 0.5s ease;
+      }
+
+      .news-card:hover .card-img-top {
+        transform: scale(1.05);
+      }
+
+      .category-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(13, 110, 253, 0.9);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-body {
+        padding: 1.5rem;
+        padding-top: 50px;
+      }
+
+      .card-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .card-text {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .meta-info {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+      }
+
+      .meta-info i {
+        margin-right: 0.25rem;
+      }
+
+      .meta-info span {
+        margin-right: 1rem;
+      }
+
+      .meta-divider {
+        margin: 0 0.5rem;
+      }
+
+      .pagination .page-link {
+        padding: 0.75rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 8px;
+        color: var(--primary-color);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: white;
+        transition: all var(--transition-speed);
+      }
+
+      .pagination .page-link:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+      }
+
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+      }
+
+      .spinner-pulse {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0.4);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
         }
-        
-        body {
-            background-color: #f8f9fa;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), 
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e9ecef' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            background-attachment: fixed;
+        70% {
+          box-shadow: 0 0 0 20px rgba(13, 110, 253, 0);
         }
-        
+        100% {
+          box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+        }
+      }
+
+      .sentiment-positive {
+        color: #28a745;
+      }
+
+      .sentiment-negative {
+        color: #dc3545;
+      }
+
+      .sentiment-neutral {
+        color: #6c757d;
+      }
+
+      .sentiment-indicator {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .sentiment-indicator.sentiment-positive {
+        background-color: rgba(40, 167, 69, 0.1);
+      }
+
+      .sentiment-indicator.sentiment-negative {
+        background-color: rgba(220, 53, 69, 0.1);
+      }
+
+      .sentiment-indicator.sentiment-neutral {
+        background-color: rgba(108, 117, 125, 0.1);
+      }
+
+      .card-action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        gap: 10px;
+      }
+
+      .card-action-buttons .btn {
+        flex: 1;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 5rem 0;
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-state-text {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #adb5bd;
+        margin-bottom: 1.5rem;
+      }
+
+      .tag-pill {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background-color: rgba(13, 110, 253, 0.1);
+        color: var(--primary-color);
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        transition: all var(--transition-speed);
+      }
+
+      .tag-pill:hover {
+        background-color: rgba(13, 110, 253, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .active-tag {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+      }
+
+      .active-tag:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .news-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .news-item.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
         .main-container {
-            padding-top: 150px;
-            min-height: calc(100vh - 300px);
+          padding-top: 130px;
         }
-        
+
         .hero-section {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            color: white;
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            overflow: hidden;
+          padding: 1.5rem;
         }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(30deg);
-        }
-        
+
         .hero-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+          font-size: 1.8rem;
         }
-        
+
         .filter-bar {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-            transition: all var(--transition-speed);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+          padding: 1rem;
         }
-        
-        .filter-bar:hover {
-            box-shadow: var(--hover-shadow);
-        }
-        
-        .form-control, .form-select {
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: none;
-            transition: all 0.2s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            transition: all var(--transition-speed);
-            font-weight: 500;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            border: none;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
-        }
-        
-        .btn-outline-secondary {
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            color: var(--secondary-color);
-        }
-        
-        .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .news-card {
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            transition: all var(--transition-speed);
-            box-shadow: var(--card-shadow);
-            height: 100%;
-            border: none;
-            background-color: white;
-            position: relative;
-        }
-        
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--hover-shadow);
-        }
-        
-        .news-card .card-img-top {
-            height: 220px;
-            object-fit: cover;
-            transition: all 0.5s ease;
-        }
-        
-        .news-card:hover .card-img-top {
-            transform: scale(1.05);
-        }
-        
-        .category-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(13, 110, 253, 0.9);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            z-index: 10;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-body {
-            
-            padding: 1.5rem;
-            padding-top: 50px;
-        }
-        
-        .card-title {
-            font-weight: 700;
-            font-size: 1.25rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .card-text {
-            color: #6c757d;
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .meta-info {
-            display: flex;
-            align-items: center;
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-        }
-        
-        .meta-info i {
-            margin-right: 0.25rem;
-        }
-        
-        .meta-info span {
-            margin-right: 1rem;
-        }
-        
-        .meta-divider {
-            margin: 0 0.5rem;
-        }
-        
-        .pagination .page-link {
-            padding: 0.75rem 1rem;
-            margin: 0 0.25rem;
-            border-radius: 8px;
-            color: var(--primary-color);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background-color: white;
-            transition: all var(--transition-speed);
-        }
-        
-        .pagination .page-link:hover {
-            background-color: #e9ecef;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .pagination .page-item.active .page-link {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-        }
-        
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        
-        .spinner-pulse {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            box-shadow: 0 0 0 rgba(13, 110, 253, 0.4);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 20px rgba(13, 110, 253, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
-            }
-        }
-        
-        .sentiment-positive {
-            color: #28a745;
-        }
-        
-        .sentiment-negative {
-            color: #dc3545;
-        }
-        
-        .sentiment-neutral {
-            color: #6c757d;
-        }
-        
-        .sentiment-indicator {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .sentiment-indicator.sentiment-positive {
-            background-color: rgba(40, 167, 69, 0.1);
-        }
-        
-        .sentiment-indicator.sentiment-negative {
-            background-color: rgba(220, 53, 69, 0.1);
-        }
-        
-        .sentiment-indicator.sentiment-neutral {
-            background-color: rgba(108, 117, 125, 0.1);
-        }
-        
-        .card-action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-            gap: 10px;
-        }
-        
-        .card-action-buttons .btn {
-            flex: 1;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 5rem 0;
-        }
-        
-        .empty-state-icon {
-            font-size: 4rem;
-            color: #dee2e6;
-            margin-bottom: 1.5rem;
-        }
-        
-        .empty-state-text {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #adb5bd;
-            margin-bottom: 1.5rem;
-        }
-        
-        .tag-pill {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--primary-color);
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            transition: all var(--transition-speed);
-        }
-        
-        .tag-pill:hover {
-            background-color: rgba(13, 110, 253, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .active-tag {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-        }
-        
-        .active-tag:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .news-item {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        
-        .news-item.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .main-container {
-                padding-top: 130px;
-            }
-            
-            .hero-section {
-                padding: 1.5rem;
-            }
-            
-            .hero-title {
-                font-size: 1.8rem;
-            }
-            
-            .filter-bar {
-                padding: 1rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="loading" class="loading d-none">
-        <div class="spinner-pulse"></div>
+      <div class="spinner-pulse"></div>
     </div>
 
     <!-- Include common header -->
     <div id="header"></div>
 
     <div class="container main-container">
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="hero-title">Discover News That Matters</h1>
-                    <p class="lead">Browse the latest global news articles from multiple sources. Find stories that matter to you.</p>
-                </div>
-                <div class="col-lg-4 text-center text-lg-end">
-                    <i class="bi bi-newspaper" style="font-size: 4rem; opacity: 0.7;"></i>
-                </div>
-            </div>
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="hero-title">Discover News That Matters</h1>
+            <p class="lead">
+              Browse the latest global news articles from multiple sources. Find stories that matter to you.
+            </p>
+          </div>
+          <div class="col-lg-4 text-center text-lg-end">
+            <i class="bi bi-newspaper" style="font-size: 4rem; opacity: 0.7"></i>
+          </div>
         </div>
+      </div>
 
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="searchInput" placeholder="Search news...">
-                        <button class="btn btn-primary" type="button" id="searchButton">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="categoryFilter">
-                        <option value="">All Categories</option>
-                        <option value="general">General</option>
-                        <option value="business">Business</option>
-                        <option value="technology">Technology</option>
-                        <option value="science">Science</option>
-                        <option value="health">Health</option>
-                        <option value="sports">Sports</option>
-                        <option value="entertainment">Entertainment</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="countryFilter">
-                        <option value="">All Countries</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="languageFilter">
-                        <option value="">All Languages</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="statusFilter">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="error">Error</option>
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <button class="btn btn-outline-secondary w-100" id="resetFilters" title="Reset Filters">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </button>
-                </div>
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="input-group">
+              <input type="text" class="form-control" id="searchInput" placeholder="Search news..." />
+              <button class="btn btn-primary" type="button" id="searchButton">
+                <i class="bi bi-search"></i>
+              </button>
             </div>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              <option value="general">General</option>
+              <option value="business">Business</option>
+              <option value="technology">Technology</option>
+              <option value="science">Science</option>
+              <option value="health">Health</option>
+              <option value="sports">Sports</option>
+              <option value="entertainment">Entertainment</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="countryFilter">
+              <option value="">All Countries</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="languageFilter">
+              <option value="">All Languages</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <button class="btn btn-outline-secondary w-100" id="resetFilters" title="Reset Filters">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
         </div>
+      </div>
 
-        <!-- Category Quick Filters -->
-        <div class="category-filters mb-4">
-            <div class="d-flex flex-wrap">
-                <button class="tag-pill active-tag" data-category="">All</button>
-                <button class="tag-pill" data-category="general">General</button>
-                <button class="tag-pill" data-category="business">Business</button>
-                <button class="tag-pill" data-category="technology">Technology</button>
-                <button class="tag-pill" data-category="science">Science</button>
-                <button class="tag-pill" data-category="health">Health</button>
-                <button class="tag-pill" data-category="sports">Sports</button>
-                <button class="tag-pill" data-category="entertainment">Entertainment</button>
-            </div>
+      <!-- Category Quick Filters -->
+      <div class="category-filters mb-4">
+        <div class="d-flex flex-wrap">
+          <button class="tag-pill active-tag" data-category="">All</button>
+          <button class="tag-pill" data-category="general">General</button>
+          <button class="tag-pill" data-category="business">Business</button>
+          <button class="tag-pill" data-category="technology">Technology</button>
+          <button class="tag-pill" data-category="science">Science</button>
+          <button class="tag-pill" data-category="health">Health</button>
+          <button class="tag-pill" data-category="sports">Sports</button>
+          <button class="tag-pill" data-category="entertainment">Entertainment</button>
         </div>
+      </div>
 
-        <!-- News Grid -->
-        <div class="row g-4" id="newsGrid">
-            <!-- News articles will be dynamically added here -->
-        </div>
-        
-        <!-- Empty State -->
-        <div class="empty-state d-none" id="emptyState">
-            <i class="bi bi-newspaper empty-state-icon"></i>
-            <h3 class="empty-state-text">No news articles found</h3>
-            <p class="text-muted mb-4">Try adjusting your search or filter criteria</p>
-            <button class="btn btn-primary" id="resetAllFilters">Reset All Filters</button>
-        </div>
-        
-        <!-- Pagination -->
-        <nav aria-label="News pagination" class="my-5">
-            <ul class="pagination justify-content-center" id="pagination">
-                <!-- Pagination will be added dynamically -->
-            </ul>
-        </nav>
+      <!-- News Grid -->
+      <div class="row g-4" id="newsGrid">
+        <!-- News articles will be dynamically added here -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state d-none" id="emptyState">
+        <i class="bi bi-newspaper empty-state-icon"></i>
+        <h3 class="empty-state-text">No news articles found</h3>
+        <p class="text-muted mb-4">Try adjusting your search or filter criteria</p>
+        <button class="btn btn-primary" id="resetAllFilters">Reset All Filters</button>
+      </div>
+
+      <!-- Pagination -->
+      <nav aria-label="News pagination" class="my-5">
+        <ul class="pagination justify-content-center" id="pagination">
+          <!-- Pagination will be added dynamically -->
+        </ul>
+      </nav>
     </div>
-    
+
     <!-- Footer -->
     <footer class="bg-dark text-light py-5 mt-5">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <h5 class="mb-4">NewsWorld</h5>
-                    <p class="text-muted">Your trusted source for global news coverage. Stay informed with real-time updates and comprehensive analysis from multiple sources worldwide.</p>
-                    <div class="social-links d-flex gap-3 mt-4">
-                        <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-instagram"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-2 col-6">
-                    <h5 class="mb-4">Navigation</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/news" class="text-light">News</a></li>
-                        <li class="mb-2"><a href="/trends" class="text-light">Trends</a></li>
-                        <li class="mb-2"><a href="/sentiment" class="text-light">Sentiment</a></li>
-                        <li class="mb-2"><a href="/sources" class="text-light">Sources</a></li>
-                        <li class="mb-2"><a href="/status" class="text-light">Status</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2 col-6">
-                    <h5 class="mb-4">Categories</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/news?category=general" class="text-light">General</a></li>
-                        <li class="mb-2"><a href="/news?category=business" class="text-light">Business</a></li>
-                        <li class="mb-2"><a href="/news?category=technology" class="text-light">Technology</a></li>
-                        <li class="mb-2"><a href="/news?category=science" class="text-light">Science</a></li>
-                        <li class="mb-2"><a href="/news?category=health" class="text-light">Health</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="mb-4">Subscribe</h5>
-                    <p class="text-muted">Get the latest news delivered to your inbox daily</p>
-                    <div class="input-group mt-3">
-                        <input type="email" class="form-control" placeholder="Your email">
-                        <button class="btn btn-primary" type="button">Subscribe</button>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <h5 class="mb-4">NewsWorld</h5>
+            <p class="text-muted">
+              Your trusted source for global news coverage. Stay informed with real-time updates and comprehensive
+              analysis from multiple sources worldwide.
+            </p>
+            <div class="social-links d-flex gap-3 mt-4">
+              <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+              <a href="#" class="text-light"><i class="bi bi-instagram"></i></a>
             </div>
-            <hr class="my-4 border-light opacity-10">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; 2024 NewsWorld. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item"><a href="/privacy" class="text-light">Privacy Policy</a></li>
-                        <li class="list-inline-item"><span class="text-muted mx-2">|</span></li>
-                        <li class="list-inline-item"><a href="/terms" class="text-light">Terms of Use</a></li>
-                        <li class="list-inline-item"><span class="text-muted mx-2">|</span></li>
-                        <li class="list-inline-item"><a href="/sitemap" class="text-light">Sitemap</a></li>
-                    </ul>
-                </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <h5 class="mb-4">Navigation</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2"><a href="/news" class="text-light">News</a></li>
+              <li class="mb-2"><a href="/trends" class="text-light">Trends</a></li>
+              <li class="mb-2"><a href="/sentiment" class="text-light">Sentiment</a></li>
+              <li class="mb-2"><a href="/sources" class="text-light">Sources</a></li>
+              <li class="mb-2"><a href="/status" class="text-light">Status</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2 col-6">
+            <h5 class="mb-4">Categories</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2"><a href="/news?category=general" class="text-light">General</a></li>
+              <li class="mb-2"><a href="/news?category=business" class="text-light">Business</a></li>
+              <li class="mb-2"><a href="/news?category=technology" class="text-light">Technology</a></li>
+              <li class="mb-2"><a href="/news?category=science" class="text-light">Science</a></li>
+              <li class="mb-2"><a href="/news?category=health" class="text-light">Health</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-4">
+            <h5 class="mb-4">Subscribe</h5>
+            <p class="text-muted">Get the latest news delivered to your inbox daily</p>
+            <div class="input-group mt-3">
+              <input type="email" class="form-control" placeholder="Your email" />
+              <button class="btn btn-primary" type="button">Subscribe</button>
             </div>
+          </div>
         </div>
+        <hr class="my-4 border-light opacity-10" />
+        <div class="row align-items-center">
+          <div class="col-md-6 text-center text-md-start">
+            <p class="mb-0">&copy; 2024 NewsWorld. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <ul class="list-inline mb-0">
+              <li class="list-inline-item"><a href="/privacy" class="text-light">Privacy Policy</a></li>
+              <li class="list-inline-item"><span class="text-muted mx-2">|</span></li>
+              <li class="list-inline-item"><a href="/terms" class="text-light">Terms of Use</a></li>
+              <li class="list-inline-item"><span class="text-muted mx-2">|</span></li>
+              <li class="list-inline-item"><a href="/sitemap" class="text-light">Sitemap</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </footer>
-    
+
     <!-- JSON-LD for Schema.org structured data -->
     <script type="application/ld+json">
-    {
+      {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         "name": "Latest News Articles - NewsWorld",
         "url": "https://newsworld.com/news",
         "description": "Browse the latest global news articles from various sources on NewsWorld.",
         "publisher": {
-            "@type": "Organization",
-            "name": "NewsWorld",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
-                "width": 512,
-                "height": 512
-            }
+          "@type": "Organization",
+          "name": "NewsWorld",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
+            "width": 512,
+            "height": 512
+          }
         },
         "isPartOf": {
-            "@type": "WebSite",
-            "name": "NewsWorld",
-            "url": "https://newsworld.com"
+          "@type": "WebSite",
+          "name": "NewsWorld",
+          "url": "https://newsworld.com"
         }
-    }
+      }
     </script>
 
     <!-- Critical scripts first -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    
+
     <!-- App scripts -->
     <script src="/js/header.js"></script>
     <script src="/js/filter-handler.js"></script>
     <script src="/js/trending-keywords.js"></script>
     <script src="/scripts/news.js"></script>
     <script>
-        // Constants
-        const API_BASE_URL = '/api';
-        
-        // Debug logs to track script loading
-        console.log("News page script loaded");
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("News page: DOM Content Loaded");
-            
-            // Load header
-            fetch('/components/header.html')
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('header').innerHTML = html;
-                    console.log("Header loaded into news page");
-                    
-                    // Initialize Bootstrap components after header is loaded
-                    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-                    
-                    // Now that header is loaded, try to fetch trending keywords
-                    console.log("Calling tryFetchTrendingKeywords after header loaded in news page");
-                    if (typeof window.tryFetchTrendingKeywords === 'function') {
-                        window.tryFetchTrendingKeywords();
-                    } else if (typeof tryFetchTrendingKeywords === 'function') {
-                        tryFetchTrendingKeywords();
-                    } else {
-                        console.error("tryFetchTrendingKeywords function not available in news page!");
-                    }
-                })
-                .catch(err => {
-                    console.error("Error loading header in news page:", err);
-                });
+      // Constants
+      const API_BASE_URL = "/api";
 
-            // Initialize filters and load news
-            initializeFilters();
-            loadNewsWithAnimation(1);
-            setupEventListeners();
-            
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('search') || urlParams.has('category') || urlParams.has('country') || urlParams.has('language')) {
-                // Apply filters from URL
-                document.getElementById('searchInput').value = urlParams.get('search') || '';
-                document.getElementById('categoryFilter').value = urlParams.get('category') || '';
-                document.getElementById('countryFilter').value = urlParams.get('country') || '';
-                document.getElementById('languageFilter').value = urlParams.get('language') || '';
-                
-                // Update filters object
-                currentFilters.search = urlParams.get('search') || '';
-                currentFilters.category = urlParams.get('category') || '';
-                currentFilters.country = urlParams.get('country') || '';
-                currentFilters.language = urlParams.get('language') || '';
-                
-                // Update category pills
-                updateCategoryPills(currentFilters.category);
+      // Debug logs to track script loading
+      console.log("News page script loaded");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("News page: DOM Content Loaded");
+
+        // Load header
+        fetch("/components/header.html")
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById("header").innerHTML = html;
+            console.log("Header loaded into news page");
+
+            // Initialize Bootstrap components after header is loaded
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(
+              (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
+            );
+
+            // Now that header is loaded, try to fetch trending keywords
+            console.log("Calling tryFetchTrendingKeywords after header loaded in news page");
+            if (typeof window.tryFetchTrendingKeywords === "function") {
+              window.tryFetchTrendingKeywords();
+            } else if (typeof tryFetchTrendingKeywords === "function") {
+              tryFetchTrendingKeywords();
+            } else {
+              console.error("tryFetchTrendingKeywords function not available in news page!");
             }
-            
-            // Listen for source filter changes from header.js
-            document.addEventListener('sourceFilterChanged', function(e) {
-                showingAllNews = e.detail.showAll;
-                loadNewsWithAnimation(1); // Reset to first page when filter changes
-            });
+          })
+          .catch((err) => {
+            console.error("Error loading header in news page:", err);
+          });
+
+        // Initialize filters and load news
+        initializeFilters();
+        loadNewsWithAnimation(1);
+        setupEventListeners();
+
+        // Check for URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (
+          urlParams.has("search") ||
+          urlParams.has("category") ||
+          urlParams.has("country") ||
+          urlParams.has("language")
+        ) {
+          // Apply filters from URL
+          document.getElementById("searchInput").value = urlParams.get("search") || "";
+          document.getElementById("categoryFilter").value = urlParams.get("category") || "";
+          document.getElementById("countryFilter").value = urlParams.get("country") || "";
+          document.getElementById("languageFilter").value = urlParams.get("language") || "";
+
+          // Update filters object
+          currentFilters.search = urlParams.get("search") || "";
+          currentFilters.category = urlParams.get("category") || "";
+          currentFilters.country = urlParams.get("country") || "";
+          currentFilters.language = urlParams.get("language") || "";
+
+          // Update category pills
+          updateCategoryPills(currentFilters.category);
+        }
+
+        // Listen for source filter changes from header.js
+        document.addEventListener("sourceFilterChanged", function (e) {
+          showingAllNews = e.detail.showAll;
+          loadNewsWithAnimation(1); // Reset to first page when filter changes
+        });
+      });
+
+      // Initialize country and language dropdowns
+      function initializeFilters() {
+        const countryFilter = document.getElementById("countryFilter");
+        const languageFilter = document.getElementById("languageFilter");
+
+        // Populate country dropdowns
+        Object.entries(COUNTRIES).forEach(([code, name]) => {
+          countryFilter.add(new Option(name, code));
         });
 
-        // Initialize country and language dropdowns
-        function initializeFilters() {
-            const countryFilter = document.getElementById('countryFilter');
-            const languageFilter = document.getElementById('languageFilter');
+        // Populate language dropdowns
+        Object.entries(LANGUAGES).forEach(([code, name]) => {
+          languageFilter.add(new Option(name, code));
+        });
+      }
 
-            // Populate country dropdowns
-            Object.entries(COUNTRIES).forEach(([code, name]) => {
-                countryFilter.add(new Option(name, code));
-            });
+      // Load news with loading animation
+      function loadNewsWithAnimation(page = 1) {
+        loading.classList.remove("d-none");
+        setTimeout(() => loadNews(page), 300); // Small delay for better UX
+      }
 
-            // Populate language dropdowns
-            Object.entries(LANGUAGES).forEach(([code, name]) => {
-                languageFilter.add(new Option(name, code));
-            });
-        }
+      // Load news from API
+      async function loadNews(page = 1) {
+        try {
+          currentPage = page;
 
-        // Load news with loading animation
-        function loadNewsWithAnimation(page = 1) {
-            loading.classList.remove('d-none');
-            setTimeout(() => loadNews(page), 300); // Small delay for better UX
-        }
+          // Build query parameters
+          const searchTerm = document.getElementById("searchInput").value.trim();
+          const category = document.getElementById("categoryFilter").value;
+          const country = document.getElementById("countryFilter").value;
+          const language = document.getElementById("languageFilter").value;
+          const status = document.getElementById("statusFilter").value;
 
-        // Load news from API
-        async function loadNews(page = 1) {
-            try {
-                currentPage = page;
-                
-                // Build query parameters
-                const searchTerm = document.getElementById('searchInput').value.trim();
-                const category = document.getElementById('categoryFilter').value;
-                const country = document.getElementById('countryFilter').value;
-                const language = document.getElementById('languageFilter').value;
-                const status = document.getElementById('statusFilter').value;
-                
-                // Update currentFilters
-                currentFilters = {
-                    search: searchTerm,
-                    category: category,
-                    country: country,
-                    language: language,
-                    status: status
-                };
-                
-                const params = new URLSearchParams({
-                    page: page,
-                    limit: pageSize,
-                    filter: showingAllNews ? 'all' : 'mine'
-                });
-                
-                if (searchTerm) params.append('search', searchTerm);
-                if (category) params.append('category', category);
-                if (country) params.append('country', country);
-                if (language) params.append('language', language);
-                if (status) params.append('status', status);
-                
-                const response = await fetch(`${API_BASE_URL}/news?${params.toString()}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentNews = data.data;
-                    totalPages = Math.ceil((data.total || data.count) / pageSize);
-                    renderNews();
-                    renderPagination();
-                    
-                    // Update URL with filters for shareable links
-                    updateUrlWithFilters();
-                }
-            } catch (error) {
-                console.error('Error loading news:', error);
-                newsGrid.innerHTML = `
+          // Update currentFilters
+          currentFilters = {
+            search: searchTerm,
+            category: category,
+            country: country,
+            language: language,
+            status: status,
+          };
+
+          const params = new URLSearchParams({
+            page: page,
+            limit: pageSize,
+            filter: showingAllNews ? "all" : "mine",
+          });
+
+          if (searchTerm) params.append("search", searchTerm);
+          if (category) params.append("category", category);
+          if (country) params.append("country", country);
+          if (language) params.append("language", language);
+          if (status) params.append("status", status);
+
+          const response = await fetch(`${API_BASE_URL}/news?${params.toString()}`);
+          const data = await response.json();
+
+          if (data.success) {
+            currentNews = data.data;
+            totalPages = Math.ceil((data.total || data.count) / pageSize);
+            renderNews();
+            renderPagination();
+
+            // Update URL with filters for shareable links
+            updateUrlWithFilters();
+          }
+        } catch (error) {
+          console.error("Error loading news:", error);
+          newsGrid.innerHTML = `
                     <div class="col-12">
                         <div class="empty-state">
                             <i class="bi bi-exclamation-circle empty-state-icon"></i>
@@ -766,68 +794,75 @@
                         </div>
                     </div>
                 `;
-            } finally {
-                loading.classList.add('d-none');
-            }
+        } finally {
+          loading.classList.add("d-none");
+        }
+      }
+
+      // Render news grid
+      function renderNews() {
+        newsGrid.innerHTML = "";
+
+        if (currentNews.length === 0) {
+          emptyState.classList.remove("d-none");
+          return;
         }
 
-        // Render news grid
-        function renderNews() {
-            newsGrid.innerHTML = '';
-            
-            if (currentNews.length === 0) {
-                emptyState.classList.remove('d-none');
-                return;
-            }
-            
-            emptyState.classList.add('d-none');
-            
-            // Create a document fragment for better performance
-            const fragment = document.createDocumentFragment();
-            
-            currentNews.forEach(article => {
-                const card = document.createElement('div');
-                card.className = 'col-md-6 col-lg-4 mb-4 news-item';
-                card.dataset.category = article.categories[0] || '';
-                
-                // Format publication date
-                const pubDate = new Date(article.publishedAt).toLocaleDateString();
-                
-                // Get sentiment class
-                let sentimentClass = 'sentiment-neutral';
-                let sentimentIcon = '<i class="bi bi-emoji-neutral"></i>';
-                let sentimentText = 'Neutral';
-                
-                if (article.sentimentAssessment === 'positive') {
-                    sentimentClass = 'sentiment-positive';
-                    sentimentIcon = '<i class="bi bi-emoji-smile"></i>';
-                    sentimentText = 'Positive';
-                } else if (article.sentimentAssessment === 'negative') {
-                    sentimentClass = 'sentiment-negative';
-                    sentimentIcon = '<i class="bi bi-emoji-frown"></i>';
-                    sentimentText = 'Negative';
-                }
-                
-                // Create article card with lazy loading for images
-                card.innerHTML = `
+        emptyState.classList.add("d-none");
+
+        // Create a document fragment for better performance
+        const fragment = document.createDocumentFragment();
+
+        currentNews.forEach((article) => {
+          const card = document.createElement("div");
+          card.className = "col-md-6 col-lg-4 mb-4 news-item";
+          card.dataset.category = article.categories[0] || "";
+
+          // Format publication date
+          const pubDate = new Date(article.publishedAt).toLocaleDateString();
+
+          // Get sentiment class
+          let sentimentClass = "sentiment-neutral";
+          let sentimentIcon = '<i class="bi bi-emoji-neutral"></i>';
+          let sentimentText = "Neutral";
+
+          if (article.sentimentAssessment === "positive") {
+            sentimentClass = "sentiment-positive";
+            sentimentIcon = '<i class="bi bi-emoji-smile"></i>';
+            sentimentText = "Positive";
+          } else if (article.sentimentAssessment === "negative") {
+            sentimentClass = "sentiment-negative";
+            sentimentIcon = '<i class="bi bi-emoji-frown"></i>';
+            sentimentText = "Negative";
+          }
+
+          // Create article card with lazy loading for images
+          card.innerHTML = `
                     <div class="card news-card h-100">
                         <div class="position-relative overflow-hidden">
-                            ${article.categories && article.categories.length > 0 ? 
-                                `<div class="category-badge">${article.categories[0]}</div>` : ''}
-                            ${article.imageUrl ? `
+                            ${
+                              article.categories && article.categories.length > 0
+                                ? `<div class="category-badge">${article.categories[0]}</div>`
+                                : ""
+                            }
+                            ${
+                              article.imageUrl
+                                ? `
                                 <img src="${article.imageUrl}" 
                                     class="card-img-top" alt="${article.title}"
                                     loading="lazy">
-                            ` : `
+                            `
+                                : `
                               
-                            `}
+                            `
+                            }
                         </div>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">${article.title}</h5>
                             <div class="sentiment-indicator ${sentimentClass} mb-2">
                                 ${sentimentIcon} ${sentimentText} Sentiment
                             </div>
-                            <p class="card-text">${article.description || 'No description available'}</p>
+                            <p class="card-text">${article.description || "No description available"}</p>
                             
                             <div class="meta-info mt-auto">
                                 <span>
@@ -862,218 +897,222 @@
                         </div>
                     </div>
                 `;
-                
-                fragment.appendChild(card);
-            });
-            
-            newsGrid.appendChild(fragment);
-            
-            // Add fade-in animation
+
+          fragment.appendChild(card);
+        });
+
+        newsGrid.appendChild(fragment);
+
+        // Add fade-in animation
+        setTimeout(() => {
+          document.querySelectorAll(".news-item").forEach((item, index) => {
             setTimeout(() => {
-                document.querySelectorAll('.news-item').forEach((item, index) => {
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateY(0)';
-                        item.classList.add('show');
-                    }, index * 50);
-                });
-            }, 100);
-            
-            // Generate structured data for articles
-            generateArticlesStructuredData(currentNews);
-        }
-        
-        // Generate JSON-LD structured data for the current articles
-        function generateArticlesStructuredData(articles) {
-            if (!articles || articles.length === 0) return;
-            
-            // Remove existing articles schema if any
-            const existingSchema = document.getElementById('articles-schema');
-            if (existingSchema) existingSchema.remove();
-            
-            // Create schema for articles list
-            const articlesSchema = {
-                "@context": "https://schema.org",
-                "@type": "ItemList",
-                "itemListElement": articles.map((article, index) => ({
-                    "@type": "ListItem",
-                    "position": index + 1,
-                    "item": {
-                        "@type": "NewsArticle",
-                        "headline": article.title,
-                        "url": `https://newsworld.com/news/${article._id}`,
-                        "datePublished": article.publishedAt,
-                        "description": article.description || "",
-                        "image": article.imageUrl || "https://newsworld.com/favicon/android-chrome-512x512.png",
-                        "author": {
-                            "@type": "Person",
-                            "name": article.author || article.source.name
-                        },
-                        "publisher": {
-                            "@type": "Organization",
-                            "name": article.source.name,
-                            "logo": {
-                                "@type": "ImageObject",
-                                "url": "https://newsworld.com/favicon/android-chrome-512x512.png",
-                                "width": 512,
-                                "height": 512
-                            }
-                        },
-                        "mainEntityOfPage": {
-                            "@type": "WebPage",
-                            "@id": `https://newsworld.com/news/${article._id}`
-                        }
-                    }
-                }))
-            };
-            
-            // Add schema to page
-            const script = document.createElement('script');
-            script.id = 'articles-schema';
-            script.type = 'application/ld+json';
-            script.textContent = JSON.stringify(articlesSchema);
-            document.head.appendChild(script);
-        }
-        
-        // Render pagination controls
-        function renderPagination() {
-            pagination.innerHTML = '';
-            
-            if (totalPages <= 1) return;
-            
-            // Previous button
-            const prevLi = document.createElement('li');
-            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-            prevLi.innerHTML = `
-                <a class="page-link" href="#" aria-label="Previous" ${currentPage > 1 ? 'onclick="loadNewsWithAnimation(' + (currentPage - 1) + '); return false;"' : ''}>
+              item.style.opacity = "1";
+              item.style.transform = "translateY(0)";
+              item.classList.add("show");
+            }, index * 50);
+          });
+        }, 100);
+
+        // Generate structured data for articles
+        generateArticlesStructuredData(currentNews);
+      }
+
+      // Generate JSON-LD structured data for the current articles
+      function generateArticlesStructuredData(articles) {
+        if (!articles || articles.length === 0) return;
+
+        // Remove existing articles schema if any
+        const existingSchema = document.getElementById("articles-schema");
+        if (existingSchema) existingSchema.remove();
+
+        // Create schema for articles list
+        const articlesSchema = {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: articles.map((article, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@type": "NewsArticle",
+              headline: article.title,
+              url: `https://newsworld.com/news/${article._id}`,
+              datePublished: article.publishedAt,
+              description: article.description || "",
+              image: article.imageUrl || "https://newsworld.com/favicon/android-chrome-512x512.png",
+              author: {
+                "@type": "Person",
+                name: article.author || article.source.name,
+              },
+              publisher: {
+                "@type": "Organization",
+                name: article.source.name,
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://newsworld.com/favicon/android-chrome-512x512.png",
+                  width: 512,
+                  height: 512,
+                },
+              },
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": `https://newsworld.com/news/${article._id}`,
+              },
+            },
+          })),
+        };
+
+        // Add schema to page
+        const script = document.createElement("script");
+        script.id = "articles-schema";
+        script.type = "application/ld+json";
+        script.textContent = JSON.stringify(articlesSchema);
+        document.head.appendChild(script);
+      }
+
+      // Render pagination controls
+      function renderPagination() {
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        // Previous button
+        const prevLi = document.createElement("li");
+        prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+        prevLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Previous" ${
+                  currentPage > 1 ? 'onclick="loadNewsWithAnimation(' + (currentPage - 1) + '); return false;"' : ""
+                }>
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             `;
-            pagination.appendChild(prevLi);
-            
-            // Page numbers
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(totalPages, startPage + 4);
-            
-            for (let i = startPage; i <= endPage; i++) {
-                const pageLi = document.createElement('li');
-                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                pageLi.innerHTML = `
+        pagination.appendChild(prevLi);
+
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, startPage + 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+          const pageLi = document.createElement("li");
+          pageLi.className = `page-item ${i === currentPage ? "active" : ""}`;
+          pageLi.innerHTML = `
                     <a class="page-link" href="#" onclick="loadNewsWithAnimation(${i}); return false;">${i}</a>
                 `;
-                pagination.appendChild(pageLi);
-            }
-            
-            // Next button
-            const nextLi = document.createElement('li');
-            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-            nextLi.innerHTML = `
-                <a class="page-link" href="#" aria-label="Next" ${currentPage < totalPages ? 'onclick="loadNewsWithAnimation(' + (currentPage + 1) + '); return false;"' : ''}>
+          pagination.appendChild(pageLi);
+        }
+
+        // Next button
+        const nextLi = document.createElement("li");
+        nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+        nextLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Next" ${
+                  currentPage < totalPages
+                    ? 'onclick="loadNewsWithAnimation(' + (currentPage + 1) + '); return false;"'
+                    : ""
+                }>
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             `;
-            pagination.appendChild(nextLi);
-        }
+        pagination.appendChild(nextLi);
+      }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Filter news
-            document.getElementById('searchInput').addEventListener('input', debounce(filterNews, 500));
-            document.getElementById('searchButton').addEventListener('click', filterNews);
-            document.getElementById('searchInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    filterNews();
-                }
-            });
-            document.getElementById('categoryFilter').addEventListener('change', function() {
-                const selectedCategory = this.value;
-                updateCategoryPills(selectedCategory);
-                filterNews();
-            });
-            document.getElementById('countryFilter').addEventListener('change', filterNews);
-            document.getElementById('languageFilter').addEventListener('change', filterNews);
-            document.getElementById('statusFilter').addEventListener('change', filterNews);
-            
-            // Reset filters
-            resetFiltersBtn.addEventListener('click', resetFilters);
-            resetAllFiltersBtn.addEventListener('click', resetFilters);
-            
-            // Category pills
-            categoryPills.forEach(pill => {
-                pill.addEventListener('click', function() {
-                    const category = this.getAttribute('data-category');
-                    document.getElementById('categoryFilter').value = category;
-                    updateCategoryPills(category);
-                    filterNews();
-                });
-            });
-        }
-        
-        // Update category pills active state
-        function updateCategoryPills(selectedCategory) {
-            categoryPills.forEach(pill => {
-                pill.classList.remove('active-tag');
-                if (pill.getAttribute('data-category') === selectedCategory) {
-                    pill.classList.add('active-tag');
-                }
-            });
-        }
+      // Setup event listeners
+      function setupEventListeners() {
+        // Filter news
+        document.getElementById("searchInput").addEventListener("input", debounce(filterNews, 500));
+        document.getElementById("searchButton").addEventListener("click", filterNews);
+        document.getElementById("searchInput").addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            filterNews();
+          }
+        });
+        document.getElementById("categoryFilter").addEventListener("change", function () {
+          const selectedCategory = this.value;
+          updateCategoryPills(selectedCategory);
+          filterNews();
+        });
+        document.getElementById("countryFilter").addEventListener("change", filterNews);
+        document.getElementById("languageFilter").addEventListener("change", filterNews);
+        document.getElementById("statusFilter").addEventListener("change", filterNews);
 
-        // Filter news based on search and filter criteria
-        function filterNews() {
-            loadNewsWithAnimation(1); // Reset to first page when filtering
-        }
-        
-        // Reset all filters
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('categoryFilter').value = '';
-            document.getElementById('countryFilter').value = '';
-            document.getElementById('languageFilter').value = '';
-            document.getElementById('statusFilter').value = '';
-            
-            // Reset currentFilters object
-            currentFilters = {
-                search: '',
-                category: '',
-                country: '',
-                language: '',
-                status: ''
-            };
-            
-            // Reset category pills
-            updateCategoryPills('');
-            
-            // Load news with reset filters
-            loadNewsWithAnimation(1);
-        }
-        
-        // Update URL with current filters
-        function updateUrlWithFilters() {
-            const params = new URLSearchParams();
-            if (currentFilters.search) params.append('search', currentFilters.search);
-            if (currentFilters.category) params.append('category', currentFilters.category);
-            if (currentFilters.country) params.append('country', currentFilters.country);
-            if (currentFilters.language) params.append('language', currentFilters.language);
-            
-            // Update URL without reloading page
-            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-            window.history.pushState({}, '', newUrl);
-        }
-        
-        // Debounce function for search input
-        function debounce(func, delay) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), delay);
-            };
-        }
+        // Reset filters
+        resetFiltersBtn.addEventListener("click", resetFilters);
+        resetAllFiltersBtn.addEventListener("click", resetFilters);
+
+        // Category pills
+        categoryPills.forEach((pill) => {
+          pill.addEventListener("click", function () {
+            const category = this.getAttribute("data-category");
+            document.getElementById("categoryFilter").value = category;
+            updateCategoryPills(category);
+            filterNews();
+          });
+        });
+      }
+
+      // Update category pills active state
+      function updateCategoryPills(selectedCategory) {
+        categoryPills.forEach((pill) => {
+          pill.classList.remove("active-tag");
+          if (pill.getAttribute("data-category") === selectedCategory) {
+            pill.classList.add("active-tag");
+          }
+        });
+      }
+
+      // Filter news based on search and filter criteria
+      function filterNews() {
+        loadNewsWithAnimation(1); // Reset to first page when filtering
+      }
+
+      // Reset all filters
+      function resetFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("categoryFilter").value = "";
+        document.getElementById("countryFilter").value = "";
+        document.getElementById("languageFilter").value = "";
+        document.getElementById("statusFilter").value = "";
+
+        // Reset currentFilters object
+        currentFilters = {
+          search: "",
+          category: "",
+          country: "",
+          language: "",
+          status: "",
+        };
+
+        // Reset category pills
+        updateCategoryPills("");
+
+        // Load news with reset filters
+        loadNewsWithAnimation(1);
+      }
+
+      // Update URL with current filters
+      function updateUrlWithFilters() {
+        const params = new URLSearchParams();
+        if (currentFilters.search) params.append("search", currentFilters.search);
+        if (currentFilters.category) params.append("category", currentFilters.category);
+        if (currentFilters.country) params.append("country", currentFilters.country);
+        if (currentFilters.language) params.append("language", currentFilters.language);
+
+        // Update URL without reloading page
+        const newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+        window.history.pushState({}, "", newUrl);
+      }
+
+      // Debounce function for search input
+      function debounce(func, delay) {
+        let timeout;
+        return function () {
+          const context = this;
+          const args = arguments;
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+      }
     </script>
-</body>
+  </body>
 </html>
-
-

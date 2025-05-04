@@ -1,16 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#0d6efd" />
-            <stop offset="100%" stop-color="#0143a3" />
-        </linearGradient>
-        <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="15" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-    </defs>
-    <rect width="512" height="512" fill="url(#bg-gradient)" rx="100"/>
-    <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8" />
-    <text x="256" y="256" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" filter="url(#soft-glow)">N</text>
+<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for shadow depth -->
+    <linearGradient id="shadowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 3D background shadow -->
+  <polygon points="20,35 190,30 190,175 60,180" fill="url(#shadowGradient)" />
+
+  <!-- Main newspaper body with slight perspective -->
+  <path d="M20,35 L190,30 L190,175 C160,160 130,185 100,190 C70,195 50,180 50,180 L20,175 Z" 
+        fill="#f0f9ff" stroke="#0369a1" stroke-width="3"/>
+
+  <!-- Newspaper vertical fold line -->
+  <path d="M105,35 L105,180" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4"/>
+
+  <!-- Newspaper title -->
+  <text x="105" y="27" font-family="Georgia, serif" font-weight="bold" font-size="18" fill="#0c4a6e" text-anchor="middle">NEWSWORLD</text>
+
+  <!-- Left headline box -->
+  <rect x="30" y="48" width="60" height="16" rx="2" ry="2" fill="#0c4a6e"/>
+  <rect x="30" y="70" width="50" height="8" rx="2" ry="2" fill="#075985"/>
+
+  <!-- Left article lines -->
+  <rect x="30" y="88" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="30" y="100" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="30" y="112" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="30" y="124" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="30" y="136" width="45" height="6" rx="1" ry="1" fill="#0284c7"/>
+
+  <!-- Right image box -->
+  <rect x="115" y="50" width="60" height="50" rx="2" ry="2" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5"/>
+
+  <!-- Right article lines -->
+  <rect x="115" y="105" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="115" y="117" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="115" y="129" width="60" height="6" rx="1" ry="1" fill="#0284c7"/>
+  <rect x="115" y="141" width="45" height="6" rx="1" ry="1" fill="#0284c7"/>
+
+  <!-- Folded corner effect -->
+  <polygon points="185,170 175,180 190,180" fill="#dbeafe" stroke="#0369a1" stroke-width="0.5"/>
 </svg>

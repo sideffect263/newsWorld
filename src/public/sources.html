@@ -1,403 +1,419 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'G-VL0BHL7LPW');
-</script>
+      gtag("config", "G-VL0BHL7LPW");
+    </script>
     <title>NewsWorld Source Management</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="/styles/main.css" />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-        }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
-        }
-        .source-card {
-            transition: transform 0.2s;
-        }
-        .source-card:hover {
-            transform: translateY(-2px);
-        }
-        .status-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .source-actions {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
-        .filter-bar {
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #212529;
+      }
+      .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        border: none;
+      }
+      .source-card {
+        transition: transform 0.2s;
+      }
+      .source-card:hover {
+        transform: translateY(-2px);
+      }
+      .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .source-actions {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+      }
+      .filter-bar {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="loading" class="loading d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
 
     <!-- Include common header -->
     <div id="header"></div>
 
-    <div class="container " style="padding-top: 150px !important;">
-        <!-- Explanation Section -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="bi bi-info-circle"></i> How to Manage News Sources
-                </h5>
-                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#explanationContent">
-                    <i class="bi bi-chevron-down"></i>
-                </button>
+    <div class="container" style="padding-top: 150px !important">
+      <!-- Explanation Section -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-info-circle"></i> How to Manage News Sources</h5>
+          <button
+            class="btn btn-sm btn-outline-primary"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#explanationContent"
+          >
+            <i class="bi bi-chevron-down"></i>
+          </button>
+        </div>
+        <div class="collapse show" id="explanationContent">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6><i class="bi bi-plus-circle"></i> Adding a New Source</h6>
+                <ol class="mb-4">
+                  <li>Click the "Add Source" button in the top-right corner</li>
+                  <li>
+                    Fill in the required information:
+                    <ul>
+                      <li><strong>Name:</strong> A descriptive name for the source</li>
+                      <li><strong>URL:</strong> The main website URL</li>
+                      <li><strong>Category:</strong> The primary news category</li>
+                      <li><strong>Country & Language:</strong> Source's origin and language</li>
+                    </ul>
+                  </li>
+                  <li>
+                    Choose a fetch method:
+                    <ul>
+                      <li><strong>RSS Feed:</strong> Provide the RSS feed URL</li>
+                      <li><strong>API:</strong> Configure API settings in JSON format</li>
+                      <li><strong>Web Scraping:</strong> The system will scrape the website</li>
+                    </ul>
+                  </li>
+                  <li>Toggle "Active" to enable/disable the source</li>
+                  <li>Click "Save Source" to add it to the system</li>
+                </ol>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="bi bi-gear"></i> Managing Sources</h6>
+                <ul class="mb-4">
+                  <li>
+                    <strong>Test Source:</strong> <i class="bi bi-play-fill"></i> - Verify the source configuration
+                  </li>
+                  <li><strong>Edit Source:</strong> <i class="bi bi-pencil"></i> - Modify settings</li>
+                  <li><strong>Delete Source:</strong> <i class="bi bi-trash"></i> - Remove from system</li>
+                </ul>
+
+                <h6><i class="bi bi-funnel"></i> Filtering Sources</h6>
+                <ul>
+                  <li>Use the search bar to find sources by name or URL</li>
+                  <li>Filter by category, country, language, or status</li>
+                  <li>Active sources are marked with a green badge</li>
+                  <li>Inactive sources are marked with a red badge</li>
+                </ul>
+              </div>
             </div>
-            <div class="collapse show" id="explanationContent">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-plus-circle"></i> Adding a New Source</h6>
-                            <ol class="mb-4">
-                                <li>Click the "Add Source" button in the top-right corner</li>
-                                <li>Fill in the required information:
-                                    <ul>
-                                        <li><strong>Name:</strong> A descriptive name for the source</li>
-                                        <li><strong>URL:</strong> The main website URL</li>
-                                        <li><strong>Category:</strong> The primary news category</li>
-                                        <li><strong>Country & Language:</strong> Source's origin and language</li>
-                                    </ul>
-                                </li>
-                                <li>Choose a fetch method:
-                                    <ul>
-                                        <li><strong>RSS Feed:</strong> Provide the RSS feed URL</li>
-                                        <li><strong>API:</strong> Configure API settings in JSON format</li>
-                                        <li><strong>Web Scraping:</strong> The system will scrape the website</li>
-                                    </ul>
-                                </li>
-                                <li>Toggle "Active" to enable/disable the source</li>
-                                <li>Click "Save Source" to add it to the system</li>
-                            </ol>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-gear"></i> Managing Sources</h6>
-                            <ul class="mb-4">
-                                <li><strong>Test Source:</strong> <i class="bi bi-play-fill"></i> - Verify the source configuration</li>
-                                <li><strong>Edit Source:</strong> <i class="bi bi-pencil"></i> - Modify settings</li>
-                                <li><strong>Delete Source:</strong> <i class="bi bi-trash"></i> - Remove from system</li>
-                            </ul>
 
-                            <h6><i class="bi bi-funnel"></i> Filtering Sources</h6>
-                            <ul>
-                                <li>Use the search bar to find sources by name or URL</li>
-                                <li>Filter by category, country, language, or status</li>
-                                <li>Active sources are marked with a green badge</li>
-                                <li>Inactive sources are marked with a red badge</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-info mt-3 mb-0">
-                        <i class="bi bi-lightbulb"></i> <strong>Tip:</strong> 
-                        For RSS feeds, look for RSS/Atom feed links on the news website, usually marked with <i class="bi bi-rss"></i> icon.
-                        Test the source after adding to ensure proper configuration.
-                    </div>
-                </div>
+            <div class="alert alert-info mt-3 mb-0">
+              <i class="bi bi-lightbulb"></i> <strong>Tip:</strong> For RSS feeds, look for RSS/Atom feed links on the
+              news website, usually marked with <i class="bi bi-rss"></i> icon. Test the source after adding to ensure
+              proper configuration.
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Search sources...">
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="categoryFilter">
-                        <option value="">All Categories</option>
-                        <option value="general">General</option>
-                        <option value="business">Business</option>
-                        <option value="technology">Technology</option>
-                        <option value="science">Science</option>
-                        <option value="health">Health</option>
-                        <option value="sports">Sports</option>
-                        <option value="entertainment">Entertainment</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="countryFilter">
-                        <option value="">All Countries</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="languageFilter">
-                        <option value="">All Languages</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="statusFilter">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="error">Error</option>
-                    </select>
-                </div>
-            </div>
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search sources..." />
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              <option value="general">General</option>
+              <option value="business">Business</option>
+              <option value="technology">Technology</option>
+              <option value="science">Science</option>
+              <option value="health">Health</option>
+              <option value="sports">Sports</option>
+              <option value="entertainment">Entertainment</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="countryFilter">
+              <option value="">All Countries</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="languageFilter">
+              <option value="">All Languages</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
         </div>
+      </div>
 
-        <!-- Action Button -->
-        <div class="d-flex justify-content-end mb-4">
-            <button id="addSourceBtn" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add New Source
-            </button>
-        </div>
+      <!-- Action Button -->
+      <div class="d-flex justify-content-end mb-4">
+        <button id="addSourceBtn" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add New Source</button>
+      </div>
 
-        <!-- Sources Grid -->
-        <div class="row" id="sourcesGrid">
-            <!-- Sources will be dynamically added here -->
-        </div>
+      <!-- Sources Grid -->
+      <div class="row" id="sourcesGrid">
+        <!-- Sources will be dynamically added here -->
+      </div>
     </div>
 
     <!-- Add/Edit Source Modal -->
     <div class="modal fade" id="sourceModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="sourceModalTitle">Add New Source</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sourceModalTitle">Add New Source</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="sourceForm">
+              <input type="hidden" id="sourceId" />
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Name</label>
+                  <input type="text" class="form-control" id="sourceName" required />
                 </div>
-                <div class="modal-body">
-                    <form id="sourceForm">
-                        <input type="hidden" id="sourceId">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Name</label>
-                                <input type="text" class="form-control" id="sourceName" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">URL</label>
-                                <input type="url" class="form-control" id="sourceUrl" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Category</label>
-                                <select class="form-select" id="sourceCategory" required>
-                                    <option value="general">General</option>
-                                    <option value="business">Business</option>
-                                    <option value="technology">Technology</option>
-                                    <option value="science">Science</option>
-                                    <option value="health">Health</option>
-                                    <option value="sports">Sports</option>
-                                    <option value="entertainment">Entertainment</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Country</label>
-                                <select class="form-select" id="sourceCountry" required>
-                                    <!-- Will be populated dynamically -->
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Language</label>
-                                <select class="form-select" id="sourceLanguage" required>
-                                    <!-- Will be populated dynamically -->
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Fetch Method</label>
-                                <select class="form-select" id="sourceFetchMethod" required>
-                                    <option value="rss">RSS Feed</option>
-                                    <option value="api">API</option>
-                                    <option value="scraping">Web Scraping</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6" id="feedUrlContainer">
-                                <label class="form-label">Feed URL</label>
-                                <input type="url" class="form-control" id="sourceFeedUrl">
-                                <small class="text-muted">Required for RSS feeds</small>
-                            </div>
-                            <div class="col-12" id="apiConfigContainer">
-                                <label class="form-label">API Configuration</label>
-                                <textarea class="form-control" id="sourceApiConfig" rows="3" placeholder="Enter API configuration in JSON format"></textarea>
-                                <small class="text-muted">Required for API sources</small>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="sourceActive" checked>
-                                    <label class="form-check-label">Active</label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                <div class="col-md-6">
+                  <label class="form-label">URL</label>
+                  <input type="url" class="form-control" id="sourceUrl" required />
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveSourceBtn">Save Source</button>
+                <div class="col-md-4">
+                  <label class="form-label">Category</label>
+                  <select class="form-select" id="sourceCategory" required>
+                    <option value="general">General</option>
+                    <option value="business">Business</option>
+                    <option value="technology">Technology</option>
+                    <option value="science">Science</option>
+                    <option value="health">Health</option>
+                    <option value="sports">Sports</option>
+                    <option value="entertainment">Entertainment</option>
+                  </select>
                 </div>
-            </div>
+                <div class="col-md-4">
+                  <label class="form-label">Country</label>
+                  <select class="form-select" id="sourceCountry" required>
+                    <!-- Will be populated dynamically -->
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Language</label>
+                  <select class="form-select" id="sourceLanguage" required>
+                    <!-- Will be populated dynamically -->
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fetch Method</label>
+                  <select class="form-select" id="sourceFetchMethod" required>
+                    <option value="rss">RSS Feed</option>
+                    <option value="api">API</option>
+                    <option value="scraping">Web Scraping</option>
+                  </select>
+                </div>
+                <div class="col-md-6" id="feedUrlContainer">
+                  <label class="form-label">Feed URL</label>
+                  <input type="url" class="form-control" id="sourceFeedUrl" />
+                  <small class="text-muted">Required for RSS feeds</small>
+                </div>
+                <div class="col-12" id="apiConfigContainer">
+                  <label class="form-label">API Configuration</label>
+                  <textarea
+                    class="form-control"
+                    id="sourceApiConfig"
+                    rows="3"
+                    placeholder="Enter API configuration in JSON format"
+                  ></textarea>
+                  <small class="text-muted">Required for API sources</small>
+                </div>
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="sourceActive" checked />
+                    <label class="form-check-label">Active</label>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveSourceBtn">Save Source</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Delete Source</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this source? This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete Source</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this source? This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/filter-handler.js"></script>
     <script src="/scripts/sources.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load header
-            fetch('/components/header.html')
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('header').innerHTML = html;
-                });
+      document.addEventListener("DOMContentLoaded", () => {
+        // Load header
+        fetch("/components/header.html")
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById("header").innerHTML = html;
+          });
 
-            // Initialize sources
-            loadSources();
+        // Initialize sources
+        loadSources();
 
-            async function loadSources() {
-                document.getElementById('loading').classList.remove('d-none');
-                try {
-                    const res = await fetch(`/api/sources`);
-                    const data = await res.json();
-                    if (data.success) {
-                        renderSources(data.data);
-                    } else {
-                        alert(data.message);
-                    }
-                } catch (err) {
-                    console.error('Error loading sources:', err);
-                    alert('Error loading sources. Please try again.');
-                } finally {
-                    document.getElementById('loading').classList.add('d-none');
-                }
+        async function loadSources() {
+          document.getElementById("loading").classList.remove("d-none");
+          try {
+            const res = await fetch(`/api/sources`);
+            const data = await res.json();
+            if (data.success) {
+              renderSources(data.data);
+            } else {
+              alert(data.message);
             }
+          } catch (err) {
+            console.error("Error loading sources:", err);
+            alert("Error loading sources. Please try again.");
+          } finally {
+            document.getElementById("loading").classList.add("d-none");
+          }
+        }
 
-            function renderSources(sources) {
-                const sourcesGrid = document.getElementById('sourcesGrid');
-                sourcesGrid.innerHTML = '';
+        function renderSources(sources) {
+          const sourcesGrid = document.getElementById("sourcesGrid");
+          sourcesGrid.innerHTML = "";
 
-                if (!sources || sources.length === 0) {
-                    sourcesGrid.innerHTML = `
+          if (!sources || sources.length === 0) {
+            sourcesGrid.innerHTML = `
                         <div class="col-12">
                             <div class="alert alert-info">
                                 No sources available. Add a new source to get started!
                             </div>
                         </div>
                     `;
-                    return;
-                }
+            return;
+          }
 
-                sources.forEach(source => {
-                    const sourceCard = document.createElement('div');
-                    sourceCard.className = 'col-md-4 mb-4';
-                    sourceCard.innerHTML = `
+          sources.forEach((source) => {
+            const sourceCard = document.createElement("div");
+            sourceCard.className = "col-md-4 mb-4";
+            sourceCard.innerHTML = `
                         <div class="card source-card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">${source.name}</h5>
-                                <p class="card-text">${source.description || ''}</p>
+                                <p class="card-text">${source.description || ""}</p>
                                 <div class="mb-2">
                                     <span class="badge bg-primary">${source.category}</span>
                                     <span class="badge bg-secondary">${source.language}</span>
-                                    <span class="badge ${source.isActive ? 'bg-success' : 'bg-danger'}">
-                                        ${source.isActive ? 'Active' : 'Inactive'}
+                                    <span class="badge ${source.isActive ? "bg-success" : "bg-danger"}">
+                                        ${source.isActive ? "Active" : "Inactive"}
                                     </span>
                                 </div>
                                 <div class="source-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSource('${source._id}')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSource('${
+                                      source._id
+                                    }')">
                                         <i class="bi bi-pencil"></i> Edit
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSource('${source._id}')">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSource('${
+                                      source._id
+                                    }')">
                                         <i class="bi bi-trash"></i> Delete
                                     </button>
                                 </div>
                             </div>
                         </div>
                     `;
-                    sourcesGrid.appendChild(sourceCard);
-                });
-            }
+            sourcesGrid.appendChild(sourceCard);
+          });
+        }
 
-            // Source creation/editing
-            window.editSource = function(sourceId) {
-                // Implement source editing functionality
-                const sourceModal = new bootstrap.Modal(document.getElementById('sourceModal'));
-                sourceModal.show();
-            };
+        // Source creation/editing
+        window.editSource = function (sourceId) {
+          // Implement source editing functionality
+          const sourceModal = new bootstrap.Modal(document.getElementById("sourceModal"));
+          sourceModal.show();
+        };
 
-            // Source deletion
-            window.deleteSource = function(sourceId) {
-                if (confirm('Are you sure you want to delete this source?')) {
-                    // Call the delete API endpoint
-                    fetch(`/api/sources/${sourceId}`, {
-                        method: 'DELETE'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Refresh the sources list
-                            loadSources();
-                        } else {
-                            alert('Error deleting source: ' + (data.message || 'Unknown error'));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting source:', error);
-                        alert('Error deleting source. Please try again.');
-                    });
+        // Source deletion
+        window.deleteSource = function (sourceId) {
+          if (confirm("Are you sure you want to delete this source?")) {
+            // Call the delete API endpoint
+            fetch(`/api/sources/${sourceId}`, {
+              method: "DELETE",
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Refresh the sources list
+                  loadSources();
+                } else {
+                  alert("Error deleting source: " + (data.message || "Unknown error"));
                 }
-            };
-        });
+              })
+              .catch((error) => {
+                console.error("Error deleting source:", error);
+                alert("Error deleting source. Please try again.");
+              });
+          }
+        };
+      });
     </script>
-</body>
+  </body>
 </html>
