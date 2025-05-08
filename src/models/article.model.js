@@ -17,7 +17,7 @@ const articleSchema = new mongoose.Schema(
     description: {
       type: String,
       trim: true,
-      maxlength: [2000, "Description cannot be more than 2000 characters"],
+      maxlength: [2000, "Description cannot be more than 4000 characters"],
     },
     content: {
       type: String,
@@ -320,15 +320,26 @@ articleSchema.pre("save", function (next) {
   // Generate slug from title if it doesn't exist
   if (this.title && (!this.slug || this.isModified("title"))) {
     // Create a URL-friendly version of the title
-    this.slug = this.title
+    let slugBase = this.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric chars with hyphens
       .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
       .substring(0, 100); // Limit length
 
+    // Add a category to the slug if available for better SEO
+    if (this.categories && this.categories.length > 0 && !slugBase.includes(this.categories[0])) {
+      const category = this.categories[0].toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      slugBase = `${category}-${slugBase}`;
+    }
+
+    // Trim slug to appropriate length
+    slugBase = slugBase.substring(0, 100);
+
     // Append part of the ID to ensure uniqueness
     if (this._id) {
-      this.slug = `${this.slug}-${this._id.toString().slice(-6)}`;
+      this.slug = `${slugBase}-${this._id.toString().slice(-6)}`;
+    } else {
+      this.slug = slugBase;
     }
   }
 

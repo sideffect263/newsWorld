@@ -28,6 +28,12 @@ app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(morgan("dev")); // Logging
 
+// Add branding header
+app.use((req, res, next) => {
+  res.setHeader("X-Powered-By", "NewsWorld");
+  next();
+});
+
 // Apply a more permissive Content Security Policy to allow inline scripts
 app.use((req, res, next) => {
   res.setHeader(

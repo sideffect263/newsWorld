@@ -9,7 +9,7 @@ document.addEventListener("load", function () {
   if (mainNavbar) {
     console.log("Found mainNavbar element, setting initial opacity");
     const pathname = window.location.pathname;
-    if (pathname != "/") {
+    if (pathname != "/" || pathname != "/news") {
       mainNavbar.style.setProperty("--bs-bg-opacity", 0.8);
     }
   } else {
@@ -21,14 +21,12 @@ window.addEventListener("scroll", () => {
   const navbar = document.getElementById("mainNavbar");
   const maxOpacity = 0.95;
   const minOpacity = 0.1;
-  const maxScroll = 700; // pixels
+  const maxScroll = 100; // pixels
   const pathname = window.location.pathname;
 
   const scrollY = window.scrollY;
   var opacity = Math.min(maxOpacity, minOpacity + (scrollY / maxScroll) * (maxOpacity - minOpacity)).toFixed(2);
-  if (pathname != "/") {
-    opacity = 0.8;
-  }
+
   navbar.style.setProperty("--bs-bg-opacity", opacity);
 });
 

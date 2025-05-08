@@ -1,14 +1,19 @@
-# Robots.txt for NewsWorld
+# NewsWorld - Global News Aggregator with AI-powered insights
+# https://newsworld.ofektechnology.com/
 
 User-agent: *
 Allow: /
 Allow: /news/
+Allow: /news/*
 Allow: /stories/
-Allow: /trends/
-Allow: /sentiment/
+Allow: /stories/*
+Allow: /images/
+Allow: /js/
+Allow: /styles/
+Allow: /api/news/*
+Allow: /api/stories/*
 
 # Sitemaps
-Sitemap: https://newsworld.ofektechnology.com/sitemaps
 Sitemap: https://newsworld.ofektechnology.com/sitemap.xml
 Sitemap: https://newsworld.ofektechnology.com/news-sitemap.xml
 Sitemap: https://newsworld.ofektechnology.com/stories-sitemap.xml 

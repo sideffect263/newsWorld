@@ -33,6 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  // Initialize reading progress bar
+  initReadingProgressBar();
+
+  // Initialize dark mode functionality
+  initDarkMode();
+
+  // Initialize font size controls
+  initFontSizeControls();
+
+  // Generate and initialize table of contents
+  initTableOfContents();
+
   // Load header
   fetch("/components/header.html")
     .then((response) => response.text())
@@ -53,6 +65,215 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load article data
   loadArticle(articleId);
 });
+
+// Initialize reading progress bar functionality
+function initReadingProgressBar() {
+  const progressBar = document.getElementById("readingProgress");
+  if (!progressBar) return;
+
+  window.addEventListener("scroll", () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    progressBar.style.width = scrolled + "%";
+  });
+}
+
+// Initialize dark mode functionality
+function initDarkMode() {
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  if (!darkModeToggle) return;
+
+  // Check for saved theme preference or prefer-color-scheme
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  // Apply theme based on saved preference or system preference
+  if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+
+  // Toggle dark mode on button click
+  darkModeToggle.addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+
+    // Toggle icon (handled by CSS)
+  });
+}
+
+// Initialize font size controls
+function initFontSizeControls() {
+  const decreaseBtn = document.getElementById("decreaseFont");
+  const resetBtn = document.getElementById("resetFont");
+  const increaseBtn = document.getElementById("increaseFont");
+  const content = document.getElementById("article-content");
+
+  if (!decreaseBtn || !resetBtn || !increaseBtn || !content) return;
+
+  // Font size levels
+  const fontSizes = ["font-sm", "font-md", "font-lg", "font-xl"];
+  let currentFontIndex = -1; // Default (no class)
+
+  // Load saved font size preference
+  const savedFontSize = localStorage.getItem("fontSizePreference");
+  if (savedFontSize && fontSizes.includes(savedFontSize)) {
+    content.classList.add(savedFontSize);
+    currentFontIndex = fontSizes.indexOf(savedFontSize);
+  }
+
+  // Decrease font size
+  decreaseBtn.addEventListener("click", () => {
+    // Remove all font size classes
+    fontSizes.forEach((size) => content.classList.remove(size));
+
+    // If already at smallest or default, do nothing
+    if (currentFontIndex <= 0) {
+      currentFontIndex = -1; // Reset to default
+      localStorage.removeItem("fontSizePreference");
+    } else {
+      // Decrease to the next smallest size
+      currentFontIndex--;
+      if (currentFontIndex >= 0) {
+        content.classList.add(fontSizes[currentFontIndex]);
+        localStorage.setItem("fontSizePreference", fontSizes[currentFontIndex]);
+      }
+    }
+  });
+
+  // Reset font size
+  resetBtn.addEventListener("click", () => {
+    // Remove all font size classes
+    fontSizes.forEach((size) => content.classList.remove(size));
+
+    // Reset to default
+    currentFontIndex = -1;
+    localStorage.removeItem("fontSizePreference");
+  });
+
+  // Increase font size
+  increaseBtn.addEventListener("click", () => {
+    // Remove all font size classes
+    fontSizes.forEach((size) => content.classList.remove(size));
+
+    // If already at largest, do nothing
+    if (currentFontIndex >= fontSizes.length - 1) {
+      currentFontIndex = fontSizes.length - 1;
+    } else {
+      // Increase to the next largest size
+      currentFontIndex++;
+    }
+
+    // Apply new size
+    if (currentFontIndex >= 0) {
+      content.classList.add(fontSizes[currentFontIndex]);
+      localStorage.setItem("fontSizePreference", fontSizes[currentFontIndex]);
+    }
+  });
+}
+
+// Generate and initialize table of contents
+function initTableOfContents() {
+  const content = document.getElementById("article-content");
+  const tocContainer = document.getElementById("article-toc-container");
+  const toc = document.getElementById("article-toc");
+  const toggleTocBtn = document.getElementById("toggleToc");
+
+  if (!content || !tocContainer || !toc || !toggleTocBtn) return;
+
+  // Find all headings in the content
+  const headings = content.querySelectorAll("h2, h3, h4");
+
+  // Hide TOC if there are fewer than 3 headings
+  if (headings.length < 3) {
+    tocContainer.style.display = "none";
+    return;
+  }
+
+  // Generate TOC items
+  headings.forEach((heading, index) => {
+    // Create ID if not exists
+    if (!heading.id) {
+      heading.id = `section-${index}`;
+    }
+
+    // Create TOC item
+    const tocItem = document.createElement("a");
+    tocItem.href = `#${heading.id}`;
+
+    // Apply appropriate class based on heading level
+    if (heading.tagName === "H2") {
+      tocItem.className = "toc-item";
+    } else {
+      tocItem.className = "toc-subitem";
+    }
+
+    // Create indicator dot for visual hierarchy
+    const indicator = document.createElement("span");
+    indicator.className = "toc-indicator";
+
+    // Add text content
+    tocItem.innerHTML = `${indicator.outerHTML} ${heading.textContent}`;
+
+    // Add click event to highlight active item and smooth scroll
+    tocItem.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // Remove active class from all TOC items
+      document.querySelectorAll(".toc-item, .toc-subitem").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      // Add active class to clicked item
+      tocItem.classList.add("active");
+
+      // Smooth scroll to the section
+      document.getElementById(heading.id).scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    toc.appendChild(tocItem);
+  });
+
+  // Toggle TOC visibility
+  toggleTocBtn.addEventListener("click", () => {
+    tocContainer.classList.toggle("collapsed");
+  });
+
+  // Highlight TOC item on scroll
+  window.addEventListener("scroll", () => {
+    // Get current scroll position
+    const scrollPosition = window.scrollY;
+
+    // Find the current section
+    let currentSection = null;
+
+    headings.forEach((heading) => {
+      const sectionTop = heading.offsetTop - 100;
+      if (scrollPosition >= sectionTop) {
+        currentSection = heading.id;
+      }
+    });
+
+    if (currentSection) {
+      // Remove active class from all TOC items
+      document.querySelectorAll(".toc-item, .toc-subitem").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      // Add active class to current section's TOC item
+      const activeItem = document.querySelector(`[href="#${currentSection}"]`);
+      if (activeItem) {
+        activeItem.classList.add("active");
+      }
+    }
+  });
+}
 
 // Helper function to estimate reading time
 function estimateReadingTime(text) {
@@ -83,17 +304,38 @@ function setupEntityHighlighting(article) {
     event: "entity-event",
   };
 
+  // Create a map to track already processed entities to avoid duplicates
+  const processedEntities = new Set();
+
   // Replace entity mentions with highlighted spans
   sortedEntities.forEach((entity) => {
     if (!entity.name || entity.name.length < 3) return;
 
+    // Skip if this entity has already been processed
+    if (processedEntities.has(entity.name.toLowerCase())) return;
+    processedEntities.add(entity.name.toLowerCase());
+
     const className = entityClasses[entity.type] || "entity-other";
-    const regex = new RegExp(`\\b${entity.name}\\b`, "gi");
+
+    // Create a search link URL for this entity
+    const searchUrl = `/news?search=${encodeURIComponent(entity.name)}`;
+
+    // Create regex that matches whole words only
+    const regex = new RegExp(`\\b${entity.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&")}\\b`, "gi");
+
+    // Replace with a span that includes a subtle, accessible link
     content = content.replace(
       regex,
-      `<span class="${className}" title="${entity.type}" data-entity="${entity.name.replace(/"/g, "&quot;")}">${
+      `<span class="${className}" title="${
+        entity.type
+      }: click to highlight all mentions" data-entity="${entity.name.replace(/"/g, "&quot;")}">
+        ${entity.name}
+        <a href="${searchUrl}" class="entity-search-link" title="Find all news about ${
         entity.name
-      }</span>`,
+      }" aria-label="Search for ${entity.name}" onclick="event.stopPropagation();">
+          <i class="bi bi-search"></i>
+        </a>
+      </span>`,
     );
   });
 
@@ -145,15 +387,50 @@ async function loadArticle(articleId) {
 
     const article = result.data;
 
-    // Update page title and meta tags
-    document.title = `${article.title} - NewsWorld`;
+    // Update page title and meta tags with more compelling format
+    document.title = `${article.title} | ${article.source.name} - NewsWorld`;
 
     // Update meta description
     const metaDescription = document.getElementById("meta-description");
     if (metaDescription) {
-      const description =
-        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
-      metaDescription.setAttribute("content", description);
+      // Check if article has AI insights and use them for the description
+      if (article.insights && article.insights.length > 0) {
+        // Create a description with the first insight
+        const insight = article.insights[0];
+        const insightDesc = `AI Insight: ${insight.entity} - ${insight.prediction}. ${insight.reasoning.substring(
+          0,
+          80,
+        )}...`;
+        metaDescription.setAttribute("content", insightDesc);
+      } else {
+        // Create a more clickable description with key entities and sentiment
+        let description = article.description;
+        if (!description) {
+          let descriptionPrefix = "";
+          if (article.sentimentAssessment === "positive") {
+            descriptionPrefix = "Positive news: ";
+          } else if (article.sentimentAssessment === "negative") {
+            descriptionPrefix = "Breaking: ";
+          }
+
+          // Include key entities if available
+          const keyEntities =
+            article.entities
+              ?.slice(0, 2)
+              .map((e) => e.name)
+              .join(" and ") || "";
+          description = `${descriptionPrefix}Read the latest about ${keyEntities || article.title} on NewsWorld. ${
+            article.categories?.[0] ? `Category: ${article.categories[0]}` : "Global news coverage"
+          }`;
+        }
+
+        // Ensure description isn't too long
+        if (description.length > 155) {
+          description = description.substring(0, 152) + "...";
+        }
+
+        metaDescription.setAttribute("content", description);
+      }
     }
 
     // Update meta keywords
@@ -166,14 +443,18 @@ async function loadArticle(articleId) {
     // Update Open Graph tags
     const ogTitle = document.getElementById("og-title");
     if (ogTitle) {
-      ogTitle.setAttribute("content", article.title);
+      // Make the title more engaging for social sharing
+      const shareTitle =
+        article.sentimentAssessment === "negative"
+          ? `Breaking: ${article.title}`
+          : `${article.title} | ${article.source.name}`;
+      ogTitle.setAttribute("content", shareTitle);
     }
 
     const ogDescription = document.getElementById("og-description");
-    if (ogDescription) {
-      const description =
-        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
-      ogDescription.setAttribute("content", description);
+    if (ogDescription && metaDescription) {
+      // Use the same description we created for meta description
+      ogDescription.setAttribute("content", metaDescription.getAttribute("content"));
     }
 
     const ogImage = document.getElementById("og-image");
@@ -197,17 +478,15 @@ async function loadArticle(articleId) {
       canonicalLink.setAttribute("href", canonicalUrl);
     }
 
-    // Update Twitter Card tags
+    // Update Twitter Card tags with the same enhanced content
     const twitterTitle = document.getElementById("twitter-title");
-    if (twitterTitle) {
-      twitterTitle.setAttribute("content", article.title);
+    if (twitterTitle && ogTitle) {
+      twitterTitle.setAttribute("content", ogTitle.getAttribute("content"));
     }
 
     const twitterDescription = document.getElementById("twitter-description");
-    if (twitterDescription) {
-      const description =
-        article.description || `Read about ${article.title} on NewsWorld, your global news aggregator`;
-      twitterDescription.setAttribute("content", description);
+    if (twitterDescription && metaDescription) {
+      twitterDescription.setAttribute("content", metaDescription.getAttribute("content"));
     }
 
     const twitterImage = document.getElementById("twitter-image");
@@ -645,17 +924,24 @@ async function loadArticle(articleId) {
       publisher: {
         "@type": "Organization",
         name: "NewsWorld",
+        url: "https://newsworld.ofektechnology.com/",
         logo: {
           "@type": "ImageObject",
           url: "https://newsworld.ofektechnology.com/favicon/android-chrome-512x512.png",
           width: 512,
           height: 512,
         },
+        description: "Your trusted source for global news coverage with AI-powered insights",
       },
       articleSection: article.categories?.[0] || "News",
       keywords: [...(article.categories || []), ...(article.entities?.map((e) => e.name) || [])].join(", "),
       wordCount: article.content ? article.content.trim().split(/\s+/).length : 0,
       timeRequired: `PT${estimateReadingTime(article.content || "")}M`,
+      isAccessibleForFree: "True",
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: [".article-title", ".article-content"],
+      },
     };
 
     // Add sentiment data if available
@@ -724,6 +1010,50 @@ async function loadArticle(articleId) {
         },
       }));
     }
+
+    // Add breadcrumb schema for better search results
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "NewsWorld",
+          item: "https://newsworld.ofektechnology.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "News",
+          item: "https://newsworld.ofektechnology.com/news",
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name:
+            article.categories && article.categories.length > 0
+              ? article.categories[0].charAt(0).toUpperCase() + article.categories[0].slice(1)
+              : "Article",
+          item:
+            article.categories && article.categories.length > 0
+              ? `https://newsworld.ofektechnology.com/news?categories=${article.categories[0]}`
+              : canonicalUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 4,
+          name: article.title,
+          item: canonicalUrl,
+        },
+      ],
+    };
+
+    // Add the breadcrumb schema to the page
+    const breadcrumbElement = document.createElement("script");
+    breadcrumbElement.type = "application/ld+json";
+    breadcrumbElement.textContent = JSON.stringify(breadcrumbSchema);
+    document.head.appendChild(breadcrumbElement);
 
     const schemaElement = document.getElementById("article-schema");
     if (schemaElement) {

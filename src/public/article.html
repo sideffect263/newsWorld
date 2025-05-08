@@ -34,6 +34,25 @@
     <!-- Canonical URL for SEO -->
     <link id="canonical-link" rel="canonical" href="" />
 
+    <!-- Additional SEO meta tags -->
+    <meta name="news_keywords" content="breaking news, current events, top stories" />
+    <meta name="author" content="NewsWorld" />
+
+    <!-- Website Schema for brand identity in search results -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "NewsWorld",
+        "url": "https://newsworld.ofektechnology.com/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://newsworld.ofektechnology.com/news?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL0BHL7LPW"></script>
     <script>
@@ -66,127 +85,191 @@
     </div>
 
     <!-- Include common header -->
-    <div id="header"></div>
+    <header id="header"></header>
 
-    <div class="article-header" style="padding-top: 150px">
-      <div class="container randoimg">
-        <h1 id="article-title" class="display-4 fw-bold"></h1>
-        <div class="article-meta d-flex flex-wrap align-items-center text-white opacity-75">
-          <div class="me-4 mb-2">
-            <i class="bi bi-calendar3"></i>
-            <span id="article-date"></span>
-          </div>
-          <div class="me-4 mb-2">
-            <i class="bi bi-person"></i>
-            <span id="article-author">Unknown</span>
-          </div>
-          <div class="me-4 mb-2">
-            <i class="bi bi-newspaper"></i>
-            <span id="article-source"></span>
-          </div>
-          <div class="me-4 mb-2">
-            <i class="bi bi-globe"></i>
-            <span id="article-country"></span>
-          </div>
-          <div class="me-4 mb-2">
-            <i class="bi bi-translate"></i>
-            <span id="article-language"></span>
-          </div>
-        </div>
-      </div>
+    <!-- Reading progress bar -->
+    <div class="reading-progress-container">
+      <div class="reading-progress-bar" id="readingProgress"></div>
     </div>
 
-    <div class="container mb-5">
-      <div class="row">
-        <div class="col-lg-8">
-          <div id="article-image-container" class="mb-4">
-            <!-- Article image will be inserted here if available -->
-          </div>
+    <main>
+      <article itemscope itemtype="https://schema.org/NewsArticle">
+        <meta itemprop="datePublished" content="" />
+        <meta itemprop="dateModified" content="" />
+        <meta itemprop="author" content="" />
+        <meta itemprop="publisher" content="NewsWorld" />
 
-          <div id="article-sentiment" class="alert mb-4">
-            <!-- Sentiment analysis will be displayed here -->
-          </div>
-
-          <div id="article-insights" class="insights-section mb-4">
-            <!-- AI-generated insights will be displayed here -->
-          </div>
-
-          <div id="article-content" class="article-content mb-4">
-            <!-- Article content will be inserted here -->
-          </div>
-
-          <div class="article-tags" id="article-tags">
-            <!-- Tags will be inserted here -->
-          </div>
-
-          <div class="social-share">
-            <h5>Share this article:</h5>
-            <div class="d-flex">
-              <a href="#" id="share-twitter" target="_blank" class="text-decoration-none">
-                <i class="bi bi-twitter text-primary"></i>
-              </a>
-              <a href="#" id="share-facebook" target="_blank" class="text-decoration-none">
-                <i class="bi bi-facebook text-primary"></i>
-              </a>
-              <a href="#" id="share-linkedin" target="_blank" class="text-decoration-none">
-                <i class="bi bi-linkedin text-primary"></i>
-              </a>
-              <a href="#" id="share-email" class="text-decoration-none">
-                <i class="bi bi-envelope-fill text-primary"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4">
-          <div class="card mb-4 related-articles-card">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Related Articles</h5>
-            </div>
-            <div class="card-body p-0">
-              <div id="related-articles" class="related-articles-container">
-                <!-- Related articles will be inserted here -->
-                <div class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </div>
+        <div class="article-header" style="padding-top: 150px">
+          <div class="container randoimg">
+            <h1 id="article-title" class="display-4 fw-bold" itemprop="headline"></h1>
+            <div class="article-meta d-flex flex-wrap align-items-center text-white opacity-75">
+              <div class="me-4 mb-2">
+                <i class="bi bi-calendar3"></i>
+                <time id="article-date" itemprop="datePublished"></time>
               </div>
-            </div>
-          </div>
-
-          <div class="card mb-4">
-            <div class="card-header">
-              <h5 class="mb-0">Trending Topics</h5>
-            </div>
-            <div class="card-body">
-              <div id="trending-topics">
-                <!-- Trending topics will be inserted here -->
-                <div class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </div>
+              <div class="me-4 mb-2">
+                <i class="bi bi-person"></i>
+                <span id="article-author" itemprop="author">Unknown</span>
+              </div>
+              <div class="me-4 mb-2">
+                <i class="bi bi-newspaper"></i>
+                <span id="article-source" itemprop="sourceOrganization"></span>
+              </div>
+              <div class="me-4 mb-2">
+                <i class="bi bi-globe"></i>
+                <span id="article-country"></span>
+              </div>
+              <div class="me-4 mb-2">
+                <i class="bi bi-translate"></i>
+                <span id="article-language" itemprop="inLanguage"></span>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div id="article-attribution" class="article-attribution mb-4">
-        <!-- Source attribution will be inserted here -->
-      </div>
-    </div>
+
+        <div class="container mb-5">
+          <div class="row">
+            <div class="col-lg-8">
+              <figure id="article-image-container" class="mb-4" itemprop="image">
+                <!-- Article image will be inserted here if available -->
+              </figure>
+
+              <div id="article-sentiment" class="alert mb-4">
+                <!-- Sentiment analysis will be displayed here -->
+              </div>
+
+              <section id="article-insights" class="insights-section mb-4">
+                <h2 class="insight-header mb-3"><i class="bi bi-graph-up me-2"></i>AI-Generated Insights</h2>
+                <!-- AI-generated insights will be displayed here -->
+              </section>
+
+              <!-- Table of Contents for longer articles -->
+              <div id="article-toc-container" class="toc-container mb-4">
+                <div class="toc-header">
+                  <h3 class="h5 mb-3">
+                    <i class="bi bi-list-ul me-2"></i>Table of Contents
+                    <button id="toggleToc" class="btn btn-sm float-end" aria-label="Toggle table of contents">
+                      <i class="bi bi-chevron-up"></i>
+                    </button>
+                  </h3>
+                </div>
+                <div id="article-toc" class="toc-content"></div>
+              </div>
+
+              <!-- Reading controls -->
+              <div class="reading-controls mb-4">
+                <div class="d-flex align-items-center justify-content-end">
+                  <span class="me-2 text-muted">Text size:</span>
+                  <div class="btn-group" role="group" aria-label="Font size controls">
+                    <button id="decreaseFont" class="btn btn-sm btn-outline-secondary" aria-label="Decrease font size">
+                      <i class="bi bi-dash-lg"></i> A
+                    </button>
+                    <button id="resetFont" class="btn btn-sm btn-outline-secondary" aria-label="Reset font size">
+                      A
+                    </button>
+                    <button id="increaseFont" class="btn btn-sm btn-outline-secondary" aria-label="Increase font size">
+                      A <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="article-content" class="article-content mb-4" itemprop="articleBody">
+                <!-- Article content will be inserted here -->
+              </div>
+
+              <div class="article-tags" id="article-tags">
+                <!-- Tags will be inserted here -->
+              </div>
+
+              <div class="social-share">
+                <h3>Share this article:</h3>
+                <div class="d-flex">
+                  <a
+                    href="#"
+                    id="share-twitter"
+                    target="_blank"
+                    class="text-decoration-none"
+                    aria-label="Share on Twitter"
+                  >
+                    <i class="bi bi-twitter text-primary"></i>
+                  </a>
+                  <a
+                    href="#"
+                    id="share-facebook"
+                    target="_blank"
+                    class="text-decoration-none"
+                    aria-label="Share on Facebook"
+                  >
+                    <i class="bi bi-facebook text-primary"></i>
+                  </a>
+                  <a
+                    href="#"
+                    id="share-linkedin"
+                    target="_blank"
+                    class="text-decoration-none"
+                    aria-label="Share on LinkedIn"
+                  >
+                    <i class="bi bi-linkedin text-primary"></i>
+                  </a>
+                  <a href="#" id="share-email" class="text-decoration-none" aria-label="Share via Email">
+                    <i class="bi bi-envelope-fill text-primary"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <aside class="col-lg-4">
+              <div class="card mb-4 related-articles-card">
+                <div class="card-header bg-primary text-white">
+                  <h2 class="h5 mb-0"><i class="bi bi-link-45deg me-2"></i>Related Articles</h2>
+                </div>
+                <div class="card-body p-0">
+                  <div id="related-articles" class="related-articles-container">
+                    <!-- Related articles will be inserted here -->
+                    <div class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h2 class="h5 mb-0">Trending Topics</h2>
+                </div>
+                <div class="card-body">
+                  <div id="trending-topics">
+                    <!-- Trending topics will be inserted here -->
+                    <div class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+          <div id="article-attribution" class="article-attribution mb-4" itemprop="publisher">
+            <!-- Source attribution will be inserted here -->
+          </div>
+        </div>
+      </article>
+    </main>
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-4">
       <div class="container">
         <div class="row">
           <div class="col-md-4">
-            <h5>NewsWorld</h5>
+            <h2 class="h5">NewsWorld</h2>
             <p>Your trusted source for global news coverage.</p>
           </div>
           <div class="col-md-4">
-            <h5>Quick Links</h5>
+            <h2 class="h5">Quick Links</h2>
             <ul class="list-unstyled">
               <li><a href="/news" class="text-light">News</a></li>
               <li><a href="/sources" class="text-light">Sources</a></li>
@@ -194,11 +277,11 @@
             </ul>
           </div>
           <div class="col-md-4">
-            <h5>Connect</h5>
+            <h2 class="h5">Connect</h2>
             <div class="d-flex gap-3">
-              <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+              <a href="#" class="text-light" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="text-light" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="text-light" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
             </div>
           </div>
         </div>

@@ -1,3 +1,120 @@
+/* Reading Progress Bar */
+.reading-progress-container {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.reading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+  width: 0%;
+  transition: width 0.1s ease;
+}
+
+/* Dark Mode Styles */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --border-color: #e9ecef;
+  --muted-color: #6c757d;
+  --light-bg: #f8f9fa;
+  --header-gradient: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --border-color: #333;
+  --muted-color: #adb5bd;
+  --light-bg: #252525;
+  --header-gradient: linear-gradient(135deg, #1a4b8c 0%, #0a6b7c 100%);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .alert {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .article-header {
+  background: var(--header-gradient);
+}
+
+[data-theme="dark"] .article-meta {
+  border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .text-muted {
+  color: var(--muted-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+  color: #0dcaf0;
+  border-color: #0dcaf0;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+  background-color: #0dcaf0;
+  color: #121212;
+}
+
+[data-theme="dark"] .article-attribution {
+  background-color: var(--light-bg);
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.dark-mode-toggle button {
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode-toggle button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .dark-mode-toggle button {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .dark-mode-toggle button i {
+  color: #ffe066;
+}
+
+[data-theme="dark"] .dark-mode-toggle button i::before {
+  content: "\F516"; /* Bootstrap icon for sun */
+}
+
 .article-header {
   padding: 3rem 0;
   background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
@@ -106,6 +223,7 @@
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px dashed rgba(220, 53, 69, 0.5);
+  transition: all 0.2s ease;
 }
 
 .entity-organization {
@@ -113,6 +231,7 @@
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px dashed rgba(40, 167, 69, 0.5);
+  transition: all 0.2s ease;
 }
 
 .entity-location,
@@ -122,6 +241,7 @@
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px dashed rgba(253, 126, 20, 0.5);
+  transition: all 0.2s ease;
 }
 
 .entity-event {
@@ -129,6 +249,7 @@
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px dashed rgba(13, 202, 240, 0.5);
+  transition: all 0.2s ease;
 }
 
 .entity-other {
@@ -136,6 +257,7 @@
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px dashed rgba(102, 16, 242, 0.5);
+  transition: all 0.2s ease;
 }
 
 .article-attribution {
@@ -170,10 +292,12 @@
 }
 
 .entity-highlight {
-  background-color: rgba(255, 255, 0, 0.3);
+  background-color: rgba(255, 255, 0, 0.5);
   padding: 0 2px;
   border-radius: 3px;
   transition: background-color 0.3s ease;
+  box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+  animation: pulse-highlight 1s ease-in-out;
 }
 
 /* Add a subtle animation for entity hover */
@@ -517,4 +641,226 @@
     width: 80px;
     font-size: 0.7rem;
   }
+}
+
+/* Add these styles for the new entity links */
+.entity-search-link {
+  display: none;
+  font-size: 0.7rem;
+  color: inherit;
+  opacity: 0.7;
+  margin-left: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.entity-search-link:hover {
+  opacity: 1;
+  color: inherit;
+}
+
+[data-entity]:hover .entity-search-link {
+  display: inline-block;
+}
+
+/* Improve the entity highlighting styles */
+.entity-person {
+  color: #dc3545;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(220, 53, 69, 0.5);
+  transition: all 0.2s ease;
+}
+
+.entity-organization {
+  color: #28a745;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(40, 167, 69, 0.5);
+  transition: all 0.2s ease;
+}
+
+.entity-location,
+.entity-city,
+.entity-country {
+  color: #fd7e14;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(253, 126, 20, 0.5);
+  transition: all 0.2s ease;
+}
+
+.entity-event {
+  color: #0dcaf0;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(13, 202, 240, 0.5);
+  transition: all 0.2s ease;
+}
+
+.entity-other {
+  color: #6610f2;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(102, 16, 242, 0.5);
+  transition: all 0.2s ease;
+}
+
+/* Enhanced entity highlight effect */
+.entity-highlight {
+  background-color: rgba(255, 255, 0, 0.5);
+  padding: 0 2px;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+  animation: pulse-highlight 1s ease-in-out;
+}
+
+/* Add animation for the pulse highlight effect */
+@keyframes pulse-highlight {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 255, 0, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+  }
+}
+
+/* Table of Contents Styles */
+.toc-container {
+  background-color: var(--light-bg);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 10px var(--shadow-color);
+  transition: all 0.3s ease;
+  border-left: 4px solid #0d6efd;
+}
+
+.toc-container.collapsed .toc-content {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.toc-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toc-header button {
+  background: transparent;
+  border: none;
+  color: var(--muted-color);
+  transition: transform 0.3s ease;
+}
+
+.toc-container.collapsed .toc-header button i {
+  transform: rotate(180deg);
+}
+
+.toc-content {
+  max-height: 400px;
+  overflow-y: auto;
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toc-item,
+.toc-subitem {
+  display: block;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: var(--text-color);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.toc-item:hover,
+.toc-subitem:hover {
+  background-color: rgba(13, 110, 253, 0.1);
+  text-decoration: none;
+  transform: translateX(3px);
+}
+
+.toc-item.active,
+.toc-subitem.active {
+  background-color: rgba(13, 110, 253, 0.15);
+  font-weight: 600;
+}
+
+.toc-subitem {
+  padding-left: 25px;
+  font-size: 0.95em;
+}
+
+.toc-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  margin-right: 8px;
+}
+
+/* Font Size Controls Styles */
+.reading-controls {
+  background-color: var(--light-bg);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.reading-controls .btn-group {
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.reading-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.reading-controls button:hover {
+  transform: translateY(-2px);
+}
+
+#decreaseFont {
+  font-size: 0.8rem;
+}
+
+#resetFont {
+  font-size: 1rem;
+}
+
+#increaseFont {
+  font-size: 1.2rem;
+}
+
+/* Font size classes for the article content */
+.article-content.font-sm {
+  font-size: 0.9rem;
+}
+
+.article-content.font-md {
+  font-size: 1.1rem;
+}
+
+.article-content.font-lg {
+  font-size: 1.3rem;
+}
+
+.article-content.font-xl {
+  font-size: 1.5rem;
 }

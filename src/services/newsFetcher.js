@@ -951,7 +951,7 @@ const normalizeCategories = (categories) => {
 const saveArticle = async (article, sourceId) => {
   try {
     // Validate required fields
-    if (!article.title || !article.url || !article.publishedAt) {
+    if (!article.title || !article.url || !article.publishedAt || !article.description) {
       return null;
     }
 
